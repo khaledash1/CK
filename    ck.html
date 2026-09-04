@@ -1,0 +1,1911 @@
+<title>Nisab · نِصاب</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<script>
+(function(){
+  try{
+    var l = localStorage.getItem('nisab-lang') || 'ar';
+    document.documentElement.setAttribute('lang', l);
+    document.documentElement.setAttribute('dir', l==='en' ? 'ltr' : 'rtl');
+    var th = localStorage.getItem('nisab-theme') || 'system';
+    if(th==='light' || th==='dark') document.documentElement.setAttribute('data-theme', th);
+  }catch(e){}
+})();
+</script>
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --paper:#F1F3F6;
+  --surface:#FFFFFF;
+  --surface-2:#E9EDF2;
+  --border:#DBE1E8;
+  --ink:#1B2B3A;
+  --muted:#5B6B7B;
+  --accent:#28466F;
+  --accent-ink:#1D3A63;
+  --accent-soft:#E1E9F5;
+  --amber:#A66A1E;
+  --amber-soft:#F5E6CC;
+  --success:#2A7A57;
+  --success-soft:#DBEFE3;
+  --danger:#BC3A2B;
+  --danger-soft:#F9DFDA;
+  --shadow:0 1px 2px rgba(27,43,58,.07), 0 10px 26px -14px rgba(27,43,58,.22);
+  --radius:12px;
+  --font-display:'Reem Kufi','Tahoma',sans-serif;
+  --font-body:'IBM Plex Sans Arabic','Tahoma',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10151D;
+    --surface:#1A222C;
+    --surface-2:#212B37;
+    --border:#2B3846;
+    --ink:#E7ECF2;
+    --muted:#93A1B2;
+    --accent:#8AACE0;
+    --accent-ink:#C6D8F4;
+    --accent-soft:rgba(138,172,224,.15);
+    --amber:#E0A84E;
+    --amber-soft:rgba(224,168,78,.15);
+    --success:#63C193;
+    --success-soft:rgba(99,193,147,.15);
+    --danger:#E68B7D;
+    --danger-soft:rgba(230,139,125,.15);
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 30px -16px rgba(0,0,0,.65);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10151D;
+  --surface:#1A222C;
+  --surface-2:#212B37;
+  --border:#2B3846;
+  --ink:#E7ECF2;
+  --muted:#93A1B2;
+  --accent:#8AACE0;
+  --accent-ink:#C6D8F4;
+  --accent-soft:rgba(138,172,224,.15);
+  --amber:#E0A84E;
+  --amber-soft:rgba(224,168,78,.15);
+  --success:#63C193;
+  --success-soft:rgba(99,193,147,.15);
+  --danger:#E68B7D;
+  --danger-soft:rgba(230,139,125,.15);
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 30px -16px rgba(0,0,0,.65);
+}
+
+/* ============ BASE ============ */
+*,*::before,*::after{box-sizing:border-box}
+html[dir="rtl"]{direction:rtl}
+html[dir="ltr"]{direction:ltr}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:.9375rem;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;margin:0;text-wrap:balance}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent)}
+::selection{background:var(--accent-soft)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.tabular{font-variant-numeric:tabular-nums}
+
+@media (prefers-reduced-motion: no-preference){
+  .view-enter{animation:fadeUp .28s ease both}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ============ SHELL ============ */
+.app-shell{display:flex;min-height:100vh}
+.sidebar{
+  width:264px;flex-shrink:0;background:var(--surface);
+  border-inline-end:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.brand{position:relative;padding:22px 20px 18px;border-bottom:1px solid var(--border);overflow:hidden}
+.brand-pattern{position:absolute;inset:0;opacity:.5;pointer-events:none}
+.brand-row{position:relative;display:flex;align-items:center;gap:11px}
+.brand-mark{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(155deg, var(--accent), var(--accent-ink));
+  color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);
+  font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 10px -4px rgba(27,43,58,.4);
+}
+.brand-text h1{font-size:1.2rem;color:var(--ink);letter-spacing:.01em}
+.brand-text p{margin:2px 0 0;font-size:.72rem;color:var(--muted)}
+.lang-switch{
+  position:relative;margin-top:14px;display:flex;width:100%;background:var(--surface-2);
+  border-radius:8px;padding:3px;gap:2px;
+}
+.lang-switch button{
+  flex:1;border:none;background:transparent;padding:6px 0;border-radius:6px;font-size:.76rem;
+  font-weight:700;color:var(--muted);
+}
+.lang-switch button.active{background:var(--surface);color:var(--accent-ink);box-shadow:var(--shadow)}
+.theme-switch{
+  margin-top:8px;display:flex;width:100%;background:var(--surface-2);border-radius:8px;padding:3px;gap:2px;
+}
+.theme-switch button{
+  flex:1;border:none;background:transparent;padding:6px 0;border-radius:6px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+}
+.theme-switch button svg{width:15px;height:15px}
+.theme-switch button.active{background:var(--surface);color:var(--accent-ink);box-shadow:var(--shadow)}
+
+nav{padding:14px 12px;flex:1}
+.nav-eyebrow{padding:12px 12px 4px;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav-btn{
+  width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border:none;
+  background:transparent;color:var(--muted);border-radius:8px;text-align:start;font-size:.875rem;
+  font-weight:500;transition:background .15s,color .15s;
+}
+.nav-btn svg{width:18px;height:18px;flex-shrink:0}
+.nav-btn:hover{background:var(--surface-2);color:var(--ink)}
+.nav-btn[aria-current="page"]{background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+
+.sidebar-foot{padding:14px 20px;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);line-height:1.7}
+.sidebar-foot strong{color:var(--ink);font-weight:600}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:5;background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
+  padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.topbar h2{font-size:1.3rem}
+.topbar .sub{margin:2px 0 0;font-size:.8rem;color:var(--muted)}
+.stat-chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{
+  display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);
+  padding:6px 12px;border-radius:999px;font-size:.78rem;color:var(--muted);box-shadow:var(--shadow);
+}
+.chip b{color:var(--ink);font-size:.85rem}
+.chip.warn b{color:var(--danger)}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0}
+.chip.warn .dot{background:var(--danger)}
+
+.content{padding:22px 28px 60px;max-width:1320px}
+
+/* ============ COMPONENTS ============ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-pad{padding:20px 22px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.section-head h3{font-size:1.05rem}
+.section-head p{margin:4px 0 0;font-size:.8rem;color:var(--muted);max-width:58ch}
+.eyebrow{display:block;font-size:.68rem;font-weight:700;color:var(--accent-ink);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* hero */
+.hero-grid{display:grid;grid-template-columns:auto 1fr;gap:16px}
+.donut-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px 26px}
+.tile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tile{padding:15px 16px;display:flex;flex-direction:column;gap:8px}
+.tile .tile-top{display:flex;align-items:center;justify-content:space-between}
+.tile .tile-icon{width:30px;height:30px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);display:flex;align-items:center;justify-content:center}
+.tile .tile-icon svg{width:16px;height:16px}
+.tile.warn .tile-icon{background:var(--danger-soft);color:var(--danger)}
+.tile.ok .tile-icon{background:var(--success-soft);color:var(--success)}
+.tile .tile-num{font-family:var(--font-display);font-size:1.5rem}
+.tile .tile-label{font-size:.74rem;color:var(--muted)}
+
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr}.donut-card{flex-direction:row;justify-content:flex-start;gap:18px}}
+@media (max-width:560px){.tile-grid{grid-template-columns:1fr}}
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);color:var(--ink);font-size:.83rem;font-weight:600;transition:.15s;white-space:nowrap;
+}
+.btn:hover{border-color:var(--accent);color:var(--accent-ink)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{filter:brightness(1.08);color:#fff}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn-ghost:hover{background:var(--surface-2);color:var(--ink)}
+.btn-danger{color:var(--danger);border-color:var(--danger-soft)}
+.btn-danger:hover{background:var(--danger-soft);border-color:var(--danger)}
+.btn-sm{padding:5px 10px;font-size:.75rem}
+.btn svg{width:15px;height:15px}
+
+label{display:flex;flex-direction:column;gap:5px;font-size:.78rem;color:var(--muted);font-weight:600}
+input[type=text],input[type=number],input[type=color],input[type=time],select,textarea{
+  background:var(--paper);border:1px solid var(--border);border-radius:7px;padding:8px 10px;
+  color:var(--ink);min-width:0;
+}
+input[type=color]{padding:3px;width:52px;height:36px}
+textarea{font-family:inherit;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.search-input{background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:220px}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:.72rem;font-weight:700;white-space:nowrap}
+.badge-success{background:var(--success-soft);color:var(--success)}
+.badge-amber{background:var(--amber-soft);color:var(--amber)}
+.badge-danger{background:var(--danger-soft);color:var(--danger)}
+.badge-muted{background:var(--surface-2);color:var(--muted)}
+
+.table-scroll{overflow-x:auto;border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{
+  background:var(--surface-2);color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;
+  padding:9px 12px;text-align:start;white-space:nowrap;border-bottom:1px solid var(--border);font-weight:700;
+}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+.cell-name{font-weight:600}
+.subject-tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:600;border:1px solid transparent}
+.tag.toggle{cursor:pointer;background:var(--surface-2);color:var(--muted);border-color:var(--border)}
+.tag.toggle.on{border-color:currentColor}
+
+details.import{border:1px dashed var(--border);border-radius:8px;padding:10px 14px;background:var(--surface-2)}
+details.import summary{cursor:pointer;font-size:.82rem;font-weight:600;color:var(--accent-ink)}
+details.import .import-body{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+details.import textarea{width:100%;min-height:88px}
+details.import .hint{font-size:.72rem;color:var(--muted);line-height:1.7}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:16px}
+.tab{
+  padding:7px 14px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);
+  font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:6px;
+}
+.tab .num{
+  width:19px;height:19px;border-radius:50%;background:var(--surface-2);color:var(--muted);
+  display:flex;align-items:center;justify-content:center;font-size:.68rem;
+}
+.tab:hover{background:var(--surface-2)}
+.tab.active{background:var(--accent);color:#fff}
+.tab.active .num{background:rgba(255,255,255,.25);color:#fff}
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.subtab{padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.subtab.active{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+.subtab .x{opacity:.6;font-size:.7rem}
+.subtab .x:hover{opacity:1;color:var(--danger)}
+
+/* schedule grid */
+.sched-table{border-collapse:separate;border-spacing:0}
+.sched-table th,.sched-table td{border:1px solid var(--border)}
+.sched-table thead th{position:sticky;top:0;z-index:2;vertical-align:top;padding:8px 10px}
+.sched-table th.daycol,.sched-table td.daycol{
+  position:sticky;inset-inline-start:0;background:var(--surface-2);z-index:1;font-weight:700;color:var(--ink);
+  min-width:96px;
+}
+.sched-table thead th.daycol{z-index:3}
+.th-time{display:block;font-size:.64rem;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0;margin-top:3px}
+.sched-table th.break-col{background:var(--amber-soft);color:var(--amber)}
+.sched-table th.break-col .th-time{color:var(--amber)}
+.sched-cell{
+  min-width:114px;height:66px;padding:0;cursor:pointer;position:relative;transition:filter .1s;
+}
+.sched-cell:hover{filter:brightness(0.97)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sched-cell:hover{filter:brightness(1.14)}}
+:root[data-theme="dark"] .sched-cell:hover{filter:brightness(1.14)}
+.sched-cell-inner{padding:7px 9px;height:100%;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.sched-cell .subj{font-size:.78rem;font-weight:700}
+.sched-cell .teach{font-size:.7rem;color:var(--muted)}
+.sched-cell.empty .sched-cell-inner{align-items:center;justify-content:center;color:var(--muted);font-size:1.1rem;opacity:0;transition:opacity .12s}
+.sched-cell.empty:hover .sched-cell-inner{opacity:.6}
+.sched-cell.conflict{box-shadow:inset 0 0 0 2px var(--danger)}
+.sched-cell.readonly{cursor:default}
+.sched-cell.readonly:hover{filter:none}
+.sched-cell.readonly.empty .sched-cell-inner{opacity:.35}
+.sched-cell.break-cell{
+  cursor:pointer;
+  background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--amber) 10%, var(--surface)) 0 8px, color-mix(in srgb, var(--amber) 16%, var(--surface)) 8px 16px);
+}
+.th-clickable{cursor:pointer;transition:background .12s}
+.th-clickable:hover{background:var(--accent-soft)}
+.sched-table th.break-col.th-clickable:hover{background:color-mix(in srgb, var(--amber) 24%, var(--surface))}
+.break-inner{align-items:center;justify-content:center;color:var(--amber);gap:4px !important;flex-direction:row !important}
+.break-inner svg{width:13px;height:13px;flex-shrink:0}
+.break-inner span{font-size:.68rem;font-weight:700}
+.sched-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted)}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+.progress{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.progress > span{display:block;height:100%;background:var(--accent);border-radius:99px}
+
+.empty-state{padding:34px 20px;text-align:center;color:var(--muted)}
+.empty-state svg{width:38px;height:38px;margin-bottom:10px;opacity:.5}
+
+.break-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.break-row[data-action]{cursor:pointer;transition:border-color .12s}
+.break-row[data-action]:hover{border-color:var(--accent)}
+.break-row .meta{font-size:.78rem;color:var(--muted)}
+.break-row .meta b{color:var(--ink)}
+
+/* dialog */
+dialog{
+  border:none;border-radius:14px;padding:0;background:var(--surface);color:var(--ink);
+  box-shadow:var(--shadow);width:380px;max-width:92vw;
+}
+dialog::backdrop{background:rgba(15,20,26,.5)}
+.dialog-head{padding:16px 20px;border-bottom:1px solid var(--border)}
+.dialog-head h3{font-size:1rem}
+.dialog-head p{margin:4px 0 0;font-size:.78rem;color:var(--muted)}
+.dialog-body{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.dialog-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px}
+.warn-note{background:var(--danger-soft);color:var(--danger);font-size:.76rem;padding:8px 10px;border-radius:7px}
+
+/* responsive */
+@media (max-width:900px){
+  .app-shell{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:sticky;flex-direction:column;border-inline-end:none;border-bottom:1px solid var(--border)}
+  .brand{padding:16px 16px 14px}
+  .lang-switch{max-width:220px}
+  nav{padding:0 12px 12px;overflow-x:auto}
+  nav ul{flex-direction:row}
+  .nav-eyebrow{display:none}
+  .nav-btn{white-space:nowrap}
+  .sidebar-foot{display:none}
+  .content{padding:18px 16px 50px}
+  .topbar{padding:14px 16px}
+}
+
+/* ============ PRINT ============ */
+#printArea{display:none}
+@media print{
+  body > *:not(#printArea){display:none !important}
+  #printArea{
+    display:block !important;
+    --paper:#fff; --surface:#fff; --surface-2:#f2f2f2; --border:#bbb; --ink:#111; --muted:#555;
+    background:#fff; color:#111; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  #printArea .print-page{padding:0 0 10px; break-after:page; page-break-after:always}
+  #printArea .print-page:last-child{break-after:auto; page-break-after:auto}
+  #printArea h2{font-size:15px; margin:0 0 10px; padding-bottom:8px; border-bottom:2px solid #111; font-family:var(--font-display)}
+  #printArea table{width:100%}
+  #printArea .sched-table th, #printArea .sched-table td{position:static; font-size:10.5px}
+  #printArea .sched-cell{min-width:0; height:44px}
+  #printArea .th-time{font-size:9px}
+  #printArea .sched-cell-inner{padding:3px 5px}
+  #printArea .table-scroll{overflow:visible}
+}
+</style>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <svg class="brand-pattern" viewBox="0 0 260 90" preserveAspectRatio="xMidYMid slice"><g stroke="currentColor" style="color:var(--accent)" stroke-width="1" opacity=".07"><path d="M0 15h260M0 35h260M0 55h260M0 75h260M40 0v90M85 0v90M130 0v90M175 0v90M220 0v90"/></g></svg>
+      <div class="brand-row">
+        <div class="brand-mark">ن</div>
+        <div class="brand-text">
+          <h1 id="brandName">نِصاب</h1>
+          <p id="brandTag">إدارة جداول المعلمين والحصص</p>
+        </div>
+      </div>
+      <div class="lang-switch">
+        <button data-action="set-lang" data-lang="ar" id="langBtnAr">العربية</button>
+        <button data-action="set-lang" data-lang="en" id="langBtnEn">English</button>
+      </div>
+      <div class="theme-switch">
+        <button data-action="set-theme" data-theme="system" id="themeBtnSystem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="12" rx="1.5"/><path d="M8.5 20h7M12 16.5V20"/></svg></button>
+        <button data-action="set-theme" data-theme="light" id="themeBtnLight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg></button>
+        <button data-action="set-theme" data-theme="dark" id="themeBtnDark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg></button>
+      </div>
+    </div>
+    <nav>
+      <ul id="navList"></ul>
+    </nav>
+    <div class="sidebar-foot" id="sidebarFoot"></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h2 id="topTitle"></h2>
+        <p class="sub" id="topSub"></p>
+      </div>
+      <div class="stat-chips" id="statChips"></div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<dialog id="cellDialog">
+  <form id="cellForm">
+    <div class="dialog-head">
+      <h3 id="cdTitle"></h3>
+      <p id="cdSub"></p>
+    </div>
+    <div class="dialog-body">
+      <label id="cdSubjectLabel"><span id="cdSubjectCaption"></span>
+        <select id="cdSubject"></select>
+      </label>
+      <label id="cdTeacherLabel"><span id="cdTeacherCaption"></span>
+        <select id="cdTeacher"></select>
+      </label>
+      <div class="warn-note" id="cdWarn" style="display:none"></div>
+    </div>
+    <div class="dialog-foot">
+      <button type="button" class="btn btn-danger btn-sm" id="cdClear"></button>
+      <div class="row" style="gap:8px">
+        <button type="button" class="btn btn-ghost btn-sm" id="cdCancel"></button>
+        <button type="submit" class="btn btn-primary btn-sm" id="cdSave"></button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="timeDialog">
+  <form id="timeForm">
+    <div class="dialog-head">
+      <h3 id="tdTitle"></h3>
+      <p id="tdSub"></p>
+    </div>
+    <div class="dialog-body">
+      <label id="tdNameLabel" style="display:none"><span id="tdNameCaption"></span>
+        <input type="text" id="tdName">
+      </label>
+      <div class="row" style="align-items:flex-end">
+        <label style="flex:1" id="tdStartLabel"><span id="tdStartCaption"></span><input type="time" id="tdStart"></label>
+        <label style="flex:1" id="tdDurationLabel"><span id="tdDurationCaption"></span><input type="number" id="tdDuration" min="5" max="180"></label>
+      </div>
+      <p class="hint" id="tdEndPreview" style="font-size:.78rem;color:var(--muted);margin:0"></p>
+      <label class="row" style="gap:6px;font-weight:500;color:var(--ink);font-size:.82rem">
+        <input type="checkbox" id="tdCascade" checked><span id="tdCascadeCaption"></span>
+      </label>
+    </div>
+    <div class="dialog-foot">
+      <button type="button" class="btn btn-danger btn-sm" id="tdDelete" style="display:none"></button>
+      <div class="row" style="gap:8px">
+        <button type="button" class="btn btn-ghost btn-sm" id="tdCancel"></button>
+        <button type="submit" class="btn btn-primary btn-sm" id="tdSave"></button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<div id="printArea" aria-hidden="true"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   الترجمة / i18n
+========================================================= */
+const I18N = {
+  brandName:['نِصاب','Nisab'],
+  brandTag:['إدارة جداول المعلمين والحصص','Teacher & class timetable manager'],
+  footerSave:['تُحفظ البيانات تلقائيًا في متصفحك على هذا الجهاز.','Data is saved automatically in your browser on this device.'],
+  footerOffline:['لا تحتاج إلى اتصال بالإنترنت بعد فتح الصفحة.','No internet connection is needed once the page has loaded.'],
+
+  navGroupOverview:['نظرة عامة','Overview'],
+  navGroupData:['البيانات','Data'],
+  navGroupSchedules:['الجداول','Schedules'],
+
+  nav_dashboard:['لوحة التحكم','Dashboard'],
+  nav_teachers:['المعلمون','Teachers'],
+  nav_subjects:['المواد الدراسية','Subjects'],
+  nav_assignments:['توزيع الحصص','Assignments'],
+  nav_grades:['جداول الصفوف','Class timetables'],
+  nav_teacherSched:['جداول المعلمين','Teacher timetables'],
+  nav_settings:['الإعدادات','Settings'],
+
+  sub_dashboard:['نظرة عامة وتحليل الجداول','Overview and schedule analysis'],
+  sub_teachers:['بيانات المعلمين ونصاب الحصص','Teacher records and weekly quotas'],
+  sub_subjects:['قائمة المواد وألوانها','Subject list and colors'],
+  sub_assignments:['ربط المعلمين بالمواد والصفوف','Link teachers to subjects and classes'],
+  sub_grades:['من الصف الأول إلى الصف التاسع','Grade 1 through Grade 9'],
+  sub_teacherSched:['الجدول الأسبوعي لكل معلم',"Each teacher's weekly schedule"],
+  sub_settings:['أيام الأسبوع وأوقات الحصص والفسح','Week days, period timing, and breaks'],
+
+  statCompletion:['اكتمال الجداول','Completion'],
+  statConflicts:['التعارضات','Conflicts'],
+  statTeachers:['المعلمون','Teachers'],
+  completion:['الاكتمال','Completion'],
+
+  dayPeriod:['اليوم / الحصة','Day / Period'],
+  period:['حصة','P'],
+  minutesShort:['د','min'],
+
+  statusComplete:['مكتمل','Complete'],
+  statusOverQuota:['تجاوز النصاب','Over quota'],
+  statusConflict:['تعارض','Conflict'],
+  statusUnassigned:['بدون توزيع','Unassigned'],
+  statusIncomplete:['غير مكتمل','Incomplete'],
+
+  teachersOfSubjects:['المعلمون','Teachers'],
+  classesLabel:['الصفوف / الشعب','Classes / sections'],
+
+  addTeacher:['إضافة معلم','Add teacher'],
+  addTeacherHint:['حدد النصاب الأسبوعي (نصاب الحصص) والمواد التي يُدرّسها.','Set the weekly quota and the subjects this teacher teaches.'],
+  teacherName:['اسم المعلم','Teacher name'],
+  teacherNamePh:['مثال: محمد العنزي','e.g. James Carter'],
+  weeklyQuota:['النصاب الأسبوعي','Weekly quota'],
+  add:['إضافة','Add'],
+  bulkImportTeachers:['استيراد قائمة معلمين دفعة واحدة','Bulk-import a teacher list'],
+  bulkImportTeachersHint:['سطر لكل معلم بالصيغة: <b>الاسم، المادة1؛المادة2، النصاب</b> — المادة والنصاب اختياريان. سيتم إنشاء أي مادة غير موجودة تلقائيًا.','One teacher per line: <b>name, subject1;subject2, quota</b> — subject and quota are optional. Unknown subjects are created automatically.'],
+  importTeachersPh:['محمد العنزي، الرياضيات، 24\nهدى المالكي، اللغة العربية؛الدراسات الاجتماعية، 20','James Carter, Math, 24\nHana Wills, English;Social Studies, 20'],
+  importBtn:['استيراد','Import'],
+  teachersList:['قائمة المعلمين','Teacher list'],
+  teachersListHint:['انقر على أي مادة لتفعيلها أو إلغائها لهذا المعلم.','Click any subject to toggle it for that teacher.'],
+  searchTeachers:['ابحث عن معلم...','Search teachers…'],
+  colName:['الاسم','Name'],
+  colSubjects:['المواد','Subjects'],
+  colQuota:['النصاب','Quota'],
+  colPlanned:['مخطَّط','Planned'],
+  emptyTeachers:['لا يوجد معلمون بعد','No teachers yet'],
+
+  addSubject:['إضافة مادة','Add subject'],
+  addSubjectHint:['سيتم استخدام اللون لتمييز المادة داخل الجداول.','The color is used to highlight this subject across every timetable.'],
+  subjectName:['اسم المادة','Subject name'],
+  subjectNamePh:['مثال: مهارات رقمية','e.g. Digital Skills'],
+  color:['اللون','Color'],
+  bulkImportSubjects:['استيراد قائمة مواد دفعة واحدة','Bulk-import a subject list'],
+  bulkImportSubjectsHint:['اسم مادة واحد في كل سطر، ويمكن إضافة اللون بعد فاصلة.','One subject per line — optionally add a color after a comma.'],
+  importSubjectsPh:['مهارات رقمية\nالتربية الأسرية','Digital Skills\nHome Economics'],
+  subjectsList:['قائمة المواد','Subject list'],
+  searchSubjects:['ابحث عن مادة...','Search subjects…'],
+  colColor:['اللون','Color'],
+  colSubject:['المادة','Subject'],
+  colLinkedTeachers:['معلمون مرتبطون','Linked teachers'],
+  emptySubjects:['لا توجد مواد بعد','No subjects yet'],
+
+  addAssignment:['إضافة توزيع','Add assignment'],
+  addAssignmentHint:['اربط معلمًا بمادة وصف وشعبة، وحدد عدد حصصه الأسبوعية لهذه الشعبة.','Link a teacher to a subject, class and section, and set weekly periods.'],
+  needTeachersSubjects:['أضف معلمين ومواد أولًا من الشاشتين السابقتين.','Add teachers and subjects first from the previous screens.'],
+  teacherLabel:['المعلم','Teacher'],
+  subjectLabel:['المادة','Subject'],
+  gradeLabel:['الصف','Class'],
+  sectionLabel:['الشعبة','Section'],
+  periodsPerWeek:['حصص/أسبوع','Periods/week'],
+  genTitle:['توليد الجداول تلقائيًا','Auto-generate timetables'],
+  genHint:['يوزّع النظام كل حصص التوزيع أعلاه على أيام الأسبوع، مع تفادي تعارض المعلمين بين الصفوف.','Distributes every assignment above across the week while avoiding teacher clashes between classes.'],
+  overwriteExisting:['استبدال الحصص الموجودة','Overwrite existing periods'],
+  generateAll:['توليد جميع الجداول','Generate all timetables'],
+  assignmentsList:['قائمة التوزيعات','Assignment list'],
+  emptyAssignments:['لا توجد توزيعات بعد','No assignments yet'],
+  colClassSection:['الصف / الشعبة','Class / section'],
+
+  filledOfTotal:['عدد الحصص المُدرَجة:','Scheduled periods:'],
+  ofWord:['من','of'],
+  clickToEdit:['انقر على أي حصة فارغة أو ممتلئة للتعديل.','Click any period — filled or empty — to edit it.'],
+  addSection:['إضافة شعبة','Add section'],
+  overwriteShort:['استبدال','Overwrite'],
+  generateSection:['توليد لهذه الشعبة','Generate this section'],
+  clearTimetable:['إفراغ الجدول','Clear timetable'],
+  section:['شعبة','Section'],
+  newSectionPrompt:['اسم الشعبة الجديدة (مثال: ب)','New section name (e.g. B)'],
+
+  teacherQuotaLine:['النصاب الأسبوعي:','Weekly quota:'],
+  plannedLine:['المخطَّط:','Planned:'],
+  scheduledLine:['المُسنَد بالجدول:','Scheduled:'],
+  free:['حر','Free'],
+  addTeachersFirst:['أضف معلمين أولًا لعرض جداولهم','Add teachers first to see their timetables'],
+
+  weekDays:['أيام الأسبوع الدراسي','School week days'],
+  settingsResetHint:['تغيير أيام الأسبوع أو عدد الحصص يُعيد ضبط الحصص المُدرَجة (يبقى المعلمون والمواد والتوزيعات كما هي).','Changing the days or period count resets scheduled periods (teachers, subjects and assignments are kept).'],
+  days5:['الأحد — الخميس (٥ أيام)','Sunday – Thursday (5 days)'],
+  days6:['السبت — الخميس (٦ أيام)','Saturday – Thursday (6 days)'],
+  periodsPerDay:['عدد الحصص يوميًا','Periods per day'],
+  saveSettings:['حفظ الإعدادات','Save settings'],
+  timingTitle:['توقيت اليوم الدراسي','Daily schedule timing'],
+  timingHint:['مدة كل حصة ٤٥ دقيقة افتراضيًا، ويمكنك تعديلها وتحديد وقت بداية الدوام.','Each period defaults to 45 minutes — adjust it and the school start time as needed.'],
+  schoolStart:['وقت بداية الدوام','School start time'],
+  periodDuration:['مدة الحصة (دقيقة)','Period duration (minutes)'],
+  dayPreview:['معاينة اليوم الدراسي','Daily timeline preview'],
+  breaksTitle:['أوقات الفسح والاستراحة','Breaks & recess'],
+  breaksHint:['أضف فسحة بعد أي حصة، وستظهر تلقائيًا في جميع الجداول (الصفوف والمعلمين والجدول العام).','Add a break after any period — it appears automatically in every timetable (classes, teachers and the master view).'],
+  breakName:['الاسم','Name'],
+  breakNamePh:['فسحة','Break'],
+  afterPeriod:['بعد الحصة','After period'],
+  duration:['المدة (دقيقة)','Duration (min)'],
+  addBreak:['إضافة فسحة','Add break'],
+  noBreaks:['لا توجد فسح مضافة بعد.','No breaks added yet.'],
+  dataTitle:['إدارة البيانات','Data management'],
+  dataHint:['جميع البيانات محفوظة محليًا في هذا المتصفح فقط.','All data is stored locally in this browser only.'],
+  restoreDemo:['استعادة بيانات تجريبية','Restore sample data'],
+  clearAll:['مسح جميع البيانات','Clear all data'],
+
+  dashCompletionTitle:['نسبة اكتمال الجداول','Schedule completion'],
+  teacherStatsTitle:['تحليل نصاب المعلمين','Teacher quota analysis'],
+  teacherStatsHint:['مقارنة النصاب الأسبوعي بما تم توزيعه فعليًا في الجداول.',"Comparing each teacher's weekly quota with what is actually scheduled."],
+  gradeCompletionTitle:['اكتمال جداول الصفوف','Class timetable completion'],
+  gradeCompletionHint:['عدد الحصص المُدرَجة من إجمالي حصص الأسبوع لكل شعبة.','Scheduled periods out of the weekly total, per section.'],
+  masterTitle:['الجدول العام للمدير','Master timetable'],
+  masterHint:['عرض جميع الصفوف في يوم واحد — يمكن التعديل مباشرة من هنا.','All classes for a single day at a glance — editable directly from here.'],
+  colStatus:['الحالة','Status'],
+  colRemaining:['المتبقي','Remaining'],
+  colScheduled:['المُسنَد بالجدول','Scheduled'],
+  colClass:['الصف','Class'],
+  colSection:['الشعبة','Section'],
+  colPeriods:['الحصص','Periods'],
+  colCompletion:['نسبة الاكتمال','Completion'],
+
+  cellEditTitle:['تعديل الحصة','Edit period'],
+  chooseSubject:['— اختر مادة —','— choose a subject —'],
+  chooseTeacher:['— اختر معلمًا —','— choose a teacher —'],
+  clearPeriod:['إفراغ الحصة','Clear period'],
+  cancel:['إلغاء','Cancel'],
+  save:['حفظ','Save'],
+  conflictWarn:['تنبيه: هذا المعلم مُسند بالفعل في','Note: this teacher is already scheduled in'],
+  atSameTime:['في نفس الموعد.','at this same time.'],
+  chooseBoth:['الرجاء اختيار المادة والمعلم.','Please choose both a subject and a teacher.'],
+
+  confirmDeleteTeacher:['حذف هذا المعلم سيؤدي أيضًا لحذف توزيعاته وحصصه من الجداول. متابعة؟','Deleting this teacher also removes their assignments and scheduled periods. Continue?'],
+  confirmDeleteSubject:['حذف هذه المادة سيؤدي أيضًا لحذف توزيعاتها وحصصها من الجداول. متابعة؟','Deleting this subject also removes its assignments and scheduled periods. Continue?'],
+  confirmClearSection:['سيتم إفراغ جميع حصص هذا الجدول. متابعة؟','This clears every period on this timetable. Continue?'],
+  confirmDeleteSection:['حذف هذه الشعبة سيحذف جدولها الحالي. متابعة؟','Deleting this section removes its current timetable. Continue?'],
+  confirmResetDemo:['سيتم استبدال جميع البيانات الحالية ببيانات تجريبية. متابعة؟','This replaces all current data with sample data. Continue?'],
+  confirmClearAll:['سيتم مسح جميع البيانات نهائيًا. متابعة؟','This permanently erases all data. Continue?'],
+  confirmSettingsReset:['سيؤدي هذا إلى إفراغ جميع الجداول الحالية لضمان تناسقها. متابعة؟','This clears every scheduled timetable to keep them consistent. Continue?'],
+  unplacedAlert:['تم التوليد، لكن تعذّر إيجاد مواعيد مناسبة لعدد من الحصص بسبب تعارض في مواعيد المعلمين. يمكنك إضافتها يدويًا من جدول الصف.','Generated, but some periods could not be placed due to teacher clashes. Add them manually from the class timetable.'],
+  unplacedAlertSection:['تعذّر توزيع بعض الحصص بسبب تعارض في مواعيد المعلمين. أضِفها يدويًا.','Some periods could not be placed due to teacher clashes. Add them manually.'],
+  noSubjectFallback:['—','—'],
+
+  rename:['إعادة تسمية','Rename'],
+  renameSectionPrompt:['اسم الشعبة الجديد','New section name'],
+  startTime:['وقت البداية','Start time'],
+  endsAt:['ينتهي عند','Ends at'],
+  editPeriodHint:['يمكنك تقديم أو تأخير هذه الحصة وتغيير مدتها.',"You can move this period earlier or later and change its length."],
+  editBreakHint:['عدّل اسم الفسحة ووقتها ومدتها، أو احذفها.','Edit the break’s name, time and length, or delete it.'],
+  deleteBreak:['حذف الفسحة','Delete break'],
+  confirmResetTimes:['سيتم استبدال جميع أوقات الحصص بأوقات متتالية تلقائية بدءًا من وقت بداية الدوام. لن تتأثر الفسح. متابعة؟','This replaces every period’s time with an automatic back-to-back schedule starting at the school start time. Breaks are not affected. Continue?'],
+  resetTimesDefaults:['إعادة ضبط الأوقات تلقائيًا','Reset times to defaults'],
+  clickToEditTime:['انقر على أي حصة أو فسحة لتعديل وقتها ومدتها.','Click any period or break to edit its time and length.'],
+  print:['طباعة','Print'],
+  printingTitle:['الطباعة','Printing'],
+  printingHint:['اطبع الجداول كملف يمكنك حفظه كـ PDF أو إرساله للطابعة مباشرة.','Print timetables — save as PDF or send straight to a printer.'],
+  printAllSections:['طباعة كل جداول الصفوف','Print all class timetables'],
+  printAllTeachers:['طباعة كل جداول المعلمين','Print all teacher timetables'],
+  printMasterAll:['طباعة الجدول العام','Print the master timetable'],
+  printEverything:['طباعة الكل','Print everything'],
+  shiftFollowing:['تحريك الحصص والفسح التالية معها','Shift the following periods and breaks too'],
+  themeSystem:['حسب النظام','Match system'],
+  themeLight:['فاتح','Light'],
+  themeDark:['داكن','Dark'],
+};
+let LANG = (function(){ try{ return localStorage.getItem('nisab-lang')||'ar'; }catch(e){ return 'ar'; } })();
+let THEME = (function(){ try{ return localStorage.getItem('nisab-theme')||'system'; }catch(e){ return 'system'; } })();
+function t(key){ const row = I18N[key]; if(!row) return key; return row[LANG==='ar'?0:1]; }
+
+const DAY_NAMES = {
+  ar:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],
+  en:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+};
+const GRADE_ORDINALS_AR = ['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع'];
+function dayLabel(dow){ return DAY_NAMES[LANG][dow]; }
+function gradeName(num){ return LANG==='ar' ? ('الصف '+GRADE_ORDINALS_AR[num-1]) : ('Grade '+num); }
+const ARABIC_DIGITS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toAI(n){ return String(n).split('').map(c=> /[0-9]/.test(c) ? ARABIC_DIGITS[+c] : c).join(''); }
+function fmtNum(n){ return LANG==='ar' ? toAI(n) : String(n); }
+function pctSign(){ return LANG==='ar' ? '٪' : '%'; }
+
+/* =========================================================
+   ثوابت ومساعدات عامة
+========================================================= */
+const ICONS = {
+  dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+  teachers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20c1.6-4 4.2-6 7.5-6s5.9 2 7.5 6"/></svg>',
+  subjects:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.2C4 4 5 3.3 6.2 3.5L11 4.3v15.8l-5-.9C4.8 19 4 18.2 4 17.2Z"/><path d="M20 5.2C20 4 19 3.3 17.8 3.5L13 4.3v15.8l5-.9c1.2-.2 2-1 2-2Z"/></svg>',
+  assignments:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h9l-2.5-2.5M20 17h-9l2.5 2.5"/><path d="M4 17h5M15 7h5"/></svg>',
+  grades:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9.5h18M9 4v17"/></svg>',
+  teacherSched:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><circle cx="9" cy="10.5" r="2"/><path d="M6 16c.7-1.8 1.8-2.6 3-2.6s2.3.8 3 2.6M14 9.5h4M14 13h4"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H4a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3H10a1.7 1.7 0 0 0 1-1.6V4a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9V10a1.7 1.7 0 0 0 1.6 1H20a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg>',
+  wand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 20 9-9M14.5 3.5 16 5m2-3.5L19.5 3M17 9l1.5 1.5M20.5 6 22 7.5M11 5l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>',
+  empty:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 12h8"/></svg>',
+  cup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4Z"/><path d="M16 10h1.5a2.2 2.2 0 0 1 0 4.4H16"/><path d="M8 4.5c-.6.6-.6 1 0 1.6M12 4.5c-.6.6-.6 1 0 1.6"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4 3 20h18Z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6"/></svg>',
+  printer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 8.5V4h10v4.5"/><rect x="4.5" y="8.5" width="15" height="7.5" rx="1.5"/><rect x="7" y="13" width="10" height="7" rx="1"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 4.5 19 9l-10 10H4v-5Z"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>',
+  moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>',
+  monitor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="12" rx="1.5"/><path d="M8.5 20h7M12 16.5V20"/></svg>',
+};
+const PALETTE = ['#2B4C7E','#A66A1E','#2A7A57','#6B4C9A','#1F7A8C','#A85C32','#4A5A6A','#B0507A','#3E8E7E','#7B5B2E'];
+function uid(p){ return p+'_'+Math.random().toString(36).slice(2,9); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function key(d,p){ return d+'-'+p; }
+function pick(arr,i){ return arr[i % arr.length]; }
+
+/* =========================================================
+   الحالة (State)
+========================================================= */
+const STORE_KEY = 'nisab-timetable-v3';
+const STORE_KEY_V2 = 'nisab-timetable-v2';
+const STORE_KEY_V1 = 'nisab-timetable-v1';
+let state = null;
+let ui = { view:'dashboard', gradeIdx:0, sectionId:null, teacherId:null, dashDay:0 };
+let editingCtx = null;
+let timeEditCtx = null;
+
+function parseTime(hhmm){ const [h,m] = (hhmm||'07:00').split(':').map(Number); return (h||0)*60+(m||0); }
+function buildDefaultPeriodTimes(count, schoolStart, duration){
+  const arr = []; let cursor = parseTime(schoolStart);
+  for(let i=0;i<count;i++){ arr.push({ start:cursor, duration }); cursor += duration; }
+  return arr;
+}
+function freshSettings(){
+  const schoolStart='07:00', periodDuration=45;
+  return { days:[0,1,2,3,4], schoolStart, periodDuration, periodTimes:buildDefaultPeriodTimes(7,schoolStart,periodDuration), breaks:[] };
+}
+function blankState(){
+  const grades = [];
+  for(let i=1;i<=9;i++) grades.push({ id:'g'+i, num:i, sections:[ { id:uid('s'), name:'أ', cells:{} } ] });
+  return { settings:freshSettings(), subjects:[], teachers:[], grades, assignments:[] };
+}
+function makeBreakAfterPeriod(afterPeriod, name, duration){
+  const pt = state.settings.periodTimes[afterPeriod-1];
+  const start = pt ? pt.start+pt.duration : parseTime(state.settings.schoolStart);
+  // اجعل مكانًا للفسحة الجديدة بإزاحة كل ما يبدأ في نفس اللحظة أو بعدها
+  state.settings.periodTimes.forEach(p=>{ if(p.start>=start) p.start += duration; });
+  (state.settings.breaks||[]).forEach(b=>{ if(b.start>=start) b.start += duration; });
+  return { id:uid('brk'), name, start, duration };
+}
+
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function migrateV1(v1){
+  try{
+    const idx = name => ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].indexOf(name);
+    const days = (v1.settings.days||[]).map(idx).filter(i=>i>=0);
+    const schoolStart='07:00', periodDuration=45;
+    return {
+      settings:{ days: days.length?days:[0,1,2,3,4], schoolStart, periodDuration, periodTimes:buildDefaultPeriodTimes(v1.settings.periods||7,schoolStart,periodDuration), breaks:[] },
+      subjects:v1.subjects||[], teachers:v1.teachers||[],
+      grades:(v1.grades||[]).map(g=>({ id:g.id, num:g.num, sections:g.sections||[] })),
+      assignments:v1.assignments||[],
+    };
+  }catch(e){ return null; }
+}
+function migrateV2(v2){
+  try{
+    const s = v2.settings;
+    const schoolStart = s.schoolStart||'07:00', periodDuration = s.periodDuration||45;
+    const periodTimes = buildDefaultPeriodTimes(s.periods||7, schoolStart, periodDuration);
+    const breaks = (s.breaks||[]).map(b=>{
+      const pt = periodTimes[(b.afterPeriod||1)-1];
+      const start = pt ? pt.start+pt.duration : parseTime(schoolStart);
+      return { id:b.id||uid('brk'), name:b.name||'فسحة', start, duration:b.duration||15 };
+    });
+    return {
+      settings:{ days: s.days&&s.days.length?s.days:[0,1,2,3,4], schoolStart, periodDuration, periodTimes, breaks },
+      subjects:v2.subjects||[], teachers:v2.teachers||[],
+      grades:(v2.grades||[]).map(g=>({ id:g.id, num:g.num, sections:g.sections||[] })),
+      assignments:v2.assignments||[],
+    };
+  }catch(e){ return null; }
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ const p = JSON.parse(raw); if(p && p.grades && p.grades.length===9 && p.settings.periodTimes) return p; }
+    const raw2 = localStorage.getItem(STORE_KEY_V2);
+    if(raw2){ const m = migrateV2(JSON.parse(raw2)); if(m) return m; }
+    const raw1 = localStorage.getItem(STORE_KEY_V1);
+    if(raw1){ const m = migrateV1(JSON.parse(raw1)); if(m) return m; }
+  }catch(e){}
+  return null;
+}
+
+/* ---------- بيانات تجريبية ---------- */
+function buildDemoData(){
+  state = blankState();
+  const subjectDefs = [
+    ['اللغة العربية', PALETTE[0]], ['الرياضيات', PALETTE[1]], ['العلوم', PALETTE[2]],
+    ['التربية الإسلامية', PALETTE[3]], ['اللغة الإنجليزية', PALETTE[4]], ['الدراسات الاجتماعية', PALETTE[5]],
+    ['الحاسب الآلي', PALETTE[6]], ['التربية الفنية', PALETTE[7]], ['التربية البدنية', PALETTE[8]],
+  ];
+  const subjById = {};
+  subjectDefs.forEach(([name,color])=>{ const s={id:uid('sub'),name,color}; state.subjects.push(s); subjById[name]=s.id; });
+
+  const teacherDefs = [
+    ['أحمد الشمري', ['اللغة العربية'], 24], ['لمياء الغامدي', ['اللغة العربية'], 24],
+    ['سارة العتيبي', ['الرياضيات'], 24], ['يوسف الحارثي', ['الرياضيات'], 22],
+    ['خالد المطيري', ['العلوم'], 22], ['ريم الشهري', ['العلوم'], 20],
+    ['نورة القحطاني', ['اللغة الإنجليزية'], 24], ['بندر العصيمي', ['اللغة الإنجليزية'], 20],
+    ['فهد الدوسري', ['التربية الإسلامية'], 22], ['منيرة الحربي', ['الدراسات الاجتماعية'], 18],
+    ['عبدالله الزهراني', ['الحاسب الآلي'], 18], ['هند العنزي', ['التربية الفنية'], 16],
+    ['ماجد السبيعي', ['التربية البدنية'], 18],
+  ];
+  const teachById = {};
+  teacherDefs.forEach(([name,subs,quota])=>{ const t={id:uid('t'),name,subjectIds:subs.map(s=>subjById[s]),quota}; state.teachers.push(t); teachById[name]=t.id; });
+
+  const corePool = {
+    'اللغة العربية':['أحمد الشمري','لمياء الغامدي'], 'الرياضيات':['سارة العتيبي','يوسف الحارثي'],
+    'العلوم':['خالد المطيري','ريم الشهري'], 'اللغة الإنجليزية':['نورة القحطاني','بندر العصيمي'],
+    'التربية الإسلامية':['فهد الدوسري'], 'الدراسات الاجتماعية':['منيرة الحربي'],
+    'الحاسب الآلي':['عبدالله الزهراني'], 'التربية الفنية':['هند العنزي'], 'التربية البدنية':['ماجد السبيعي'],
+  };
+  const template = [['اللغة العربية',6],['الرياضيات',5],['العلوم',4],['اللغة الإنجليزية',4],['التربية الإسلامية',3],['الحاسب الآلي',1],['التربية الفنية',1],['التربية البدنية',2]];
+
+  state.grades.forEach((g,gi)=>{
+    const sec = g.sections[0];
+    const list = template.slice();
+    if(g.num>=4) list.push(['الدراسات الاجتماعية', 2]);
+    list.forEach(([subjName,periods])=>{
+      const teacherName = pick(corePool[subjName], gi);
+      state.assignments.push({ id:uid('a'), teacherId:teachById[teacherName], subjectId:subjById[subjName], gradeId:g.id, sectionId:sec.id, periodsPerWeek:periods });
+    });
+  });
+
+  state.settings.breaks = [];
+  state.settings.breaks.push(makeBreakAfterPeriod(2, 'فسحة', 20));
+  state.settings.breaks.push(makeBreakAfterPeriod(5, 'فسحة الغداء', 15));
+}
+
+/* =========================================================
+   التوقيت: الحصص والفسح
+========================================================= */
+function formatTime(mins){
+  mins = ((mins%1440)+1440)%1440;
+  let h = Math.floor(mins/60), m = mins%60;
+  const isAM = h<12;
+  const period = LANG==='ar' ? (isAM?'ص':'م') : (isAM?'AM':'PM');
+  let h12 = h%12; if(h12===0) h12=12;
+  const mm = String(m).padStart(2,'0');
+  return `${fmtNum(h12)}:${fmtNum(mm)} ${period}`;
+}
+function minutesToHHMM(m){ const h=Math.floor(m/60), mm=m%60; return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
+function buildTimeline(){
+  const segs = [];
+  state.settings.periodTimes.forEach((pt,i)=> segs.push({ type:'period', num:i+1, start:pt.start, duration:pt.duration, end:pt.start+pt.duration }));
+  (state.settings.breaks||[]).forEach(b=> segs.push({ type:'break', id:b.id, name:b.name, start:b.start, duration:b.duration, end:b.start+b.duration }));
+  segs.sort((a,b)=>a.start-b.start);
+  return segs;
+}
+
+/* =========================================================
+   منطق الجداول: التوليد التلقائي وكشف التعارض
+========================================================= */
+function hasSubjectOnDay(section, d, subjectId){
+  for(let p=1;p<=state.settings.periodTimes.length;p++){ const c=section.cells[key(d,p)]; if(c && c.subjectId===subjectId) return true; }
+  return false;
+}
+function buildTeacherSlotIndex(){
+  const idx = {};
+  state.grades.forEach(g=>g.sections.forEach(s=>{
+    Object.entries(s.cells||{}).forEach(([k,cell])=>{
+      if(!cell || !cell.teacherId) return;
+      const ik = cell.teacherId+'|'+k;
+      (idx[ik]=idx[ik]||[]).push({gradeId:g.id, sectionId:s.id, gradeName:gradeName(g.num), sectionName:s.name});
+    });
+  }));
+  return idx;
+}
+function generateSection(gradeId, sectionId, overwrite, slotIndex){
+  const grade = state.grades.find(g=>g.id===gradeId);
+  const section = grade.sections.find(s=>s.id===sectionId);
+  if(!section.cells) section.cells = {};
+  if(overwrite){
+    Object.entries(section.cells).forEach(([k,cell])=>{
+      if(!cell) return;
+      const ik = cell.teacherId+'|'+k;
+      if(slotIndex[ik]) slotIndex[ik] = slotIndex[ik].filter(loc=>loc.sectionId!==sectionId);
+    });
+    section.cells = {};
+  }
+  const days = state.settings.days, periods = state.settings.periodTimes.length;
+  const assigns = state.assignments.filter(a=>a.gradeId===gradeId && a.sectionId===sectionId);
+  const queue = assigns.slice().sort((a,b)=>b.periodsPerWeek-a.periodsPerWeek);
+  const unplaced = [];
+  function teacherFree(teacherId,d,p){ const locs = slotIndex[teacherId+'|'+key(d,p)]; return !locs || locs.length===0; }
+  function markBusy(teacherId,d,p){ const ik=teacherId+'|'+key(d,p); (slotIndex[ik]=slotIndex[ik]||[]).push({gradeId, sectionId, gradeName:gradeName(grade.num), sectionName:section.name}); }
+
+  queue.forEach(a=>{
+    const already = Object.values(section.cells).filter(c=>c && c.subjectId===a.subjectId && c.teacherId===a.teacherId).length;
+    let remaining = Math.max(0, a.periodsPerWeek - already);
+    for(let n=0;n<remaining;n++){
+      const candidates = [];
+      for(let d=0; d<days.length; d++) for(let p=1; p<=periods; p++){
+        const k = key(d,p);
+        if(section.cells[k]) continue;
+        if(!teacherFree(a.teacherId,d,p)) continue;
+        candidates.push({d,p,score: hasSubjectOnDay(section,d,a.subjectId)?0:1});
+      }
+      if(!candidates.length){ unplaced.push(a); return; }
+      const top = Math.max(...candidates.map(c=>c.score));
+      const best = candidates.filter(c=>c.score===top);
+      const choice = best[Math.floor(Math.random()*best.length)];
+      section.cells[key(choice.d,choice.p)] = { subjectId:a.subjectId, teacherId:a.teacherId };
+      markBusy(a.teacherId, choice.d, choice.p);
+    }
+  });
+  return unplaced;
+}
+function generateAll(overwrite){
+  const slotIndex = buildTeacherSlotIndex();
+  let unplacedTotal = 0;
+  state.grades.forEach(g=>g.sections.forEach(s=>{ unplacedTotal += generateSection(g.id, s.id, overwrite, slotIndex).length; }));
+  return unplacedTotal;
+}
+function teacherStats(teacherId){
+  let placed = 0;
+  state.grades.forEach(g=>g.sections.forEach(s=>{ Object.values(s.cells||{}).forEach(c=>{ if(c && c.teacherId===teacherId) placed++; }); }));
+  const planned = state.assignments.filter(a=>a.teacherId===teacherId).reduce((sum,a)=>sum+a.periodsPerWeek,0);
+  return { placed, planned };
+}
+function conflictCountFor(teacherId, slotIndex){
+  let n=0;
+  Object.entries(slotIndex).forEach(([ik,locs])=>{ if(ik.startsWith(teacherId+'|') && locs.length>1) n+=locs.length; });
+  return n;
+}
+
+/* =========================================================
+   بناء صفوف الجدول (أعمدة الحصص + الفسح)
+========================================================= */
+function timelineHeaderRow(firstLabel){
+  const segs = buildTimeline();
+  let h = `<th class="daycol">${firstLabel}</th>`;
+  segs.forEach(seg=>{
+    if(seg.type==='break'){
+      h += `<th class="break-col th-clickable" data-action="edit-time" data-type="break" data-id="${seg.id}" title="${t('clickToEditTime')}">${esc(seg.name)}<span class="th-time">${formatTime(seg.start)}–${formatTime(seg.end)}</span></th>`;
+    } else {
+      h += `<th class="th-clickable" data-action="edit-time" data-type="period" data-num="${seg.num}" title="${t('clickToEditTime')}">${t('period')} ${fmtNum(seg.num)}<span class="th-time">${formatTime(seg.start)}–${formatTime(seg.end)}</span></th>`;
+    }
+  });
+  return `<tr>${h}</tr>`;
+}
+function breakBodyCell(seg){
+  return `<td class="sched-cell break-cell" data-action="edit-time" data-type="break" data-id="${seg.id}"><div class="sched-cell-inner break-inner">${ICONS.cup}<span>${esc(seg.name)}</span></div></td>`;
+}
+
+function renderScheduleTable(section){
+  const segs = buildTimeline();
+  const slotIndex = buildTeacherSlotIndex();
+  const cellsSrc = section.cells || {};
+  const head = timelineHeaderRow(t('dayPeriod'));
+  let body = '';
+  state.settings.days.forEach((dow,d)=>{
+    body += `<tr><td class="daycol">${esc(dayLabel(dow))}</td>`;
+    segs.forEach(seg=>{
+      if(seg.type==='break'){ body += breakBodyCell(seg); return; }
+      const p = seg.num, k = key(d,p);
+      const cell = cellsSrc[k];
+      if(!cell){
+        body += `<td class="sched-cell empty" data-action="edit-cell" data-d="${d}" data-p="${p}"><div class="sched-cell-inner">${ICONS.plus.replace('<svg ','<svg style="width:14px;height:14px" ')}</div></td>`;
+        return;
+      }
+      const subj = state.subjects.find(s=>s.id===cell.subjectId);
+      const teach = state.teachers.find(x=>x.id===cell.teacherId);
+      const conflict = teach ? (slotIndex[teach.id+'|'+k]||[]).length>1 : false;
+      const bg = subj?`color-mix(in srgb, ${subj.color} 20%, var(--surface))`:'var(--surface)';
+      body += `<td class="sched-cell ${conflict?'conflict':''}" style="background:${bg};border-inline-start:3px solid ${subj?subj.color:'var(--border)'}" data-action="edit-cell" data-d="${d}" data-p="${p}">
+        <div class="sched-cell-inner"><span class="subj">${esc(subj?subj.name:'—')}</span><span class="teach">${esc(teach?teach.name:'')}</span></div></td>`;
+    });
+    body += '</tr>';
+  });
+  return `<div class="table-scroll"><table class="sched-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+}
+
+/* =========================================================
+   حوار تعديل الحصة
+========================================================= */
+const cellDialog = document.getElementById('cellDialog');
+const cdSubject = document.getElementById('cdSubject');
+const cdTeacher = document.getElementById('cdTeacher');
+const cdWarn = document.getElementById('cdWarn');
+
+function openCellEditor(gradeId, sectionId, d, p){
+  const grade = state.grades.find(g=>g.id===gradeId);
+  const section = grade.sections.find(s=>s.id===sectionId);
+  const cur = section.cells[key(d,p)] || null;
+  editingCtx = { gradeId, sectionId, d, p };
+
+  document.getElementById('cdTitle').textContent = `${gradeName(grade.num)} — ${t('section')} ${section.name}`;
+  document.getElementById('cdSub').textContent = `${dayLabel(state.settings.days[d])} · ${t('period')} ${fmtNum(p)}`;
+
+  cdSubject.innerHTML = `<option value="">${t('chooseSubject')}</option>` + state.subjects.map(s=>`<option value="${s.id}" ${cur&&cur.subjectId===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
+  fillTeacherOptions(cur?cur.subjectId:cdSubject.value, cur?cur.teacherId:null);
+  updateConflictWarning(d,p);
+  cellDialog.showModal();
+}
+function fillTeacherOptions(subjectId, selectedTeacherId){
+  let list = state.teachers;
+  if(subjectId) list = state.teachers.filter(x=>x.subjectIds.includes(subjectId));
+  if(!list.length) list = state.teachers;
+  cdTeacher.innerHTML = `<option value="">${t('chooseTeacher')}</option>` + list.map(x=>`<option value="${x.id}" ${selectedTeacherId===x.id?'selected':''}>${esc(x.name)}</option>`).join('');
+}
+function updateConflictWarning(d,p){
+  const teacherId = cdTeacher.value;
+  if(!teacherId){ cdWarn.style.display='none'; return; }
+  const slotIndex = buildTeacherSlotIndex();
+  const locs = (slotIndex[teacherId+'|'+key(d,p)]||[]).filter(l=> !(l.gradeId===editingCtx.gradeId && l.sectionId===editingCtx.sectionId));
+  if(locs.length){
+    cdWarn.style.display='block';
+    cdWarn.textContent = `${t('conflictWarn')} ${locs.map(l=>l.gradeName+' - '+l.sectionName).join('، ')} ${t('atSameTime')}`;
+  } else cdWarn.style.display='none';
+}
+cdSubject.addEventListener('change', ()=>{ fillTeacherOptions(cdSubject.value, null); updateConflictWarning(editingCtx.d, editingCtx.p); });
+cdTeacher.addEventListener('change', ()=> updateConflictWarning(editingCtx.d, editingCtx.p));
+document.getElementById('cdCancel').addEventListener('click', ()=> cellDialog.close());
+document.getElementById('cdClear').addEventListener('click', ()=>{
+  const grade = state.grades.find(g=>g.id===editingCtx.gradeId);
+  const section = grade.sections.find(s=>s.id===editingCtx.sectionId);
+  delete section.cells[key(editingCtx.d, editingCtx.p)];
+  cellDialog.close(); commit();
+});
+document.getElementById('cellForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  if(!cdSubject.value || !cdTeacher.value){ alert(t('chooseBoth')); return; }
+  const grade = state.grades.find(g=>g.id===editingCtx.gradeId);
+  const section = grade.sections.find(s=>s.id===editingCtx.sectionId);
+  section.cells[key(editingCtx.d, editingCtx.p)] = { subjectId:cdSubject.value, teacherId:cdTeacher.value };
+  cellDialog.close(); commit();
+});
+
+/* =========================================================
+   حوار تعديل أوقات الحصص والفسح
+========================================================= */
+const timeDialog = document.getElementById('timeDialog');
+const tdName = document.getElementById('tdName');
+const tdStart = document.getElementById('tdStart');
+const tdDuration = document.getElementById('tdDuration');
+const tdEndPreview = document.getElementById('tdEndPreview');
+
+function openTimeEditor(type, ref){
+  const segs = buildTimeline();
+  const seg = type==='period' ? segs.find(s=>s.type==='period' && s.num===ref) : segs.find(s=>s.type==='break' && s.id===ref);
+  if(!seg) return;
+  timeEditCtx = { type, ref };
+  document.getElementById('tdTitle').textContent = type==='period' ? `${t('period')} ${fmtNum(seg.num)}` : seg.name;
+  document.getElementById('tdSub').textContent = type==='period' ? t('editPeriodHint') : t('editBreakHint');
+  document.getElementById('tdNameLabel').style.display = type==='break' ? 'flex' : 'none';
+  tdName.value = type==='break' ? seg.name : '';
+  tdStart.value = minutesToHHMM(seg.start);
+  tdDuration.value = seg.duration;
+  document.getElementById('tdDelete').style.display = type==='break' ? 'inline-flex' : 'none';
+  updateEndPreview();
+  timeDialog.showModal();
+}
+function updateEndPreview(){
+  const start = parseTime(tdStart.value);
+  const dur = Math.max(0, +tdDuration.value||0);
+  tdEndPreview.textContent = t('endsAt')+' '+formatTime(start+dur);
+}
+tdStart.addEventListener('input', updateEndPreview);
+tdDuration.addEventListener('input', updateEndPreview);
+document.getElementById('tdCancel').addEventListener('click', ()=> timeDialog.close());
+document.getElementById('tdDelete').addEventListener('click', ()=>{
+  state.settings.breaks = state.settings.breaks.filter(b=>b.id!==timeEditCtx.ref);
+  timeDialog.close(); commit();
+});
+document.getElementById('timeForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const start = parseTime(tdStart.value);
+  const duration = Math.max(5, +tdDuration.value||5);
+  const cascade = document.getElementById('tdCascade').checked;
+  const segsBefore = buildTimeline();
+  const idx = segsBefore.findIndex(s=> timeEditCtx.type==='period' ? (s.type==='period'&&s.num===timeEditCtx.ref) : (s.type==='break'&&s.id===timeEditCtx.ref));
+  if(timeEditCtx.type==='period'){
+    state.settings.periodTimes[timeEditCtx.ref-1] = { start, duration };
+  } else {
+    const b = state.settings.breaks.find(x=>x.id===timeEditCtx.ref);
+    if(b){ b.start=start; b.duration=duration; b.name=tdName.value.trim()||b.name; }
+  }
+  if(cascade && idx>=0){
+    let cursor = start+duration;
+    for(let i=idx+1;i<segsBefore.length;i++){
+      const s = segsBefore[i];
+      if(s.type==='period'){
+        const pt = state.settings.periodTimes[s.num-1];
+        pt.start = cursor; cursor += pt.duration;
+      } else {
+        const b = state.settings.breaks.find(x=>x.id===s.id);
+        if(b){ b.start = cursor; cursor += b.duration; }
+      }
+    }
+  }
+  timeDialog.close(); commit();
+});
+
+/* =========================================================
+   عروض الشاشات (Views)
+========================================================= */
+const NAV_GROUPS = [
+  { key:null, items:['dashboard'] },
+  { key:'navGroupData', items:['teachers','subjects','assignments'] },
+  { key:'navGroupSchedules', items:['grades','teacherSched'] },
+  { key:null, items:['settings'] },
+];
+
+function renderNav(){
+  const list = document.getElementById('navList');
+  list.innerHTML = NAV_GROUPS.map(g=>{
+    const eyebrow = g.key ? `<div class="nav-eyebrow">${t(g.key)}</div>` : '';
+    const items = g.items.map(id=>`
+      <li><button class="nav-btn" data-action="nav" data-view="${id}" ${ui.view===id?'aria-current="page"':''}>
+        ${ICONS[id]}<span>${t('nav_'+id)}</span>
+      </button></li>`).join('');
+    return eyebrow + `<ul>${items}</ul>`;
+  }).join('');
+}
+function overallStats(){
+  const slotIndex = buildTeacherSlotIndex();
+  let filled=0, total=0, conflicts=0;
+  state.grades.forEach(g=>g.sections.forEach(s=>{ total += state.settings.days.length*state.settings.periodTimes.length; filled += Object.values(s.cells||{}).filter(Boolean).length; }));
+  Object.values(slotIndex).forEach(locs=>{ if(locs.length>1) conflicts+=locs.length; });
+  const pct = total ? Math.round(filled/total*100) : 0;
+  return { filled, total, pct, conflicts, teachers:state.teachers.length, subjects:state.subjects.length,
+    sections: state.grades.reduce((s,g)=>s+g.sections.length,0) };
+}
+function renderChrome(){
+  document.getElementById('brandName').textContent = t('brandName');
+  document.getElementById('brandTag').textContent = t('brandTag');
+  document.getElementById('langBtnAr').classList.toggle('active', LANG==='ar');
+  document.getElementById('langBtnEn').classList.toggle('active', LANG==='en');
+  document.getElementById('themeBtnSystem').classList.toggle('active', THEME==='system');
+  document.getElementById('themeBtnLight').classList.toggle('active', THEME==='light');
+  document.getElementById('themeBtnDark').classList.toggle('active', THEME==='dark');
+  document.getElementById('themeBtnSystem').title = t('themeSystem');
+  document.getElementById('themeBtnLight').title = t('themeLight');
+  document.getElementById('themeBtnDark').title = t('themeDark');
+  document.getElementById('sidebarFoot').innerHTML = `${t('footerSave')}<br><strong>${t('footerOffline')}</strong>`;
+  document.getElementById('topTitle').textContent = t('nav_'+ui.view);
+  document.getElementById('topSub').textContent = t('sub_'+ui.view);
+  const st = overallStats();
+  document.getElementById('statChips').innerHTML = `
+    <div class="chip"><span class="dot"></span>${t('statCompletion')}: <b class="tabular">${fmtNum(st.pct)}${pctSign()}</b></div>
+    <div class="chip ${st.conflicts?'warn':''}"><span class="dot"></span>${t('statConflicts')}: <b class="tabular">${fmtNum(st.conflicts)}</b></div>
+    <div class="chip">${t('statTeachers')}: <b class="tabular">${fmtNum(st.teachers)}</b></div>
+  `;
+  document.getElementById('cdSubjectCaption').textContent = t('subjectLabel');
+  document.getElementById('cdTeacherCaption').textContent = t('teacherLabel');
+  document.getElementById('cdClear').textContent = t('clearPeriod');
+  document.getElementById('cdCancel').textContent = t('cancel');
+  document.getElementById('cdSave').textContent = t('save');
+  document.getElementById('tdNameCaption').textContent = t('breakName');
+  document.getElementById('tdStartCaption').textContent = t('startTime');
+  document.getElementById('tdDurationCaption').textContent = t('duration');
+  document.getElementById('tdDelete').textContent = t('deleteBreak');
+  document.getElementById('tdCascadeCaption').textContent = t('shiftFollowing');
+  document.getElementById('tdCancel').textContent = t('cancel');
+  document.getElementById('tdSave').textContent = t('save');
+}
+function donutSVG(pct){
+  const r=42, c=2*Math.PI*r, off=c*(1-pct/100);
+  return `<svg viewBox="0 0 100 100" width="126" height="126" role="img" aria-label="${fmtNum(pct)}${pctSign()}">
+    <circle cx="50" cy="50" r="${r}" fill="none" stroke-width="10" style="stroke:var(--surface-2)"/>
+    <circle cx="50" cy="50" r="${r}" fill="none" stroke-width="10" stroke-linecap="round" style="stroke:var(--accent);transition:stroke-dashoffset .3s"
+      stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}" transform="rotate(-90 50 50)"/>
+    <text x="50" y="46" text-anchor="middle" style="fill:var(--ink);font-family:var(--font-display);font-weight:700;font-size:21px">${fmtNum(pct)}${pctSign()}</text>
+    <text x="50" y="63" text-anchor="middle" style="fill:var(--muted);font-family:var(--font-body);font-size:8.5px">${t('completion')}</text>
+  </svg>`;
+}
+
+function render(){
+  renderChrome();
+  renderNav();
+  const c = document.getElementById('content');
+  c.className = 'content view-enter';
+  if(ui.view==='dashboard') c.innerHTML = viewDashboard();
+  else if(ui.view==='teachers') c.innerHTML = viewTeachers();
+  else if(ui.view==='subjects') c.innerHTML = viewSubjects();
+  else if(ui.view==='assignments') c.innerHTML = viewAssignments();
+  else if(ui.view==='grades') c.innerHTML = viewGrades();
+  else if(ui.view==='teacherSched') c.innerHTML = viewTeacherSched();
+  else if(ui.view==='settings') c.innerHTML = viewSettings();
+}
+function commit(){ save(); render(); }
+
+/* ---------- لوحة التحكم ---------- */
+function viewDashboard(){
+  const st = overallStats();
+  const slotIndex = buildTeacherSlotIndex();
+
+  const teacherRows = state.teachers.map(tc=>{
+    const {placed, planned} = teacherStats(tc.id);
+    const conflicts = conflictCountFor(tc.id, slotIndex);
+    let badge;
+    if(conflicts) badge = `<span class="badge badge-danger">${t('statusConflict')}</span>`;
+    else if(planned===0) badge = `<span class="badge badge-muted">${t('statusUnassigned')}</span>`;
+    else if(placed < planned) badge = `<span class="badge badge-amber">${t('statusIncomplete')}</span>`;
+    else if(placed > tc.quota) badge = `<span class="badge badge-amber">${t('statusOverQuota')}</span>`;
+    else badge = `<span class="badge badge-success">${t('statusComplete')}</span>`;
+    return `<tr>
+      <td class="cell-name">${esc(tc.name)}</td>
+      <td class="tabular">${fmtNum(tc.quota)}</td>
+      <td class="tabular">${fmtNum(planned)}</td>
+      <td class="tabular">${fmtNum(placed)}</td>
+      <td class="tabular" style="color:${tc.quota-placed<0?'var(--danger)':'inherit'}">${fmtNum(tc.quota-placed)}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+
+  const gradeRows = [];
+  state.grades.forEach(g=>g.sections.forEach(s=>{
+    const total = state.settings.days.length*state.settings.periodTimes.length;
+    const filled = Object.values(s.cells||{}).filter(Boolean).length;
+    const pct = total?Math.round(filled/total*100):0;
+    gradeRows.push(`<tr><td class="cell-name">${gradeName(g.num)}</td><td>${esc(s.name)}</td><td class="tabular">${fmtNum(filled)} / ${fmtNum(total)}</td>
+      <td><div class="row" style="gap:8px"><div class="progress" style="width:90px"><span style="width:${pct}%"></span></div><span class="tabular" style="font-size:.74rem;color:var(--muted)">${fmtNum(pct)}${pctSign()}</span></div></td></tr>`);
+  }));
+
+  return `
+  <div class="stack">
+    <div class="hero-grid">
+      <div class="card donut-card">
+        ${donutSVG(st.pct)}
+      </div>
+      <div class="tile-grid">
+        <div class="tile card"><div class="tile-top"><span class="tile-label">${t('statTeachers')}</span><span class="tile-icon">${ICONS.teachers}</span></div><span class="tile-num tabular">${fmtNum(st.teachers)}</span></div>
+        <div class="tile card"><div class="tile-top"><span class="tile-label">${t('nav_subjects')}</span><span class="tile-icon">${ICONS.subjects}</span></div><span class="tile-num tabular">${fmtNum(st.subjects)}</span></div>
+        <div class="tile card"><div class="tile-top"><span class="tile-label">${t('classesLabel')}</span><span class="tile-icon">${ICONS.grades}</span></div><span class="tile-num tabular">${fmtNum(st.sections)}</span></div>
+        <div class="tile card ${st.conflicts?'warn':'ok'}"><div class="tile-top"><span class="tile-label">${t('statConflicts')}</span><span class="tile-icon">${st.conflicts?ICONS.warn:ICONS.check}</span></div><span class="tile-num tabular">${fmtNum(st.conflicts)}</span></div>
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="section-head"><div><span class="eyebrow">${t('nav_dashboard')}</span><h3>${t('teacherStatsTitle')}</h3><p>${t('teacherStatsHint')}</p></div></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>${t('teacherLabel')}</th><th>${t('colQuota')}</th><th>${t('colPlanned')}</th><th>${t('colScheduled')}</th><th>${t('colRemaining')}</th><th>${t('colStatus')}</th></tr></thead>
+        <tbody>${teacherRows || `<tr><td colspan="6" class="empty-state">${ICONS.empty}<div>${t('emptyTeachers')}</div></td></tr>`}</tbody>
+      </table></div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="section-head"><div><h3>${t('gradeCompletionTitle')}</h3><p>${t('gradeCompletionHint')}</p></div></div>
+      <div class="table-scroll"><table><thead><tr><th>${t('colClass')}</th><th>${t('colSection')}</th><th>${t('colPeriods')}</th><th>${t('colCompletion')}</th></tr></thead>
+      <tbody>${gradeRows.join('')}</tbody></table></div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="section-head">
+        <div><h3>${t('masterTitle')}</h3><p>${t('masterHint')}</p></div>
+        <button class="btn btn-sm" data-action="print-master">${ICONS.printer} ${t('printMasterAll')}</button>
+      </div>
+      <div class="tabs">${state.settings.days.map((dow,i)=>`<button class="tab ${i===ui.dashDay?'active':''}" data-action="dash-day" data-d="${i}">${esc(dayLabel(dow))}</button>`).join('')}</div>
+      ${renderMasterGridTable(ui.dashDay)}
+    </div>
+  </div>`;
+}
+
+function renderMasterGridTable(dayIdx){
+  const slotIndex = buildTeacherSlotIndex();
+  const segs = buildTimeline();
+  const rows = state.grades.map(g=>{
+    const s = g.sections[0];
+    let cells = '';
+    segs.forEach(seg=>{
+      if(seg.type==='break'){ cells += breakBodyCell(seg); return; }
+      const p = seg.num, k = key(dayIdx,p);
+      const cell = s.cells[k];
+      if(!cell){ cells += `<td class="sched-cell empty" data-action="edit-cell-master" data-grade="${g.id}" data-section="${s.id}" data-d="${dayIdx}" data-p="${p}"><div class="sched-cell-inner"></div></td>`; return; }
+      const subj = state.subjects.find(x=>x.id===cell.subjectId);
+      const teach = state.teachers.find(x=>x.id===cell.teacherId);
+      const conflict = teach ? (slotIndex[teach.id+'|'+k]||[]).length>1 : false;
+      const bg = subj?`color-mix(in srgb, ${subj.color} 20%, var(--surface))`:'var(--surface)';
+      cells += `<td class="sched-cell ${conflict?'conflict':''}" style="background:${bg};border-inline-start:3px solid ${subj?subj.color:'var(--border)'}" data-action="edit-cell-master" data-grade="${g.id}" data-section="${s.id}" data-d="${dayIdx}" data-p="${p}">
+        <div class="sched-cell-inner"><span class="subj">${esc(subj?subj.name:'')}</span><span class="teach">${esc(teach?teach.name:'')}</span></div></td>`;
+    });
+    return `<tr><td class="daycol">${gradeName(g.num)}${g.sections.length>1?' ('+esc(s.name)+')':''}</td>${cells}</tr>`;
+  }).join('');
+  return `<div class="table-scroll"><table class="sched-table"><thead>${timelineHeaderRow(t('colClass'))}</thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* ---------- المعلمون ---------- */
+function viewTeachers(){
+  const rows = state.teachers.map(tc=>{
+    const {planned} = teacherStats(tc.id);
+    const subjTags = state.subjects.map(s=>`<span class="tag toggle ${tc.subjectIds.includes(s.id)?'on':''}" data-action="toggle-teacher-subject" data-teacher="${tc.id}" data-subject="${s.id}" style="${tc.subjectIds.includes(s.id)?`background:color-mix(in srgb, ${s.color} 25%, var(--surface));color:${s.color}`:''}">${esc(s.name)}</span>`).join('');
+    return `<tr data-search="${esc(tc.name.toLowerCase())}">
+      <td class="cell-name"><input type="text" value="${esc(tc.name)}" data-action="rename-teacher" data-id="${tc.id}" style="border:none;background:transparent;padding:2px;font-weight:600;width:130px"></td>
+      <td><div class="subject-tags">${subjTags || `<span style="color:var(--muted);font-size:.75rem">—</span>`}</div></td>
+      <td><input type="number" min="0" max="60" value="${tc.quota}" data-action="set-quota" data-id="${tc.id}" class="tabular" style="width:64px"></td>
+      <td class="tabular" style="color:var(--muted)">${fmtNum(planned)}</td>
+      <td><button class="btn btn-ghost btn-sm btn-danger" data-action="delete-teacher" data-id="${tc.id}">${ICONS.trash}</button></td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="stack">
+    <div class="card card-pad">
+      <div class="section-head"><div><span class="eyebrow">${t('nav_teachers')}</span><h3>${t('addTeacher')}</h3><p>${t('addTeacherHint')}</p></div></div>
+      <form data-action="add-teacher" class="row" style="align-items:flex-end">
+        <label style="flex:1;min-width:160px">${t('teacherName')}<input type="text" name="name" required placeholder="${t('teacherNamePh')}"></label>
+        <label style="width:120px">${t('weeklyQuota')}<input type="number" name="quota" value="24" min="0" max="60" class="tabular"></label>
+        <button class="btn btn-primary" type="submit">${ICONS.plus} ${t('add')}</button>
+      </form>
+      <details class="import" style="margin-top:14px">
+        <summary>${t('bulkImportTeachers')}</summary>
+        <div class="import-body">
+          <p class="hint">${t('bulkImportTeachersHint')}</p>
+          <textarea id="importTeachersText" placeholder="${esc(t('importTeachersPh'))}"></textarea>
+          <button type="button" class="btn btn-primary" style="align-self:flex-start" data-action="import-teachers">${t('importBtn')}</button>
+        </div>
+      </details>
+    </div>
+    <div class="card card-pad">
+      <div class="section-head">
+        <div><h3>${t('teachersList')}</h3><p>${t('teachersListHint')}</p></div>
+        <input type="text" class="search-input" placeholder="${t('searchTeachers')}" data-role="search-teachers">
+      </div>
+      <div class="table-scroll"><table id="teachersTable">
+        <thead><tr><th>${t('colName')}</th><th>${t('colSubjects')}</th><th>${t('colQuota')}</th><th>${t('colPlanned')}</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="5" class="empty-state">${ICONS.empty}<div>${t('emptyTeachers')}</div></td></tr>`}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- المواد ---------- */
+function viewSubjects(){
+  const rows = state.subjects.map(s=>`
+    <tr data-search="${esc(s.name.toLowerCase())}">
+      <td><input type="color" value="${s.color}" data-action="set-subject-color" data-id="${s.id}"></td>
+      <td class="cell-name"><input type="text" value="${esc(s.name)}" data-action="rename-subject" data-id="${s.id}" style="border:none;background:transparent;padding:2px;font-weight:600;width:170px"></td>
+      <td class="tabular" style="color:var(--muted)">${fmtNum(state.teachers.filter(x=>x.subjectIds.includes(s.id)).length)}</td>
+      <td><button class="btn btn-ghost btn-sm btn-danger" data-action="delete-subject" data-id="${s.id}">${ICONS.trash}</button></td>
+    </tr>`).join('');
+
+  return `
+  <div class="stack">
+    <div class="card card-pad">
+      <div class="section-head"><div><span class="eyebrow">${t('nav_subjects')}</span><h3>${t('addSubject')}</h3><p>${t('addSubjectHint')}</p></div></div>
+      <form data-action="add-subject" class="row" style="align-items:flex-end">
+        <label style="flex:1;min-width:160px">${t('subjectName')}<input type="text" name="name" required placeholder="${t('subjectNamePh')}"></label>
+        <label style="width:70px">${t('color')}<input type="color" name="color" value="${pick(PALETTE, state.subjects.length)}"></label>
+        <button class="btn btn-primary" type="submit">${ICONS.plus} ${t('add')}</button>
+      </form>
+      <details class="import" style="margin-top:14px">
+        <summary>${t('bulkImportSubjects')}</summary>
+        <div class="import-body">
+          <p class="hint">${t('bulkImportSubjectsHint')}</p>
+          <textarea id="importSubjectsText" placeholder="${esc(t('importSubjectsPh'))}"></textarea>
+          <button type="button" class="btn btn-primary" style="align-self:flex-start" data-action="import-subjects">${t('importBtn')}</button>
+        </div>
+      </details>
+    </div>
+    <div class="card card-pad">
+      <div class="section-head">
+        <div><h3>${t('subjectsList')}</h3></div>
+        <input type="text" class="search-input" placeholder="${t('searchSubjects')}" data-role="search-subjects">
+      </div>
+      <div class="table-scroll"><table id="subjectsTable">
+        <thead><tr><th>${t('colColor')}</th><th>${t('colSubject')}</th><th>${t('colLinkedTeachers')}</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="4" class="empty-state">${ICONS.empty}<div>${t('emptySubjects')}</div></td></tr>`}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- التوزيع ---------- */
+function viewAssignments(){
+  const rows = state.assignments.map(a=>{
+    const tt = state.teachers.find(x=>x.id===a.teacherId);
+    const s = state.subjects.find(x=>x.id===a.subjectId);
+    const g = state.grades.find(x=>x.id===a.gradeId);
+    const sec = g ? g.sections.find(x=>x.id===a.sectionId) : null;
+    return `<tr>
+      <td class="cell-name">${esc(tt?tt.name:'—')}</td>
+      <td><span class="tag" style="background:color-mix(in srgb, ${s?s.color:'#999'} 22%, var(--surface));color:${s?s.color:'inherit'}">${esc(s?s.name:'—')}</span></td>
+      <td>${g?gradeName(g.num):'—'}${sec?' / '+esc(sec.name):''}</td>
+      <td class="tabular">${fmtNum(a.periodsPerWeek)}</td>
+      <td><button class="btn btn-ghost btn-sm btn-danger" data-action="delete-assignment" data-id="${a.id}">${ICONS.trash}</button></td>
+    </tr>`;
+  }).join('');
+
+  const teacherOpts = state.teachers.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  const gradeOpts = state.grades.map(g=>`<option value="${g.id}">${gradeName(g.num)}</option>`).join('');
+  const firstGrade = state.grades[0];
+  const sectionOpts = firstGrade.sections.map(s=>`<option value="${s.id}">${t('section')} ${esc(s.name)}</option>`).join('');
+  const firstTeacherSubjects = state.teachers.length ? state.subjects.filter(s=>state.teachers[0].subjectIds.includes(s.id)) : [];
+  const subjectOpts = (firstTeacherSubjects.length?firstTeacherSubjects:state.subjects).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+
+  return `
+  <div class="stack">
+    <div class="card card-pad">
+      <div class="section-head"><div><span class="eyebrow">${t('nav_assignments')}</span><h3>${t('addAssignment')}</h3><p>${t('addAssignmentHint')}</p></div></div>
+      ${!state.teachers.length || !state.subjects.length ? `<p style="color:var(--muted);font-size:.85rem">${t('needTeachersSubjects')}</p>` : `
+      <form data-action="add-assignment" class="row" style="align-items:flex-end">
+        <label style="flex:1;min-width:140px">${t('teacherLabel')}<select id="af-teacher" name="teacherId">${teacherOpts}</select></label>
+        <label style="flex:1;min-width:140px">${t('subjectLabel')}<select id="af-subject" name="subjectId">${subjectOpts}</select></label>
+        <label style="min-width:130px">${t('gradeLabel')}<select id="af-grade" name="gradeId">${gradeOpts}</select></label>
+        <label style="min-width:110px">${t('sectionLabel')}<select id="af-section" name="sectionId">${sectionOpts}</select></label>
+        <label style="width:100px">${t('periodsPerWeek')}<input type="number" name="periodsPerWeek" value="4" min="1" max="20" class="tabular"></label>
+        <button class="btn btn-primary" type="submit">${ICONS.plus} ${t('add')}</button>
+      </form>`}
+    </div>
+    <div class="card card-pad">
+      <div class="section-head">
+        <div><h3>${t('genTitle')}</h3><p>${t('genHint')}</p></div>
+        <div class="row">
+          <label class="row" style="font-weight:500;color:var(--ink);gap:6px"><input type="checkbox" id="overwriteToggle"> ${t('overwriteExisting')}</label>
+          <button class="btn btn-primary" data-action="generate-all">${ICONS.wand} ${t('generateAll')}</button>
+        </div>
+      </div>
+    </div>
+    <div class="card card-pad">
+      <div class="section-head"><div><h3>${t('assignmentsList')}</h3></div></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>${t('teacherLabel')}</th><th>${t('subjectLabel')}</th><th>${t('colClassSection')}</th><th>${t('periodsPerWeek')}</th><th></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="5" class="empty-state">${ICONS.empty}<div>${t('emptyAssignments')}</div></td></tr>`}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- جداول الصفوف ---------- */
+function viewGrades(){
+  const grade = state.grades[ui.gradeIdx];
+  if(!ui.sectionId || !grade.sections.find(s=>s.id===ui.sectionId)) ui.sectionId = grade.sections[0].id;
+  const section = grade.sections.find(s=>s.id===ui.sectionId);
+  const total = state.settings.days.length*state.settings.periodTimes.length;
+  const filled = Object.values(section.cells||{}).filter(Boolean).length;
+
+  const gradeTabs = state.grades.map((g,i)=>`<button class="tab ${i===ui.gradeIdx?'active':''}" data-action="select-grade" data-i="${i}"><span class="num">${fmtNum(g.num)}</span>${gradeName(g.num)}</button>`).join('');
+  const sectionTabs = grade.sections.map(s=>`<span class="subtab ${s.id===ui.sectionId?'active':''}" data-action="select-section" data-id="${s.id}">${t('section')} ${esc(s.name)} <span class="x" data-action="rename-section" data-id="${s.id}" title="${t('rename')}">${ICONS.pencil.replace('<svg ','<svg style="width:11px;height:11px;vertical-align:-1px" ')}</span>${grade.sections.length>1?`<span class="x" data-action="delete-section" data-id="${s.id}">✕</span>`:''}</span>`).join('');
+  const legend = state.subjects.map(s=>`<span class="legend-item"><span class="legend-dot" style="background:${s.color}"></span>${esc(s.name)}</span>`).join('');
+
+  return `
+  <div class="stack">
+    <div class="tabs">${gradeTabs}</div>
+    <div class="card card-pad">
+      <div class="section-head">
+        <div><h3>${gradeName(grade.num)} — ${t('section')} ${esc(section.name)}</h3><p>${t('filledOfTotal')} <span class="tabular">${fmtNum(filled)}</span> ${t('ofWord')} <span class="tabular">${fmtNum(total)}</span>. ${t('clickToEdit')}</p></div>
+        <div class="row">
+          <button class="btn btn-sm" data-action="add-section">${ICONS.plus} ${t('addSection')}</button>
+          <label class="row" style="font-weight:500;color:var(--ink);gap:6px;font-size:.8rem"><input type="checkbox" id="overwriteSectionToggle"> ${t('overwriteShort')}</label>
+          <button class="btn btn-primary btn-sm" data-action="generate-section">${ICONS.wand} ${t('generateSection')}</button>
+          <button class="btn btn-sm" data-action="print-section">${ICONS.printer} ${t('print')}</button>
+          <button class="btn btn-danger btn-sm" data-action="clear-section">${ICONS.trash} ${t('clearTimetable')}</button>
+        </div>
+      </div>
+      <div class="subtabs">${sectionTabs}</div>
+      ${renderScheduleTable(section)}
+      <div class="sched-legend">${legend}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- جداول المعلمين ---------- */
+function renderTeacherTimetableTable(teacherId){
+  const virtualCells = {}, locations = {};
+  state.grades.forEach(g=>g.sections.forEach(s=>{
+    Object.entries(s.cells||{}).forEach(([k,cell])=>{
+      if(cell && cell.teacherId===teacherId){ virtualCells[k]=cell; locations[k]=gradeName(g.num)+' / '+s.name; }
+    });
+  }));
+  const segs = buildTimeline();
+  let body = '';
+  state.settings.days.forEach((dow,d)=>{
+    body += `<tr><td class="daycol">${esc(dayLabel(dow))}</td>`;
+    segs.forEach(seg=>{
+      if(seg.type==='break'){ body += breakBodyCell(seg); return; }
+      const k = key(d,seg.num);
+      const cell = virtualCells[k];
+      if(!cell){ body += `<td class="sched-cell empty readonly"><div class="sched-cell-inner" style="opacity:.5">${t('free')}</div></td>`; return; }
+      const subj = state.subjects.find(s=>s.id===cell.subjectId);
+      const bg = subj?`color-mix(in srgb, ${subj.color} 20%, var(--surface))`:'var(--surface)';
+      body += `<td class="sched-cell readonly" style="background:${bg};border-inline-start:3px solid ${subj?subj.color:'var(--border)'}">
+        <div class="sched-cell-inner"><span class="subj">${esc(subj?subj.name:'')}</span><span class="teach">${esc(locations[k]||'')}</span></div></td>`;
+    });
+    body += '</tr>';
+  });
+  return `<div class="table-scroll"><table class="sched-table"><thead>${timelineHeaderRow(t('dayPeriod'))}</thead><tbody>${body}</tbody></table></div>`;
+}
+
+function viewTeacherSched(){
+  if(!state.teachers.length) return `<div class="card card-pad empty-state">${ICONS.empty}<div>${t('addTeachersFirst')}</div></div>`;
+  if(!ui.teacherId || !state.teachers.find(x=>x.id===ui.teacherId)) ui.teacherId = state.teachers[0].id;
+  const teacher = state.teachers.find(x=>x.id===ui.teacherId);
+  const {placed, planned} = teacherStats(teacher.id);
+  const teacherTabs = state.teachers.map(x=>`<button class="tab ${x.id===ui.teacherId?'active':''}" data-action="select-teacher-view" data-id="${x.id}">${esc(x.name)}</button>`).join('');
+
+  return `
+  <div class="stack">
+    <div class="tabs">${teacherTabs}</div>
+    <div class="card card-pad">
+      <div class="section-head">
+        <div><h3>${esc(teacher.name)}</h3><p>${t('teacherQuotaLine')} <span class="tabular">${fmtNum(teacher.quota)}</span> — ${t('plannedLine')} <span class="tabular">${fmtNum(planned)}</span> — ${t('scheduledLine')} <span class="tabular">${fmtNum(placed)}</span></p></div>
+        <button class="btn btn-sm" data-action="print-teacher">${ICONS.printer} ${t('print')}</button>
+      </div>
+      ${renderTeacherTimetableTable(teacher.id)}
+    </div>
+  </div>`;
+}
+
+/* ---------- الإعدادات ---------- */
+function viewSettings(){
+  const isSix = state.settings.days.length===6;
+  const periodCount = state.settings.periodTimes.length;
+  const segs = buildTimeline();
+  const timelineRows = segs.map(seg=>{
+    if(seg.type==='break'){
+      return `<div class="break-row" data-action="edit-time" data-type="break" data-id="${seg.id}" style="border-style:dashed">
+        <span class="meta">${ICONS.cup.replace('<svg ','<svg style="width:13px;height:13px;vertical-align:-2px" ')} <b>${esc(seg.name)}</b></span>
+        <span class="row" style="gap:10px">
+          <span class="meta tabular">${formatTime(seg.start)}–${formatTime(seg.end)}</span>
+          <button type="button" class="btn btn-ghost btn-sm btn-danger" data-action="delete-break" data-id="${seg.id}">${ICONS.trash}</button>
+        </span>
+      </div>`;
+    }
+    return `<div class="break-row" data-action="edit-time" data-type="period" data-num="${seg.num}">
+      <span class="meta">${t('period')} <b>${fmtNum(seg.num)}</b></span>
+      <span class="meta tabular">${formatTime(seg.start)}–${formatTime(seg.end)}</span>
+    </div>`;
+  }).join('');
+
+  const periodOpts = Array.from({length:periodCount},(_,i)=>i+1).map(p=>`<option value="${p}">${t('afterPeriod')} ${fmtNum(p)}</option>`).join('');
+
+  return `
+  <div class="stack">
+    <div class="card card-pad">
+      <div class="section-head"><div><span class="eyebrow">${t('nav_settings')}</span><h3>${t('weekDays')}</h3><p>${t('settingsResetHint')}</p></div></div>
+      <form data-action="save-settings" class="row" style="align-items:flex-end">
+        <label style="width:240px">${t('weekDays')}
+          <select name="daysMode">
+            <option value="5" ${!isSix?'selected':''}>${t('days5')}</option>
+            <option value="6" ${isSix?'selected':''}>${t('days6')}</option>
+          </select>
+        </label>
+        <label style="width:150px">${t('periodsPerDay')}<input type="number" name="periods" min="4" max="10" value="${periodCount}" class="tabular"></label>
+        <label style="width:150px">${t('schoolStart')}<input type="time" name="schoolStart" value="${state.settings.schoolStart}"></label>
+        <label style="width:150px">${t('periodDuration')}<input type="number" name="periodDuration" min="30" max="90" step="5" value="${state.settings.periodDuration}" class="tabular"></label>
+        <button class="btn btn-primary" type="submit">${t('saveSettings')}</button>
+      </form>
+    </div>
+
+    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1.15fr;gap:18px">
+      <div class="card card-pad">
+        <div class="section-head"><div><h3>${t('breaksTitle')}</h3><p>${t('breaksHint')}</p></div></div>
+        <form data-action="add-break" class="row" style="align-items:flex-end">
+          <label style="flex:1;min-width:110px">${t('breakName')}<input type="text" name="name" placeholder="${t('breakNamePh')}" value="${t('breakNamePh')}"></label>
+          <label style="width:130px">${t('afterPeriod')}<select name="afterPeriod">${periodOpts}</select></label>
+          <label style="width:100px">${t('duration')}<input type="number" name="duration" value="20" min="5" max="60" class="tabular"></label>
+          <button class="btn btn-primary btn-sm" type="submit">${ICONS.plus} ${t('addBreak')}</button>
+        </form>
+      </div>
+      <div class="card card-pad">
+        <div class="section-head">
+          <div><h3>${t('dayPreview')}</h3><p>${t('clickToEditTime')}</p></div>
+          <button type="button" class="btn btn-sm" data-action="reset-times">${ICONS.wand} ${t('resetTimesDefaults')}</button>
+        </div>
+        <div class="stack" style="gap:8px">${timelineRows}</div>
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="section-head"><div><h3>${t('printingTitle')}</h3><p>${t('printingHint')}</p></div></div>
+      <div class="row">
+        <button class="btn" data-action="print-all-sections">${ICONS.printer} ${t('printAllSections')}</button>
+        <button class="btn" data-action="print-all-teachers">${ICONS.printer} ${t('printAllTeachers')}</button>
+        <button class="btn" data-action="print-master-all">${ICONS.printer} ${t('printMasterAll')}</button>
+        <button class="btn btn-primary" data-action="print-everything">${ICONS.printer} ${t('printEverything')}</button>
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="section-head"><div><h3>${t('dataTitle')}</h3><p>${t('dataHint')}</p></div></div>
+      <div class="row">
+        <button class="btn" data-action="reset-demo">${t('restoreDemo')}</button>
+        <button class="btn btn-danger" data-action="clear-all">${ICONS.trash} ${t('clearAll')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   ربط الأحداث (Event delegation)
+========================================================= */
+document.querySelector('.sidebar').addEventListener('click', e=>{
+  const langBtn = e.target.closest('[data-action="set-lang"]');
+  if(langBtn){ setLang(langBtn.dataset.lang); return; }
+  const themeBtn = e.target.closest('[data-action="set-theme"]');
+  if(themeBtn){ setTheme(themeBtn.dataset.theme); return; }
+  const navBtn = e.target.closest('[data-action="nav"]');
+  if(navBtn){ ui.view = navBtn.dataset.view; render(); }
+});
+function setLang(l){
+  if(l===LANG) return;
+  LANG = l;
+  try{ localStorage.setItem('nisab-lang', l); }catch(e){}
+  document.documentElement.setAttribute('lang', l);
+  document.documentElement.setAttribute('dir', l==='en'?'ltr':'rtl');
+  render();
+}
+function setTheme(th){
+  if(th===THEME) return;
+  THEME = th;
+  try{ localStorage.setItem('nisab-theme', th); }catch(e){}
+  if(th==='system') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', th);
+  render();
+}
+
+const contentEl = document.getElementById('content');
+
+contentEl.addEventListener('click', e=>{
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const action = el.dataset.action;
+
+  if(action==='edit-cell'){ const grade = state.grades[ui.gradeIdx]; openCellEditor(grade.id, ui.sectionId, +el.dataset.d, +el.dataset.p); }
+  else if(action==='edit-cell-master'){ openCellEditor(el.dataset.grade, el.dataset.section, +el.dataset.d, +el.dataset.p); }
+  else if(action==='dash-day'){ ui.dashDay = +el.dataset.d; render(); }
+
+  else if(action==='delete-teacher'){
+    if(!confirm(t('confirmDeleteTeacher'))) return;
+    const id = el.dataset.id;
+    state.teachers = state.teachers.filter(x=>x.id!==id);
+    state.assignments = state.assignments.filter(a=>a.teacherId!==id);
+    state.grades.forEach(g=>g.sections.forEach(s=>{ Object.keys(s.cells||{}).forEach(k=>{ if(s.cells[k] && s.cells[k].teacherId===id) delete s.cells[k]; }); }));
+    commit();
+  }
+  else if(action==='delete-subject'){
+    if(!confirm(t('confirmDeleteSubject'))) return;
+    const id = el.dataset.id;
+    state.subjects = state.subjects.filter(x=>x.id!==id);
+    state.assignments = state.assignments.filter(a=>a.subjectId!==id);
+    state.teachers.forEach(x=> x.subjectIds = x.subjectIds.filter(sid=>sid!==id));
+    state.grades.forEach(g=>g.sections.forEach(s=>{ Object.keys(s.cells||{}).forEach(k=>{ if(s.cells[k] && s.cells[k].subjectId===id) delete s.cells[k]; }); }));
+    commit();
+  }
+  else if(action==='delete-assignment'){ state.assignments = state.assignments.filter(a=>a.id!==el.dataset.id); commit(); }
+  else if(action==='toggle-teacher-subject'){
+    const tt = state.teachers.find(x=>x.id===el.dataset.teacher), sid = el.dataset.subject;
+    if(tt.subjectIds.includes(sid)) tt.subjectIds = tt.subjectIds.filter(x=>x!==sid); else tt.subjectIds.push(sid);
+    commit();
+  }
+  else if(action==='generate-all'){
+    const overwrite = document.getElementById('overwriteToggle').checked;
+    const unplaced = generateAll(overwrite);
+    save(); render();
+    if(unplaced>0) alert(t('unplacedAlert'));
+  }
+  else if(action==='generate-section'){
+    const grade = state.grades[ui.gradeIdx];
+    const overwrite = document.getElementById('overwriteSectionToggle').checked;
+    const slotIndex = buildTeacherSlotIndex();
+    const unplaced = generateSection(grade.id, ui.sectionId, overwrite, slotIndex);
+    commit();
+    if(unplaced.length>0) alert(t('unplacedAlertSection'));
+  }
+  else if(action==='clear-section'){
+    if(!confirm(t('confirmClearSection'))) return;
+    const grade = state.grades[ui.gradeIdx];
+    grade.sections.find(s=>s.id===ui.sectionId).cells = {};
+    commit();
+  }
+  else if(action==='select-grade'){ ui.gradeIdx = +el.dataset.i; ui.sectionId=null; render(); }
+  else if(action==='select-section'){ ui.sectionId = el.dataset.id; render(); }
+  else if(action==='add-section'){
+    const grade = state.grades[ui.gradeIdx];
+    const name = prompt(t('newSectionPrompt'));
+    if(!name) return;
+    const s = { id:uid('s'), name:name.trim(), cells:{} };
+    grade.sections.push(s); ui.sectionId = s.id; commit();
+  }
+  else if(action==='rename-section'){
+    e.stopPropagation();
+    const grade = state.grades[ui.gradeIdx];
+    const sec = grade.sections.find(s=>s.id===el.dataset.id);
+    const name = prompt(t('renameSectionPrompt'), sec.name);
+    if(!name) return;
+    sec.name = name.trim()||sec.name;
+    commit();
+  }
+  else if(action==='delete-section'){
+    e.stopPropagation();
+    if(!confirm(t('confirmDeleteSection'))) return;
+    const grade = state.grades[ui.gradeIdx];
+    grade.sections = grade.sections.filter(s=>s.id!==el.dataset.id);
+    state.assignments = state.assignments.filter(a=>a.sectionId!==el.dataset.id);
+    if(ui.sectionId===el.dataset.id) ui.sectionId = grade.sections[0].id;
+    commit();
+  }
+  else if(action==='select-teacher-view'){ ui.teacherId = el.dataset.id; render(); }
+  else if(action==='import-teachers'){ importTeachers(document.getElementById('importTeachersText').value); }
+  else if(action==='import-subjects'){ importSubjects(document.getElementById('importSubjectsText').value); }
+  else if(action==='edit-time'){
+    if(el.dataset.type==='period') openTimeEditor('period', +el.dataset.num);
+    else openTimeEditor('break', el.dataset.id);
+  }
+  else if(action==='delete-break'){
+    state.settings.breaks = state.settings.breaks.filter(b=>b.id!==el.dataset.id);
+    commit();
+  }
+  else if(action==='reset-times'){
+    if(!confirm(t('confirmResetTimes'))) return;
+    const count = state.settings.periodTimes.length;
+    state.settings.periodTimes = buildDefaultPeriodTimes(count, state.settings.schoolStart, state.settings.periodDuration);
+    commit();
+  }
+  else if(action==='print-section'){ printSectionNow(); }
+  else if(action==='print-teacher'){ printTeacherNow(); }
+  else if(action==='print-master'){ printMasterAllNow(); }
+  else if(action==='print-all-sections'){ printAllSectionsNow(); }
+  else if(action==='print-all-teachers'){ printAllTeachersNow(); }
+  else if(action==='print-master-all'){ printMasterAllNow(); }
+  else if(action==='print-everything'){ printEverythingNow(); }
+  else if(action==='reset-demo'){
+    if(!confirm(t('confirmResetDemo'))) return;
+    buildDemoData(); generateAll(true); save(); render();
+  }
+  else if(action==='clear-all'){
+    if(!confirm(t('confirmClearAll'))) return;
+    state = blankState(); save(); render();
+  }
+});
+
+contentEl.addEventListener('input', e=>{
+  const el = e.target;
+  if(el.dataset.role==='search-teachers' || el.dataset.role==='search-subjects'){
+    const tableId = el.dataset.role==='search-teachers' ? 'teachersTable' : 'subjectsTable';
+    const q = el.value.trim().toLowerCase();
+    document.querySelectorAll(`#${tableId} tbody tr[data-search]`).forEach(row=>{
+      row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+    });
+  }
+});
+
+contentEl.addEventListener('change', e=>{
+  const el = e.target;
+  if(el.dataset.action==='rename-teacher'){ const t2=state.teachers.find(x=>x.id===el.dataset.id); t2.name=el.value.trim()||t2.name; save(); }
+  else if(el.dataset.action==='set-quota'){ const t2=state.teachers.find(x=>x.id===el.dataset.id); t2.quota=Math.max(0,+el.value||0); save(); }
+  else if(el.dataset.action==='rename-subject'){ const s2=state.subjects.find(x=>x.id===el.dataset.id); s2.name=el.value.trim()||s2.name; save(); }
+  else if(el.dataset.action==='set-subject-color'){ const s2=state.subjects.find(x=>x.id===el.dataset.id); s2.color=el.value; save(); render(); }
+  else if(el.id==='af-teacher'){
+    const tt = state.teachers.find(x=>x.id===el.value);
+    const list = tt && tt.subjectIds.length ? state.subjects.filter(s=>tt.subjectIds.includes(s.id)) : state.subjects;
+    document.getElementById('af-subject').innerHTML = list.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  }
+  else if(el.id==='af-grade'){
+    const g = state.grades.find(x=>x.id===el.value);
+    document.getElementById('af-section').innerHTML = g.sections.map(s=>`<option value="${s.id}">${t('section')} ${esc(s.name)}</option>`).join('');
+  }
+});
+
+contentEl.addEventListener('submit', e=>{
+  const form = e.target, action = form.dataset.action;
+  if(!action) return;
+  e.preventDefault();
+  const fd = new FormData(form);
+
+  if(action==='add-teacher'){
+    const name = (fd.get('name')||'').trim(); if(!name) return;
+    state.teachers.push({ id:uid('t'), name, subjectIds:[], quota: Math.max(0,+fd.get('quota')||0) });
+    commit();
+  }
+  else if(action==='add-subject'){
+    const name = (fd.get('name')||'').trim(); if(!name) return;
+    state.subjects.push({ id:uid('sub'), name, color: fd.get('color')||PALETTE[0] });
+    commit();
+  }
+  else if(action==='add-assignment'){
+    const teacherId=fd.get('teacherId'), subjectId=fd.get('subjectId'), gradeId=fd.get('gradeId'), sectionId=fd.get('sectionId');
+    const periodsPerWeek = Math.max(1, +fd.get('periodsPerWeek')||1);
+    if(!teacherId||!subjectId||!gradeId||!sectionId) return;
+    state.assignments.push({ id:uid('a'), teacherId, subjectId, gradeId, sectionId, periodsPerWeek });
+    commit();
+  }
+  else if(action==='add-break'){
+    const name = (fd.get('name')||'').trim() || t('breakNamePh');
+    const afterPeriod = Math.max(1, Math.min(state.settings.periodTimes.length, +fd.get('afterPeriod')||1));
+    const duration = Math.max(5, Math.min(120, +fd.get('duration')||20));
+    state.settings.breaks.push(makeBreakAfterPeriod(afterPeriod, name, duration));
+    commit();
+  }
+  else if(action==='save-settings'){
+    const daysMode = fd.get('daysMode');
+    const newCount = Math.min(10, Math.max(4, +fd.get('periods')||7));
+    const schoolStart = fd.get('schoolStart') || state.settings.schoolStart;
+    const periodDuration = Math.min(90, Math.max(30, +fd.get('periodDuration')||45));
+    const newDays = daysMode==='6' ? [6,0,1,2,3,4] : [0,1,2,3,4];
+    const daysChanged = newDays.length!==state.settings.days.length;
+    if(daysChanged){
+      if(!confirm(t('confirmSettingsReset'))) return;
+      state.grades.forEach(g=>g.sections.forEach(s=> s.cells = {}));
+    }
+    const oldCount = state.settings.periodTimes.length;
+    if(newCount < oldCount){
+      state.grades.forEach(g=>g.sections.forEach(s=>{
+        Object.keys(s.cells||{}).forEach(k=>{ if(+k.split('-')[1] > newCount) delete s.cells[k]; });
+      }));
+      state.settings.periodTimes = state.settings.periodTimes.slice(0, newCount);
+    } else if(newCount > oldCount){
+      let cursor = oldCount ? (state.settings.periodTimes[oldCount-1].start + state.settings.periodTimes[oldCount-1].duration) : parseTime(schoolStart);
+      for(let i=oldCount;i<newCount;i++){ state.settings.periodTimes.push({ start:cursor, duration:periodDuration }); cursor += periodDuration; }
+    }
+    state.settings.days = newDays;
+    state.settings.schoolStart = schoolStart;
+    state.settings.periodDuration = periodDuration;
+    commit();
+  }
+});
+
+/* ---------- استيراد ---------- */
+function findOrCreateSubject(name){
+  name = name.trim(); if(!name) return null;
+  let s = state.subjects.find(x=>x.name===name);
+  if(!s){ s = { id:uid('sub'), name, color: pick(PALETTE, state.subjects.length) }; state.subjects.push(s); }
+  return s;
+}
+function importTeachers(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(!lines.length) return;
+  lines.forEach(line=>{
+    const parts = line.split(',').map(p=>p.trim());
+    const name = parts[0]; if(!name) return;
+    const subjNames = (parts[1]||'').split(/[؛;]/).map(s=>s.trim()).filter(Boolean);
+    const quota = parts[2] ? Math.max(0,+parts[2]||0) : 24;
+    const subjectIds = subjNames.map(n=>findOrCreateSubject(n).id);
+    let tt = state.teachers.find(x=>x.name===name);
+    if(tt){ tt.subjectIds = Array.from(new Set([...tt.subjectIds, ...subjectIds])); tt.quota = quota; }
+    else state.teachers.push({ id:uid('t'), name, subjectIds, quota });
+  });
+  document.getElementById('importTeachersText').value = '';
+  commit();
+}
+function importSubjects(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(!lines.length) return;
+  lines.forEach(line=>{
+    const [name, color] = line.split(',').map(p=>p.trim());
+    if(!name) return;
+    const s = findOrCreateSubject(name);
+    if(color) s.color = color;
+  });
+  document.getElementById('importSubjectsText').value = '';
+  commit();
+}
+
+/* =========================================================
+   الطباعة
+========================================================= */
+function printPage(innerHtml){
+  document.getElementById('printArea').innerHTML = innerHtml;
+  window.print();
+}
+function printSectionPage(grade, section){
+  return `<div class="print-page"><h2>${esc(t('brandName'))} — ${esc(gradeName(grade.num))} — ${esc(t('section'))} ${esc(section.name)}</h2>${renderScheduleTable(section)}</div>`;
+}
+function printTeacherPage(teacher){
+  return `<div class="print-page"><h2>${esc(t('brandName'))} — ${esc(teacher.name)}</h2>${renderTeacherTimetableTable(teacher.id)}</div>`;
+}
+function printMasterPage(dayIdx){
+  return `<div class="print-page"><h2>${esc(t('brandName'))} — ${esc(t('masterTitle'))} — ${esc(dayLabel(state.settings.days[dayIdx]))}</h2>${renderMasterGridTable(dayIdx)}</div>`;
+}
+function printSectionNow(){
+  const grade = state.grades[ui.gradeIdx];
+  const section = grade.sections.find(s=>s.id===ui.sectionId);
+  printPage(printSectionPage(grade, section));
+}
+function printTeacherNow(){
+  const teacher = state.teachers.find(x=>x.id===ui.teacherId);
+  if(!teacher) return;
+  printPage(printTeacherPage(teacher));
+}
+function printAllSectionsNow(){
+  let out = '';
+  state.grades.forEach(g=> g.sections.forEach(s=>{ out += printSectionPage(g, s); }));
+  printPage(out);
+}
+function printAllTeachersNow(){
+  let out = '';
+  state.teachers.forEach(tc=>{ out += printTeacherPage(tc); });
+  printPage(out);
+}
+function printMasterAllNow(){
+  let out = '';
+  state.settings.days.forEach((dow,d)=>{ out += printMasterPage(d); });
+  printPage(out);
+}
+function printEverythingNow(){
+  let out = '';
+  state.grades.forEach(g=> g.sections.forEach(s=>{ out += printSectionPage(g, s); }));
+  state.teachers.forEach(tc=>{ out += printTeacherPage(tc); });
+  state.settings.days.forEach((dow,d)=>{ out += printMasterPage(d); });
+  printPage(out);
+}
+
+/* =========================================================
+   بدء التشغيل
+========================================================= */
+(function init(){
+  const loaded = load();
+  if(loaded){ state = loaded; }
+  else{ buildDemoData(); generateAll(true); save(); }
+  render();
+})();
+</script>
