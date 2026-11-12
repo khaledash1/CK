@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>منصة رئيسة القسم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@500;600;700&display=swap">
+<script>
+(function(){try{var t=localStorage.getItem('dh-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
+<style>
+:root{
+  --bg:#F4F2EE; --surface:#FFFFFF; --surface-2:#F0EDE7; --border:#E2DDD4;
+  --ink:#1F2430; --muted:#6A6F7A; --faint:#9A9EA6;
+  --accent:#5B2C6F; --accent-2:#7D4A93; --accent-soft:#EFE6F3; --accent-ink:#FFFFFF;
+  --ok:#1F7A55; --ok-soft:#E3F3EB; --warn:#A8670B; --warn-soft:#FBF0DD;
+  --bad:#B4322E; --bad-soft:#FBE6E4; --info:#24609E; --info-soft:#E3EEF9;
+  --shadow:0 1px 2px rgba(30,25,40,.05),0 4px 16px rgba(30,25,40,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15131A; --surface:#1E1B24; --surface-2:#272330; --border:#36313F;
+    --ink:#ECE8F0; --muted:#A49FAE; --faint:#77727F;
+    --accent:#C79BE0; --accent-2:#B282CC; --accent-soft:#33283D; --accent-ink:#1A1420;
+    --ok:#5CC89A; --ok-soft:#1D3229; --warn:#E5AC4C; --warn-soft:#3A2E1A;
+    --bad:#F07C76; --bad-soft:#3C2222; --info:#7FB2EA; --info-soft:#1E2C3D;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15131A; --surface:#1E1B24; --surface-2:#272330; --border:#36313F;
+  --ink:#ECE8F0; --muted:#A49FAE; --faint:#77727F;
+  --accent:#C79BE0; --accent-2:#B282CC; --accent-soft:#33283D; --accent-ink:#1A1420;
+  --ok:#5CC89A; --ok-soft:#1D3229; --warn:#E5AC4C; --warn-soft:#3A2E1A;
+  --bad:#F07C76; --bad-soft:#3C2222; --info:#7FB2EA; --info-soft:#1E2C3D;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:15px;line-height:1.6}
+h1,h2,h3,h4{font-family:"Noto Kufi Arabic","IBM Plex Sans Arabic",sans-serif;margin:0;line-height:1.35}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+/* sidebar */
+.side{background:var(--surface);border-inline-end:1px solid var(--border);padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.brand .logo{width:40px;height:40px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-family:"Noto Kufi Arabic"}
+.brand b{display:block;font-size:15px}
+.brand small{color:var(--muted);font-size:12px}
+.nav button{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--muted);font-weight:500}
+.nav button:hover{background:var(--surface-2);color:var(--ink)}
+.nav button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav button:focus-visible{outline:2px solid var(--accent)}
+.nav svg{width:19px;height:19px;flex:none}
+.nav .count{margin-inline-start:auto;background:var(--bad);color:#fff;font-size:11px;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 6px}
+.side .foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+/* main */
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5}
+.top .title{flex:1;min-width:0}
+.top .title h1{font-size:19px}
+.top .title small{color:var(--muted);font-size:12.5px}
+.menu-btn{display:none}
+.content{padding:24px 28px 60px;max-width:1400px;width:100%}
+/* ui */
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);padding:7px 14px;border-radius:10px;cursor:pointer;font-weight:500;font-size:14px;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{background:var(--accent-2)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.bad{color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:4px 10px;font-size:13px;border-radius:8px}
+.btn.icon{padding:7px;width:36px;height:36px;justify-content:center}
+.btn svg{width:16px;height:16px}
+select,input[type=text],input[type=date],input[type=number],input[type=email],input[type=time],textarea{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 10px;width:100%}
+textarea{min-height:90px;resize:vertical}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card h3{font-size:15.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h3 .grow{flex:1}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-main{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);cursor:default}
+.kpi[data-go]{cursor:pointer}
+.kpi[data-go]:hover{border-color:var(--accent)}
+.kpi .l{color:var(--muted);font-size:13px}
+.kpi .v{font-size:28px;font-weight:700;font-family:"Noto Kufi Arabic";line-height:1.3;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--faint)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.toolbar .grow{flex:1}
+.toolbar select,.toolbar input{width:auto;min-width:150px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.badge.info{background:var(--info-soft);color:var(--info)}
+.badge.acc{background:var(--accent-soft);color:var(--accent)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--border);vertical-align:middle}
+th{background:var(--surface-2);color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--surface-2) 50%,transparent)}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.faint{color:var(--faint)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.row.wrap{flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:10px}
+.empty{color:var(--muted);text-align:center;padding:24px;font-size:14px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;flex:none}
+.avatar.lg{width:56px;height:56px;font-size:19px}
+.bar{height:8px;border-radius:6px;background:var(--surface-2);overflow:hidden;min-width:60px}
+.bar>i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+.bar.ok>i{background:var(--ok)}.bar.warn>i{background:var(--warn)}.bar.bad>i{background:var(--bad)}
+.tabs{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:12px;flex-wrap:wrap}
+.tabs button{all:unset;cursor:pointer;padding:6px 14px;border-radius:9px;font-size:14px;color:var(--muted)}
+.tabs button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+/* alerts */
+.alert{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--surface-2);font-size:14px;cursor:pointer;border-inline-start:4px solid var(--faint)}
+.alert:hover{filter:brightness(.98)}
+.alert.bad{background:var(--bad-soft);border-color:var(--bad)}
+.alert.warn{background:var(--warn-soft);border-color:var(--warn)}
+.alert.info{background:var(--info-soft);border-color:var(--info)}
+/* timeline */
+.tl{display:flex;flex-direction:column;gap:8px}
+.tl-item{display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:12px}
+.tl-item.now{border-color:var(--accent);background:var(--accent-soft)}
+.tl-item .time{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px;color:var(--muted);line-height:1.3}
+.tl-item .time b{display:block;color:var(--ink);font-size:15px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--accent)}
+.live{animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.3}}
+/* schedule grid */
+.sched{display:grid;grid-template-columns:110px repeat(5,minmax(150px,1fr));gap:6px;min-width:880px}
+.sched .hd{background:var(--surface-2);border-radius:10px;padding:8px;text-align:center;font-weight:600;font-size:13.5px}
+.sched .hd.today{background:var(--accent);color:var(--accent-ink)}
+.sched .pd{display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:12.5px;color:var(--muted);background:var(--surface-2);border-radius:10px;font-variant-numeric:tabular-nums}
+.sched .cell{min-height:92px;border:1px dashed var(--border);border-radius:10px;padding:4px;display:flex;flex-direction:column;gap:4px}
+.slot{border-radius:9px;padding:6px 8px;font-size:12.5px;line-height:1.45;cursor:pointer;background:var(--surface);border:1px solid var(--border);border-inline-start:4px solid var(--c,var(--accent))}
+.slot:hover{box-shadow:var(--shadow)}
+.slot b{display:block;font-size:13px}
+.slot.clash{border-color:var(--bad);background:var(--bad-soft)}
+.add-cell{all:unset;cursor:pointer;color:var(--faint);font-size:12px;text-align:center;padding:2px;border-radius:6px;margin-top:auto}
+.add-cell:hover{color:var(--accent);background:var(--accent-soft)}
+/* doctors */
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.doc .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.doc .stats div{background:var(--surface-2);border-radius:10px;padding:8px;text-align:center}
+.doc .stats b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.doc .stats span{font-size:12px;color:var(--muted)}
+/* messages */
+.msg-layout{display:grid;grid-template-columns:360px 1fr;gap:16px;min-height:560px}
+.msg-list{display:flex;flex-direction:column;overflow:auto;max-height:72vh;padding:0}
+.msg-item{all:unset;box-sizing:border-box;display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+.msg-item:hover{background:var(--surface-2)}
+.msg-item.on{background:var(--accent-soft)}
+.msg-item.unread .subj{font-weight:700}
+.msg-item .subj{font-size:14px}
+.msg-item .prev{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+.bubble{padding:12px 14px;border-radius:14px;background:var(--surface-2);max-width:85%}
+.bubble.me{background:var(--accent-soft);align-self:flex-end}
+.bubble .meta{font-size:12px;color:var(--muted);margin-bottom:4px}
+.thread{display:flex;flex-direction:column;gap:10px;max-height:46vh;overflow:auto;padding:4px}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,10,20,.45);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:40px 16px;overflow:auto}
+.modal-bg.show{display:flex}
+.modal{background:var(--surface);border-radius:18px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.3);border:1px solid var(--border)}
+.modal.wide{max-width:920px}
+.modal header{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.modal header h3{flex:1;font-size:17px}
+.modal .body{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.modal footer{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);flex-wrap:wrap}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fields .full{grid-column:1/-1}
+.q-row{display:grid;grid-template-columns:28px 1fr 150px 80px 36px;gap:8px;align-items:start}
+.q-row .n{padding-top:8px;color:var(--muted);font-weight:600;text-align:center}
+.check-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;max-height:340px;overflow:auto}
+.check-list label{display:flex;gap:8px;align-items:center;padding:6px 10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:14px}
+.check-list label.abs{background:var(--bad-soft);border-color:var(--bad)}
+.note{padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:14px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;z-index:60;transition:transform .25s;font-size:14px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.pop{position:absolute;top:56px;left:20px;width:360px;max-width:calc(100vw - 32px);z-index:20;display:none}
+.pop.show{display:block}
+.role-pill{display:flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:12px;padding:3px 3px 3px 10px}
+.role-pill select{border:0;background:transparent;width:auto;padding:5px;font-weight:600}
+.cal-day{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cal-day:last-child{border-bottom:0}
+.cal-date{width:58px;flex:none;text-align:center;background:var(--surface-2);border-radius:10px;padding:6px 0;line-height:1.2}
+.cal-date b{display:block;font-size:20px}
+.cal-date small{font-size:11px;color:var(--muted)}
+.section-title{display:flex;align-items:center;gap:10px;margin:26px 0 12px}
+.section-title h2{font-size:17px}
+.overlay{display:none}
+@media (max-width:1100px){.g-main,.g3{grid-template-columns:1fr}.msg-layout{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset-block:0;inset-inline-start:0;width:270px;z-index:40;transform:translateX(100%);transition:transform .25s}
+  .side.open{transform:none}
+  .overlay.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:39}
+  .menu-btn{display:inline-flex}
+  .top{padding:12px 16px;flex-wrap:wrap}
+  .content{padding:16px 16px 60px}
+  .g2,.fields{grid-template-columns:1fr}
+  .q-row{grid-template-columns:24px 1fr 36px}
+  .q-row select,.q-row input[type=number]{grid-column:2}
+  .top .hide-sm{display:none}
+}
+@media print{
+  .side,.top,.toolbar,.btn,.no-print{display:none!important}
+  .app{display:block}.content{padding:0}
+  .card,.kpi{box-shadow:none;break-inside:avoid}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="logo">ق</div>
+      <div><b id="deptName">قسم علوم الحاسب</b><small>كلية الحاسب والمعلومات</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot">
+      <div class="row" style="justify-content:space-between">
+        <span>الفصل الأول ١٤٤٨هـ</span>
+        <button class="btn sm" onclick="resetDemo()" title="إعادة البيانات التجريبية">إعادة ضبط</button>
+      </div>
+    </div>
+  </aside>
+  <div class="overlay" id="overlay" onclick="toggleSide(false)"></div>
+  <div class="main">
+    <header class="top">
+      <button class="btn icon menu-btn" onclick="toggleSide(true)" aria-label="القائمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="title"><h1 id="pageTitle">لوحة التحكم</h1><small id="today"></small></div>
+      <div class="role-pill hide-sm" title="تبديل العرض لتجربة واجهة الدكتورة">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        <select id="roleSel" onchange="setRole(this.value)" aria-label="عرض كـ"></select>
+      </div>
+      <button class="btn icon" onclick="toggleTheme()" aria-label="تبديل المظهر" title="فاتح / داكن"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+      <button class="btn icon" onclick="togglePop()" aria-label="التنبيهات" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="bellCount" class="count" style="position:absolute;top:-6px;left:-6px;background:var(--bad);color:#fff;font-size:11px;border-radius:9px;min-width:18px;height:18px;display:none;place-items:center;padding:0 4px"></span></button>
+      <div class="card pop" id="pop"></div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+Math.random().toString(36).slice(2,9);
+const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+const PERIODS=[['08:00','09:40'],['10:00','11:40'],['12:00','13:40'],['14:00','15:40']];
+const ROOMS=['ق-101','ق-102','ق-103','ق-201','معمل 1','معمل 2'];
+const COLORS=['#7D4A93','#24609E','#1F7A55','#B4532E','#A8670B','#2E7C86','#9B3C6B','#4F5BA8'];
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const parseISO=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+const TODAY_ISO=iso(TODAY);
+const fmtD=new Intl.DateTimeFormat('ar-u-nu-latn',{weekday:'long',day:'numeric',month:'long'});
+const fmtWd=new Intl.DateTimeFormat('ar',{weekday:'long'});
+const fmtShort=new Intl.DateTimeFormat('ar-u-nu-latn',{day:'numeric',month:'short'});
+const fmtHijri=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'long',year:'numeric'});
+const fd=s=>fmtD.format(parseISO(s));
+const fs=s=>fmtShort.format(parseISO(s));
+const daysTo=s=>Math.round((parseISO(s)-TODAY)/864e5);
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const ICON={
+ home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+ docs:'<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.5"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ lec:'<path d="M2 5h20v12H2zM8 21h8M12 17v4"/>',
+ att:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>',
+ exam:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+ msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+ ann:'<path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14"/>',
+ rep:'<path d="M3 3v18h18M7 15l4-4 3 3 6-6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ print:'<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+ dl:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+ x:'<path d="M18 6L6 18M6 6l12 12"/>',
+ trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>'
+};
+const ic=(n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[n]}</svg>`;
+
+/* ================= seed data ================= */
+function seed(){
+  const r=rng(1448);
+  const doctors=[
+    {id:'d1',name:'د. نورة العتيبي',rank:'أستاذ مشارك',spec:'الذكاء الاصطناعي',email:'n.otaibi@uni.edu.sa',phone:'0551234001',office:'مبنى 6 - مكتب 112',color:COLORS[0],notes:''},
+    {id:'d2',name:'د. سارة القحطاني',rank:'أستاذ مساعد',spec:'هندسة البرمجيات',email:'s.qahtani@uni.edu.sa',phone:'0551234002',office:'مبنى 6 - مكتب 114',color:COLORS[1],notes:''},
+    {id:'d3',name:'د. هيفاء الشمري',rank:'أستاذ',spec:'قواعد البيانات',email:'h.shammari@uni.edu.sa',phone:'0551234003',office:'مبنى 6 - مكتب 120',color:COLORS[2],notes:'مرشحة لرئاسة لجنة الجودة'},
+    {id:'d4',name:'د. ريم الدوسري',rank:'أستاذ مساعد',spec:'الشبكات والأمن السيبراني',email:'r.dosari@uni.edu.sa',phone:'0551234004',office:'مبنى 6 - مكتب 108',color:COLORS[3],notes:''},
+    {id:'d5',name:'د. لمى الحربي',rank:'محاضر',spec:'البرمجة',email:'l.harbi@uni.edu.sa',phone:'0551234005',office:'مبنى 6 - مكتب 101',color:COLORS[4],notes:''},
+    {id:'d6',name:'د. منيرة الزهراني',rank:'أستاذ مشارك',spec:'نظم المعلومات',email:'m.zahrani@uni.edu.sa',phone:'0551234006',office:'مبنى 6 - مكتب 116',color:COLORS[5],notes:''}
+  ];
+  const courses=[
+    ['c1','CS101','مقدمة في البرمجة',1,'d5'],['c2','CS102','البرمجة الكائنية',2,'d5'],
+    ['c3','CS210','هياكل البيانات',3,'d2'],['c4','CS230','قواعد البيانات',4,'d3'],
+    ['c5','CS330','هندسة البرمجيات',5,'d2'],['c6','CS340','شبكات الحاسب',5,'d4'],
+    ['c7','CS410','الذكاء الاصطناعي',7,'d1'],['c8','CS420','تعلم الآلة',8,'d1'],
+    ['c9','CS350','أمن المعلومات',6,'d4'],['c10','IS220','تحليل وتصميم النظم',4,'d6'],
+    ['c11','IS310','إدارة المشاريع التقنية',6,'d6'],['c12','CS320','قواعد بيانات متقدمة',6,'d3']
+  ].map(([id,code,name,level,doctorId])=>({id,code,name,level,doctorId,section:'شعبة '+(170+Math.floor(r()*30)),students:[]}));
+  const first=['ريم','نورة','سارة','لطيفة','العنود','جود','شهد','لمى','رهف','غادة','دانة','أريج','هيا','مها','وعد','رزان','ليان','جنى','بشاير','أمل','حصة','الجوهرة','منار','ياسمين','تالا','رنا','عبير','ديما','شوق','نجود'];
+  const last=['العتيبي','القحطاني','الشمري','الدوسري','الحربي','الزهراني','المطيري','الغامدي','السبيعي','العنزي','الشهري','المالكي','الرشيدي','الخالدي','السلمي','البقمي','العمري','الجهني'];
+  let sn=444100;
+  courses.forEach(c=>{const n=18+Math.floor(r()*12);for(let i=0;i<n;i++){const x=r();c.students.push({id:'s'+(sn++),name:first[Math.floor(r()*first.length)]+' '+last[Math.floor(r()*last.length)],p:x<.7?.04:x<.9?.14:.33})}});
+  const S=[['c1',0,0,'ق-101','نظري'],['c1',2,0,'معمل 1','عملي'],['c2',1,1,'ق-102','نظري'],['c2',3,1,'معمل 1','عملي'],
+    ['c3',0,1,'ق-103','نظري'],['c3',2,1,'ق-103','نظري'],['c4',1,0,'ق-201','نظري'],['c4',3,0,'معمل 2','عملي'],
+    ['c5',0,2,'ق-102','نظري'],['c5',2,2,'ق-102','نظري'],['c6',1,2,'معمل 2','عملي'],['c6',3,2,'ق-103','نظري'],
+    ['c7',0,3,'ق-201','نظري'],['c7',2,3,'ق-201','نظري'],['c8',1,3,'معمل 1','عملي'],['c8',4,0,'معمل 1','عملي'],
+    ['c9',4,1,'ق-103','نظري'],['c9',3,3,'معمل 2','عملي'],['c10',0,1,'ق-201','نظري'],['c10',4,2,'ق-201','نظري'],
+    ['c11',1,1,'ق-103','نظري'],['c11',3,2,'ق-103','نظري'],['c12',4,3,'ق-102','نظري'],['c12',2,0,'ق-201','نظري']];
+  const slots=S.map(([courseId,day,period,room,kind],i)=>({id:'l'+i,courseId,day,period,room,kind}));
+  const sessions=[];
+  for(let k=28;k>=1;k--){
+    const d=addDays(TODAY,-k),dow=d.getDay();if(dow>4)continue;
+    slots.filter(s=>s.day===dow).forEach(s=>{
+      const x=r();const status=x<.86?'held':x<.91?'online':x<.96?'postponed':'absent';
+      const c=courses.find(c=>c.id===s.courseId);let att=null;
+      if((status==='held'||status==='online')&&r()<.9){att={absent:c.students.filter(st=>r()<st.p).map(st=>st.id)}}
+      sessions.push({id:uid('se'),slotId:s.id,courseId:s.courseId,date:iso(d),period:s.period,room:s.room,status,att,note:status==='absent'?'لم يتم إبلاغ القسم مسبقاً':''});
+    });
+  }
+  courses.forEach(c=>c.students.forEach(s=>delete s.p));
+  const qbank=(c,n)=>{const t=['عرّفي المفهوم الأساسي في '+c.name+' مع مثال.','اختاري الإجابة الصحيحة حول مبادئ '+c.name+'.','صح أم خطأ: العبارة التالية تتعلق بـ'+c.name+'.','قارني بين أسلوبين شائعين في '+c.name+'.','حلّي المسألة التطبيقية التالية.','اكتبي خوارزمية/برنامجاً يحقق المطلوب.','اشرحي دورة العمل خطوة بخطوة.','علّلي: لماذا يُفضَّل الأسلوب (أ) على (ب)؟'];const ty=['مقالي','اختيار من متعدد','صح وخطأ','مقالي','تطبيقي','برمجي','مقالي','مقالي'];const out=[];for(let i=0;i<n;i++){const j=i%t.length;out.push({text:t[j],type:ty[j],marks:ty[j]==='صح وخطأ'||ty[j]==='اختيار من متعدد'?1:ty[j]==='برمجي'?5:3})}return out};
+  const C=id=>courses.find(c=>c.id===id);
+  const wd=dd=>{let x=addDays(TODAY,dd);while(x.getDay()>4)x=addDays(x,1);return iso(x)};
+  const ex=(id,cid,type,dd,status,n,extra={})=>({id,courseId:cid,doctorId:C(cid).doctorId,type,date:wd(dd),time:'10:00',duration:90,room:'ق-201',status,questions:qbank(C(cid),n),notes:[],history:[{date:iso(addDays(TODAY,-6)),by:C(cid).doctorId,text:'إنشاء الاختبار'}],...extra});
+  const exams=[
+    ex('e1','c1','اختبار فصلي أول',5,'submitted',10),
+    ex('e2','c3','اختبار فصلي أول',9,'approved',8,{history:[{date:iso(addDays(TODAY,-10)),by:'d2',text:'إنشاء الاختبار'},{date:iso(addDays(TODAY,-4)),by:'head',text:'اعتماد الاختبار'}]}),
+    ex('e3','c4','اختبار فصلي أول',12,'revision',9,{notes:[{by:'head',date:iso(addDays(TODAY,-2)),text:'الرجاء تقليل أسئلة صح وخطأ وزيادة الأسئلة التطبيقية، وتوزيع الدرجات على 20.'}]}),
+    ex('e4','c7','اختبار قصير',3,'submitted',5),
+    ex('e5','c6','اختبار فصلي أول',9,'draft',4),
+    ex('e6','c9','اختبار فصلي أول',16,'submitted',8),
+    ex('e7','c11','اختبار فصلي أول',16,'approved',7),
+    ex('e8','c8','اختبار نهائي',45,'draft',6)
+  ];
+  const ago=(d,h)=>{const x=addDays(TODAY,-d);x.setHours(h);return x.toISOString()};
+  const messages=[
+    {id:'m1',doctorId:'d2',fromHead:false,cat:'إجازة',priority:'عالية',subject:'طلب إجازة اضطرارية',status:'open',readHead:false,readDoc:true,decision:null,date:ago(0,8),thread:[{from:'d2',date:ago(0,8),text:'السلام عليكم د. أمل، أرجو الموافقة على إجازة اضطرارية يوم الأربعاء القادم لظرف عائلي، وقد نسّقت مع د. لمى لتغطية محاضرة هياكل البيانات.'}]},
+    {id:'m2',doctorId:'d4',fromHead:false,cat:'تعديل جدول',priority:'متوسطة',subject:'تعارض في قاعة ق-103 يوم الأربعاء',status:'open',readHead:false,readDoc:true,decision:null,date:ago(1,11),thread:[{from:'d4',date:ago(1,11),text:'القاعة ق-103 محجوزة لمقرر إدارة المشاريع في نفس وقت محاضرة شبكات الحاسب (الأربعاء 12:00). أقترح نقل محاضرتي إلى معمل 2.'}]},
+    {id:'m3',doctorId:'d3',fromHead:false,cat:'اختبارات',priority:'متوسطة',subject:'ملاحظات اختبار قواعد البيانات',status:'progress',readHead:true,readDoc:false,decision:null,date:ago(2,9),thread:[{from:'d3',date:ago(3,9),text:'رفعت مسودة اختبار قواعد البيانات للمراجعة.'},{from:'head',date:ago(2,9),text:'شكراً د. هيفاء، أضفت ملاحظاتي على الاختبار في قسم الاختبارات.'}]},
+    {id:'m4',doctorId:'d1',fromHead:false,cat:'استفسار',priority:'منخفضة',subject:'موعد رفع درجات أعمال السنة',status:'closed',readHead:true,readDoc:true,decision:null,date:ago(5,13),thread:[{from:'d1',date:ago(6,10),text:'متى آخر موعد لرفع درجات أعمال السنة على النظام؟'},{from:'head',date:ago(5,13),text:'آخر موعد نهاية الأسبوع الثاني عشر حسب تقويم عمادة القبول والتسجيل.'}]},
+    {id:'m5',doctorId:'d5',fromHead:false,cat:'اقتراح',priority:'منخفضة',subject:'اقتراح ورشة عمل للطالبات',status:'open',readHead:false,readDoc:true,decision:null,date:ago(1,15),thread:[{from:'d5',date:ago(1,15),text:'أقترح تنظيم ورشة "أساسيات Git و GitHub" لطالبات المستوى الأول والثاني خلال الأسبوع التاسع.'}]},
+    {id:'m6',doctorId:'d6',fromHead:true,cat:'متابعة',priority:'متوسطة',subject:'تذكير برفع كشوف التحضير',status:'open',readHead:true,readDoc:false,decision:null,date:ago(0,7),thread:[{from:'head',date:ago(0,7),text:'د. منيرة، نأمل رفع كشوف التحضير المتأخرة لمقرر تحليل وتصميم النظم.'}]}
+  ];
+  const announcements=[
+    {id:'a1',title:'اجتماع مجلس القسم',body:'يُعقد اجتماع مجلس القسم يوم الخميس القادم الساعة 12:00 في قاعة الاجتماعات. جدول الأعمال: اعتماد الاختبارات الفصلية، مراجعة توصيف المقررات.',date:iso(addDays(TODAY,-1)),pinned:true,acks:['d1','d3']},
+    {id:'a2',title:'موعد تسليم الاختبارات الفصلية',body:'آخر موعد لرفع الاختبارات الفصلية للمراجعة قبل موعد الاختبار بـ 7 أيام على الأقل.',date:iso(addDays(TODAY,-5)),pinned:false,acks:['d1','d2','d3','d4','d6']}
+  ];
+  return {v:1,head:'د. أمل السبيعي',doctors,courses,slots,sessions,exams,messages,announcements,log:[{date:new Date().toISOString(),text:'تم تحميل بيانات تجريبية للفصل الدراسي'}],role:'head'};
+}
+
+/* ================= state ================= */
+const KEY='dept-head-v1';
+let DB;
+try{DB=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!DB||DB.v!==1)DB=seed();
+let view='overview', ui={msgSel:null,examTab:'all',attCourse:null,schedDoc:'all',schedLevel:'all',lecDoc:'all',lecStatus:'all',lecRange:7,msgFilter:'all'};
+try{const v=sessionStorage.getItem('dh-view');if(v)view=v}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+function log(t){DB.log.unshift({date:new Date().toISOString(),text:t,by:DB.role});DB.log=DB.log.slice(0,80)}
+function resetDemo(){if(confirm('سيتم حذف كل التعديلات وإعادة البيانات التجريبية. متابعة؟')){DB=seed();save();go('overview');toast('تمت إعادة ضبط البيانات')}}
+const isHead=()=>DB.role==='head';
+const me=()=>DB.role;
+const D=id=>DB.doctors.find(d=>d.id===id)||{name:'—',color:'#888'};
+const C=id=>DB.courses.find(c=>c.id===id)||{name:'—',code:'',students:[]};
+const nameOf=id=>id==='head'?'رئيسة القسم':D(id).name;
+const myCourses=()=>isHead()?DB.courses:DB.courses.filter(c=>c.doctorId===me());
+const initials=n=>n.replace('د. ','').split(' ').map(w=>w[0]).slice(0,2).join(' ');
+const av=(d,cls='')=>`<span class="avatar ${cls}" style="background:${d.color}">${esc(initials(d.name))}</span>`;
+
+/* ensure today sessions exist */
+function ensureToday(){
+  const dow=TODAY.getDay();if(dow>4)return;
+  DB.slots.filter(s=>s.day===dow).forEach(s=>{
+    if(!DB.sessions.some(x=>x.slotId===s.id&&x.date===TODAY_ISO))DB.sessions.push({id:uid('se'),slotId:s.id,courseId:s.courseId,date:TODAY_ISO,period:s.period,room:s.room,status:'scheduled',att:null,note:''});
+  });
+}
+
+/* ================= analytics ================= */
+function conflicts(){
+  const out=[];const sl=DB.slots;
+  for(let i=0;i<sl.length;i++)for(let j=i+1;j<sl.length;j++){
+    const a=sl[i],b=sl[j];if(a.day!==b.day||a.period!==b.period)continue;
+    const ca=C(a.courseId),cb=C(b.courseId);
+    if(a.room===b.room)out.push({a,b,type:'قاعة',text:`تعارض قاعة ${a.room}: ${ca.code} و ${cb.code} — ${DAYS[a.day]} ${PERIODS[a.period][0]}`});
+    if(ca.doctorId===cb.doctorId)out.push({a,b,type:'دكتورة',text:`${D(ca.doctorId).name} لديها محاضرتان في نفس الوقت — ${DAYS[a.day]} ${PERIODS[a.period][0]}`});
+    if(ca.level===cb.level&&ca.id!==cb.id)out.push({a,b,type:'مستوى',text:`تعارض لطالبات المستوى ${ca.level}: ${ca.code} و ${cb.code} — ${DAYS[a.day]} ${PERIODS[a.period][0]}`});
+  }
+  return out;
+}
+const clashIds=()=>{const s=new Set();conflicts().forEach(c=>{s.add(c.a.id);s.add(c.b.id)});return s};
+function courseAtt(c){
+  const ses=DB.sessions.filter(s=>s.courseId===c.id&&s.att);
+  const total=ses.length;
+  const rows=c.students.map(st=>{const a=ses.filter(s=>s.att.absent.includes(st.id)).length;const p=pct(a,total);return{...st,abs:a,p,state:p>=25?'bad':p>=15?'warn':'ok'}});
+  const absTotal=rows.reduce((t,r)=>t+r.abs,0);
+  const rate=total&&c.students.length?100-Math.round(absTotal/(total*c.students.length)*100):0;
+  return {total,rows,rate,risk:rows.filter(r=>r.state==='bad').length,warn:rows.filter(r=>r.state==='warn').length};
+}
+function docStats(id){
+  const cs=DB.courses.filter(c=>c.doctorId===id);const cids=cs.map(c=>c.id);
+  const slots=DB.slots.filter(s=>cids.includes(s.courseId));
+  const past=DB.sessions.filter(s=>cids.includes(s.courseId)&&s.date<TODAY_ISO&&s.status!=='scheduled');
+  const held=past.filter(s=>s.status==='held'||s.status==='online');
+  const sub=held.filter(s=>s.att).length;
+  const ex=DB.exams.filter(e=>e.doctorId===id);
+  const rates=cs.map(c=>courseAtt(c).rate).filter(Boolean);
+  return {courses:cs,slots,hours:slots.length*2,total:past.length,held:held.length,heldP:pct(held.length,past.length),subP:pct(sub,held.length),missing:held.length-sub,absent:past.filter(s=>s.status==='absent').length,postponed:past.filter(s=>s.status==='postponed').length,exams:ex,stuRate:rates.length?Math.round(rates.reduce((a,b)=>a+b,0)/rates.length):0};
+}
+function alerts(){
+  const A=[];const mine=c=>isHead()||C(c).doctorId===me();
+  if(isHead()){
+    const cf=conflicts();if(cf.length)A.push({lv:'bad',t:`${cf.length} تعارض في الجدول الدراسي يحتاج معالجة`,go:'schedule'});
+    const pend=DB.exams.filter(e=>e.status==='submitted');if(pend.length)A.push({lv:'warn',t:`${pend.length} اختبارات بانتظار مراجعتك واعتمادك`,go:'exams'});
+    const un=DB.messages.filter(m=>!m.readHead);if(un.length)A.push({lv:'info',t:`${un.length} رسائل جديدة من الدكتورات`,go:'messages'});
+    DB.doctors.forEach(d=>{const s=docStats(d.id);if(s.missing>=2)A.push({lv:'warn',t:`${d.name}: ${s.missing} محاضرات بدون رفع تحضير`,go:'lectures'});if(s.absent)A.push({lv:'bad',t:`${d.name}: غياب عن ${s.absent} محاضرة دون تعويض`,go:'lectures'})});
+  }else{
+    const un=DB.messages.filter(m=>m.doctorId===me()&&!m.readDoc);if(un.length)A.push({lv:'info',t:`${un.length} ردود جديدة من رئيسة القسم`,go:'messages'});
+    const rev=DB.exams.filter(e=>e.doctorId===me()&&e.status==='revision');if(rev.length)A.push({lv:'bad',t:`${rev.length} اختبار يحتاج تعديلاً حسب ملاحظات رئيسة القسم`,go:'exams'});
+    const s=docStats(me());if(s.missing)A.push({lv:'warn',t:`لديك ${s.missing} محاضرات لم يُرفع تحضيرها`,go:'attendance'});
+    const na=DB.announcements.filter(a=>!a.acks.includes(me()));if(na.length)A.push({lv:'info',t:`${na.length} تعميم جديد بانتظار اطلاعك`,go:'announcements'});
+  }
+  DB.exams.filter(e=>mine(e.courseId)&&e.status!=='approved'&&daysTo(e.date)>=0&&daysTo(e.date)<=7).forEach(e=>A.push({lv:'bad',t:`اختبار ${C(e.courseId).code} بعد ${daysTo(e.date)} أيام ولم يُعتمد بعد`,go:'exams'}));
+  examClashes().filter(x=>isHead()||x.some(e=>e.doctorId===me())).forEach(x=>A.push({lv:'warn',t:`تعارض اختبارات للمستوى ${C(x[0].courseId).level} يوم ${fs(x[0].date)}: ${x.map(e=>C(e.courseId).code).join(' و ')}`,go:'exams'}));
+  const risk=myCourses().reduce((t,c)=>t+courseAtt(c).risk,0);if(risk)A.push({lv:'warn',t:`${risk} طالبة تجاوزن نسبة الغياب المسموحة (25%)`,go:'attendance'});
+  return A;
+}
+function examClashes(){const g={};DB.exams.forEach(e=>{const k=e.date+'|'+C(e.courseId).level;(g[k]=g[k]||[]).push(e)});return Object.values(g).filter(x=>x.length>1)}
+
+/* ================= navigation ================= */
+const NAV_HEAD=[['overview','لوحة التحكم','home'],['doctors','الدكتورات','docs'],['schedule','الجدول الدراسي','cal'],['lectures','متابعة المحاضرات','lec'],['attendance','تحضير الطالبات','att'],['exams','الاختبارات','exam'],['messages','الرسائل والطلبات','msg'],['announcements','التعاميم','ann'],['reports','التقارير','rep']];
+const NAV_DOC=[['overview','لوحتي','home'],['schedule','جدولي','cal'],['lectures','محاضراتي','lec'],['attendance','تحضير الطالبات','att'],['exams','اختباراتي','exam'],['messages','مراسلة رئيسة القسم','msg'],['announcements','التعاميم','ann']];
+function navCounts(){
+  if(isHead())return{messages:DB.messages.filter(m=>!m.readHead).length,exams:DB.exams.filter(e=>e.status==='submitted').length,schedule:conflicts().length};
+  return{messages:DB.messages.filter(m=>m.doctorId===me()&&!m.readDoc).length,exams:DB.exams.filter(e=>e.doctorId===me()&&e.status==='revision').length,announcements:DB.announcements.filter(a=>!a.acks.includes(me())).length};
+}
+function renderNav(){
+  const items=isHead()?NAV_HEAD:NAV_DOC;const n=navCounts();
+  $('#nav').innerHTML=items.map(([k,l,i])=>`<button class="${view===k?'on':''}" onclick="go('${k}')">${ic(i,19)}<span>${l}</span>${n[k]?`<span class="count">${n[k]}</span>`:''}</button>`).join('');
+  $('#roleSel').innerHTML=`<option value="head">رئيسة القسم</option>`+DB.doctors.map(d=>`<option value="${d.id}" ${DB.role===d.id?'selected':''}>عرض كـ ${esc(d.name)}</option>`).join('');
+  $('#roleSel').value=DB.role;
+  const al=alerts();const b=$('#bellCount');b.style.display=al.length?'grid':'none';b.textContent=al.length;
+}
+function go(v){
+  const items=(isHead()?NAV_HEAD:NAV_DOC).map(x=>x[0]);if(!items.includes(v))v='overview';
+  view=v;try{sessionStorage.setItem('dh-view',v)}catch(e){}
+  toggleSide(false);$('#pop').classList.remove('show');render();window.scrollTo(0,0);
+}
+function setRole(r){DB.role=r;ui.msgSel=null;ui.attCourse=null;save();go(view);toast(r==='head'?'تم التبديل إلى واجهة رئيسة القسم':'تعرض الآن واجهة '+D(r).name)}
+function toggleSide(o){$('#side').classList.toggle('open',o);$('#overlay').classList.toggle('show',o)}
+function toggleTheme(){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';try{localStorage.setItem('dh-theme',r.dataset.theme)}catch(e){}}
+function togglePop(){const p=$('#pop');const al=alerts();p.innerHTML=`<h3>التنبيهات <span class="badge">${al.length}</span></h3><div class="stack">${al.length?al.map(a=>`<div class="alert ${a.lv}" onclick="go('${a.go}')">${esc(a.t)}</div>`).join(''):'<div class="empty">لا توجد تنبيهات 🎉</div>'}</div>`;p.classList.toggle('show')}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2400)}
+
+/* ================= modal ================= */
+function openModal(title,body,footer,wide){$('#modal').className='modal'+(wide?' wide':'');$('#modal').innerHTML=`<header><h3>${title}</h3><button class="btn icon" onclick="closeModal()" aria-label="إغلاق">${ic('x')}</button></header><div class="body">${body}</div>${footer?`<footer>${footer}</footer>`:''}`;$('#modalBg').classList.add('show')}
+function closeModal(){$('#modalBg').classList.remove('show')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+const val=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+
+/* ================= render ================= */
+const TITLES={overview:['لوحة التحكم','نظرة شاملة على أداء القسم اليوم'],doctors:['الدكتورات','ملفات أعضاء هيئة التدريس ومؤشرات الالتزام'],schedule:['الجدول الدراسي','الجدول الأسبوعي مع كشف التعارضات تلقائياً'],lectures:['متابعة المحاضرات','سجل انعقاد المحاضرات والتأجيل والتعويض'],attendance:['تحضير الطالبات','نسب الحضور والإنذارات والحرمان'],exams:['الاختبارات','رفع الاختبارات ومراجعتها واعتمادها'],messages:['الرسائل والطلبات','التواصل بين رئيسة القسم والدكتورات'],announcements:['التعاميم','تعاميم القسم مع متابعة الاطلاع'],reports:['التقارير','مؤشرات الأداء القابلة للطباعة والتصدير']};
+function render(){
+  ensureToday();renderNav();
+  const t=TITLES[view];$('#pageTitle').textContent=(!isHead()&&view==='overview')?'لوحتي':t[0];
+  $('#today').textContent=fmtD.format(TODAY)+' — '+fmtHijri.format(TODAY);
+  $('#content').innerHTML=VIEWS[view]();
+  save();
+}
+const VIEWS={};
+
+/* ---------- overview ---------- */
+const ST={held:['انعقدت','ok'],online:['عن بُعد','info'],postponed:['مؤجلة','warn'],absent:['غياب الدكتورة','bad'],scheduled:['مجدولة','']};
+const stBadge=s=>`<span class="badge ${ST[s][1]}">${ST[s][0]}</span>`;
+function todayList(){
+  const now=new Date();const hm=pad(now.getHours())+':'+pad(now.getMinutes());
+  const list=DB.sessions.filter(s=>s.date===TODAY_ISO&&(isHead()||C(s.courseId).doctorId===me())).sort((a,b)=>(a.period??9)-(b.period??9));
+  if(!list.length)return `<div class="empty">${TODAY.getDay()>4?'عطلة نهاية الأسبوع — لا توجد محاضرات اليوم':'لا توجد محاضرات اليوم'}</div>`;
+  return `<div class="tl">${list.map(s=>{const c=C(s.courseId),d=D(c.doctorId);const p=PERIODS[s.period]||['—','—'];const isNow=hm>=p[0]&&hm<=p[1];
+    return `<div class="tl-item ${isNow?'now':''}"><div class="time"><b>${p[0]}</b>${p[1]}</div>
+    <div><div class="row wrap"><b>${esc(c.code)} · ${esc(c.name)}</b>${isNow?'<span class="badge acc"><span class="dot live"></span> جارية الآن</span>':''}</div>
+    <div class="small muted">${isHead()?esc(d.name)+' · ':''}${esc(s.room||'')} · ${c.students.length} طالبة ${s.att?'· <span style="color:var(--ok)">✓ تم التحضير</span>':''}</div></div>
+    <div class="row">${stBadge(s.status)}<button class="btn sm" onclick="sessionModal('${s.id}')">إدارة</button></div></div>`}).join('')}</div>`;
+}
+VIEWS.overview=()=>{
+  const al=alerts();
+  if(isHead()){
+    const tl=DB.sessions.filter(s=>s.date===TODAY_ISO);
+    const rates=DB.courses.map(c=>courseAtt(c).rate).filter(Boolean);const avg=rates.length?Math.round(rates.reduce((a,b)=>a+b)/rates.length):0;
+    const held=DB.sessions.filter(s=>s.date<TODAY_ISO&&(s.status==='held'||s.status==='online'));
+    const subP=pct(held.filter(s=>s.att).length,held.length);
+    const up=DB.exams.filter(e=>daysTo(e.date)>=0).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+    return `
+    <div class="row wrap" style="margin-bottom:18px"><div style="flex:1 1 260px"><h2 style="font-size:22px">${new Date().getHours()<12?'صباح الخير':'مساء الخير'}، ${esc(DB.head)} 👋</h2><div class="muted">لديك ${al.length} تنبيهات تحتاج انتباهك اليوم.</div></div>
+    <button class="btn" onclick="composeMsg()">${ic('msg')} رسالة لدكتورة</button><button class="btn primary" onclick="annModal()">${ic('ann')} تعميم جديد</button></div>
+    <div class="kpis">
+      ${kpi('أعضاء هيئة التدريس',DB.doctors.length,DB.courses.length+' مقرراً','doctors')}
+      ${kpi('محاضرات اليوم',tl.length,tl.filter(s=>s.status==='held'||s.status==='online').length+' انعقدت حتى الآن','lectures')}
+      ${kpi('متوسط حضور الطالبات',avg+'%','آخر 4 أسابيع','attendance')}
+      ${kpi('الالتزام برفع التحضير',subP+'%',held.length-held.filter(s=>s.att).length+' كشفاً متأخراً','lectures')}
+      ${kpi('اختبارات بانتظار الاعتماد',DB.exams.filter(e=>e.status==='submitted').length,DB.exams.filter(e=>e.status==='approved').length+' معتمدة','exams')}
+      ${kpi('رسائل غير مقروءة',DB.messages.filter(m=>!m.readHead).length,DB.messages.filter(m=>m.status!=='closed'&&!m.fromHead).length+' طلبات مفتوحة','messages')}
+    </div>
+    <div class="grid g-main">
+      <div class="card"><h3>${ic('lec')} <span class="grow">محاضرات اليوم</span><button class="btn sm" onclick="go('schedule')">الجدول كاملاً</button></h3>${todayList()}</div>
+      <div class="card"><h3>${ic('ann')} <span class="grow">يحتاج انتباهك</span><span class="badge ${al.length?'bad':'ok'}">${al.length}</span></h3><div class="stack">${al.length?al.slice(0,8).map(a=>`<div class="alert ${a.lv}" onclick="go('${a.go}')">${esc(a.t)}</div>`).join(''):'<div class="empty">كل شيء على ما يرام ✓</div>'}</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><h3>${ic('rep')} <span class="grow">التزام الدكتورات (انعقاد المحاضرات)</span></h3><div class="stack">${DB.doctors.map(d=>{const s=docStats(d.id);return `<div class="row" style="cursor:pointer" onclick="docProfile('${d.id}')">${av(d)}<div style="flex:1;min-width:0"><div class="row"><span style="flex:1" class="small"><b>${esc(d.name)}</b></span><span class="small num">${s.heldP}%</span></div><div class="bar ${s.heldP>=90?'ok':s.heldP>=80?'warn':'bad'}"><i style="width:${s.heldP}%"></i></div></div></div>`}).join('')}</div></div>
+      <div class="card"><h3>${ic('exam')} <span class="grow">الاختبارات القادمة</span><button class="btn sm" onclick="go('exams')">عرض الكل</button></h3>${up.length?up.map(e=>`<div class="cal-day"><div class="cal-date"><b>${parseISO(e.date).getDate()}</b><small>${fmtShort.format(parseISO(e.date)).split(' ')[1]||''}</small></div><div style="flex:1"><b>${esc(C(e.courseId).code)} · ${esc(e.type)}</b><div class="small muted">${esc(D(e.doctorId).name)} · بعد ${daysTo(e.date)} يوم</div></div>${exBadge(e.status)}</div>`).join(''):'<div class="empty">لا توجد اختبارات قادمة</div>'}</div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>${ic('rep')} سجل النشاط الأخير</h3><div class="stack small">${DB.log.slice(0,6).map(l=>`<div class="row"><span class="dot"></span><span style="flex:1">${esc(l.text)}</span><span class="faint">${new Date(l.date).toLocaleString('ar-u-nu-latn',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')}</div></div>`;
+  }
+  const d=D(me()),s=docStats(me());
+  const my=DB.exams.filter(e=>e.doctorId===me());
+  return `
+  <div class="row wrap" style="margin-bottom:18px">${av(d,'lg')}<div style="flex:1"><h2 style="font-size:22px">أهلاً ${esc(d.name)}</h2><div class="muted">${esc(d.rank)} · ${esc(d.spec)}</div></div>
+  <button class="btn" onclick="attendModal()">${ic('att')} تسجيل تحضير</button><button class="btn primary" onclick="examModal()">${ic('plus')} رفع اختبار</button></div>
+  <div class="kpis">
+    ${kpi('مقرراتي',s.courses.length,s.hours+' ساعة أسبوعياً','schedule')}
+    ${kpi('نسبة انعقاد محاضراتي',s.heldP+'%',s.postponed+' مؤجلة · '+s.absent+' غياب','lectures')}
+    ${kpi('رفع التحضير',s.subP+'%',s.missing+' كشوف متأخرة','attendance')}
+    ${kpi('حضور طالباتي',s.stuRate+'%','متوسط المقررات','attendance')}
+    ${kpi('اختباراتي',my.length,my.filter(e=>e.status==='approved').length+' معتمدة','exams')}
+  </div>
+  <div class="grid g-main">
+    <div class="card"><h3>${ic('lec')} محاضراتي اليوم</h3>${todayList()}</div>
+    <div class="card"><h3>${ic('ann')} <span class="grow">تنبيهات</span></h3><div class="stack">${al.length?al.map(a=>`<div class="alert ${a.lv}" onclick="go('${a.go}')">${esc(a.t)}</div>`).join(''):'<div class="empty">لا توجد تنبيهات ✓</div>'}</div></div>
+  </div>`;
+};
+const kpi=(l,v,s,g)=>`<div class="kpi" ${g?`data-go onclick="go('${g}')"`:''}><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+
+/* ---------- doctors ---------- */
+VIEWS.doctors=()=>`
+  <div class="toolbar"><input type="text" id="docQ" placeholder="ابحثي بالاسم أو التخصص…" oninput="filterDocs(this.value)" style="min-width:260px"><span class="grow"></span><button class="btn primary" onclick="docModal()">${ic('plus')} إضافة دكتورة</button></div>
+  <div class="docs" id="docGrid">${DB.doctors.map(docCard).join('')}</div>`;
+function docCard(d){const s=docStats(d.id);const ex=s.exams;
+  return `<div class="card doc" data-q="${esc(d.name+' '+d.spec+' '+d.rank)}">
+  <div class="row">${av(d,'lg')}<div style="flex:1;min-width:0"><h3 style="margin:0">${esc(d.name)}</h3><div class="small muted">${esc(d.rank)} · ${esc(d.spec)}</div></div></div>
+  <div class="stats"><div><b>${s.courses.length}</b><span>مقررات</span></div><div><b>${s.hours}</b><span>ساعة/أسبوع</span></div><div><b>${ex.length}</b><span>اختبارات</span></div></div>
+  <div class="stack small">
+   <div class="row"><span style="width:110px" class="muted">انعقاد المحاضرات</span><div class="bar ${s.heldP>=90?'ok':s.heldP>=80?'warn':'bad'}" style="flex:1"><i style="width:${s.heldP}%"></i></div><b class="num">${s.heldP}%</b></div>
+   <div class="row"><span style="width:110px" class="muted">رفع التحضير</span><div class="bar ${s.subP>=90?'ok':s.subP>=75?'warn':'bad'}" style="flex:1"><i style="width:${s.subP}%"></i></div><b class="num">${s.subP}%</b></div>
+   <div class="row"><span style="width:110px" class="muted">حضور الطالبات</span><div class="bar" style="flex:1"><i style="width:${s.stuRate}%"></i></div><b class="num">${s.stuRate}%</b></div>
+  </div>
+  <div class="row wrap" style="margin-top:14px"><button class="btn sm primary" onclick="docProfile('${d.id}')">الملف الكامل</button><button class="btn sm" onclick="composeMsg('${d.id}')">${ic('msg')} مراسلة</button><button class="btn sm" onclick="docModal('${d.id}')">تعديل</button></div>
+  </div>`}
+function filterDocs(q){document.querySelectorAll('#docGrid .doc').forEach(e=>e.style.display=e.dataset.q.includes(q.trim())?'':'none')}
+function docProfile(id){
+  const d=D(id),s=docStats(id);
+  const recent=DB.sessions.filter(x=>s.courses.some(c=>c.id===x.courseId)&&x.date<=TODAY_ISO).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+  openModal(`${esc(d.name)}`,`
+   <div class="row">${av(d,'lg')}<div style="flex:1"><b>${esc(d.rank)} · ${esc(d.spec)}</b><div class="small muted">${esc(d.office)} · <span dir="ltr">${esc(d.phone)}</span> · ${esc(d.email)}</div></div></div>
+   <div class="kpis" style="margin:0">${kpi('انعقاد المحاضرات',s.heldP+'%',s.held+' من '+s.total)}${kpi('رفع التحضير',s.subP+'%',s.missing+' متأخر')}${kpi('غياب / تأجيل',s.absent+' / '+s.postponed,'آخر 4 أسابيع')}${kpi('حضور الطالبات',s.stuRate+'%','متوسط')}</div>
+   <div><b>المقررات والجدول</b><div class="tbl-wrap" style="margin-top:6px"><table><thead><tr><th>المقرر</th><th>المستوى</th><th>الطالبات</th><th>المواعيد</th></tr></thead><tbody>${s.courses.map(c=>`<tr><td><b>${esc(c.code)}</b> ${esc(c.name)}</td><td>${c.level}</td><td class="num">${c.students.length}</td><td class="small">${DB.slots.filter(x=>x.courseId===c.id).map(x=>DAYS[x.day]+' '+PERIODS[x.period][0]+' ('+x.room+')').join('، ')}</td></tr>`).join('')}</tbody></table></div></div>
+   <div><b>آخر المحاضرات</b><div class="tbl-wrap" style="margin-top:6px"><table><tbody>${recent.map(x=>`<tr><td class="small">${fs(x.date)}</td><td>${esc(C(x.courseId).code)}</td><td>${stBadge(x.status)}</td><td class="small">${x.att?'<span class="badge ok">تحضير ✓</span>':(x.status==='held'||x.status==='online')?'<span class="badge bad">بدون تحضير</span>':''}</td></tr>`).join('')}</tbody></table></div></div>
+   <div><b>الاختبارات</b><div class="row wrap" style="margin-top:6px">${s.exams.map(e=>`<span class="badge acc">${esc(C(e.courseId).code)} · ${esc(e.type)}</span>${exBadge(e.status)}`).join(' ')||'<span class="muted small">لا يوجد</span>'}</div></div>
+   <div class="field"><label>ملاحظات خاصة لرئيسة القسم (لا تظهر للدكتورة)</label><textarea id="docNotes" placeholder="مثال: ملاحظات التقييم السنوي، لجان، تميز…">${esc(d.notes)}</textarea></div>`,
+   `<button class="btn" onclick="composeMsg('${id}')">${ic('msg')} مراسلة</button><button class="btn primary" onclick="D('${id}').notes=val('docNotes');save();closeModal();toast('تم حفظ الملاحظات')">حفظ الملاحظات</button>`,true);
+}
+function docModal(id){
+  const d=id?D(id):{name:'د. ',rank:'أستاذ مساعد',spec:'',email:'',phone:'',office:''};
+  openModal(id?'تعديل بيانات الدكتورة':'إضافة دكتورة',`<div class="fields">
+   <div class="field"><label>الاسم</label><input type="text" id="f_name" value="${esc(d.name)}"></div>
+   <div class="field"><label>الرتبة العلمية</label><select id="f_rank">${['أستاذ','أستاذ مشارك','أستاذ مساعد','محاضر','معيدة'].map(x=>`<option ${x===d.rank?'selected':''}>${x}</option>`).join('')}</select></div>
+   <div class="field"><label>التخصص</label><input type="text" id="f_spec" value="${esc(d.spec)}"></div>
+   <div class="field"><label>المكتب</label><input type="text" id="f_office" value="${esc(d.office)}"></div>
+   <div class="field"><label>البريد</label><input type="email" id="f_email" value="${esc(d.email)}" dir="ltr"></div>
+   <div class="field"><label>الجوال</label><input type="text" id="f_phone" value="${esc(d.phone)}" dir="ltr"></div></div>`,
+   `${id?`<button class="btn bad" onclick="delDoc('${id}')">${ic('trash')} حذف</button>`:''}<button class="btn" onclick="closeModal()">إلغاء</button><button class="btn primary" onclick="saveDoc('${id||''}')">حفظ</button>`);
+}
+function saveDoc(id){const o={name:val('f_name'),rank:val('f_rank'),spec:val('f_spec'),office:val('f_office'),email:val('f_email'),phone:val('f_phone')};if(o.name.length<4)return toast('أدخلي الاسم');
+  if(id)Object.assign(D(id),o);else DB.doctors.push({id:uid('d'),color:COLORS[DB.doctors.length%COLORS.length],notes:'',...o});
+  log((id?'تحديث بيانات ':'إضافة ')+o.name);closeModal();render();toast('تم الحفظ')}
+function delDoc(id){if(DB.courses.some(c=>c.doctorId===id))return toast('لا يمكن الحذف: لديها مقررات مسندة. أعيدي إسنادها أولاً');if(!confirm('حذف الدكتورة؟'))return;DB.doctors=DB.doctors.filter(d=>d.id!==id);closeModal();render()}
+
+/* ---------- schedule ---------- */
+VIEWS.schedule=()=>{
+  const cl=clashIds(),cf=conflicts();const dow=TODAY.getDay();
+  const vis=s=>{const c=C(s.courseId);if(!isHead())return c.doctorId===me();return (ui.schedDoc==='all'||c.doctorId===ui.schedDoc)&&(ui.schedLevel==='all'||String(c.level)===ui.schedLevel)};
+  const levels=[...new Set(DB.courses.map(c=>c.level))].sort((a,b)=>a-b);
+  let g=`<div class="sched"><div></div>${DAYS.map((d,i)=>`<div class="hd ${i===dow?'today':''}">${d}</div>`).join('')}`;
+  PERIODS.forEach((p,pi)=>{g+=`<div class="pd"><b>${p[0]}</b><span>${p[1]}</span></div>`;DAYS.forEach((_,di)=>{const ss=DB.slots.filter(s=>s.day===di&&s.period===pi&&vis(s));
+    g+=`<div class="cell">${ss.map(s=>{const c=C(s.courseId),d=D(c.doctorId);return `<div class="slot ${cl.has(s.id)?'clash':''}" style="--c:${d.color}" onclick="slotModal('${s.id}')" title="${cl.has(s.id)?'يوجد تعارض':''}"><b>${esc(c.code)} ${cl.has(s.id)?'⚠':''}</b>${esc(c.name)}<div class="faint">${isHead()?esc(d.name.replace('د. ',''))+' · ':''}${esc(s.room)} · ${s.kind}</div></div>`}).join('')}${isHead()?`<button class="add-cell" onclick="slotModal(null,${di},${pi})">+ إضافة</button>`:''}</div>`})});
+  g+='</div>';
+  const myCf=isHead()?cf:cf.filter(x=>[x.a,x.b].some(s=>C(s.courseId).doctorId===me()));
+  return `
+  <div class="toolbar">${isHead()?`<select onchange="ui.schedDoc=this.value;render()"><option value="all">كل الدكتورات</option>${DB.doctors.map(d=>`<option value="${d.id}" ${ui.schedDoc===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select>
+   <select onchange="ui.schedLevel=this.value;render()"><option value="all">كل المستويات</option>${levels.map(l=>`<option value="${l}" ${ui.schedLevel==l?'selected':''}>المستوى ${l}</option>`).join('')}</select>`:''}
+   <span class="grow"></span>${isHead()?`<button class="btn" onclick="exportSched()">${ic('dl')} تصدير CSV</button><button class="btn" onclick="window.print()">${ic('print')} طباعة</button><button class="btn primary" onclick="slotModal()">${ic('plus')} إضافة محاضرة</button>`:`<button class="btn" onclick="window.print()">${ic('print')} طباعة جدولي</button><button class="btn primary" onclick="composeMsg(null,'تعديل جدول')">طلب تعديل على الجدول</button>`}</div>
+  ${myCf.length?`<div class="card" style="margin-bottom:16px;border-color:var(--bad)"><h3 style="color:var(--bad)">⚠ تعارضات مكتشفة تلقائياً (${myCf.length})</h3><div class="stack">${myCf.map(x=>`<div class="alert bad" onclick="slotModal('${x.a.id}')"><span class="badge bad">${x.type}</span> ${esc(x.text)}</div>`).join('')}</div></div>`:`<div class="note" style="margin-bottom:16px;background:var(--ok-soft)">✓ لا توجد تعارضات في الجدول</div>`}
+  <div class="card" style="overflow-x:auto">${g}</div>`;
+};
+function slotModal(id,day,period){
+  const s=id?DB.slots.find(x=>x.id===id):{courseId:DB.courses[0].id,day:day??0,period:period??0,room:ROOMS[0],kind:'نظري'};
+  const c=C(s.courseId);
+  if(!isHead()){openModal(`${esc(c.code)} · ${esc(c.name)}`,`<div>${DAYS[s.day]} · ${PERIODS[s.period].join(' - ')} · ${esc(s.room)} · ${s.kind}</div><div class="muted small">${c.students.length} طالبة · المستوى ${c.level} · ${esc(c.section)}</div>`,`<button class="btn primary" onclick="closeModal();composeMsg(null,'تعديل جدول','طلب تعديل موعد ${esc(c.code)}')">طلب تعديل</button>`);return}
+  openModal(id?'تعديل محاضرة في الجدول':'إضافة محاضرة',`<div class="fields">
+   <div class="field full"><label>المقرر</label><select id="s_course">${DB.courses.map(x=>`<option value="${x.id}" ${x.id===s.courseId?'selected':''}>${esc(x.code)} — ${esc(x.name)} (${esc(D(x.doctorId).name)})</option>`).join('')}</select></div>
+   <div class="field"><label>اليوم</label><select id="s_day">${DAYS.map((d,i)=>`<option value="${i}" ${i==s.day?'selected':''}>${d}</option>`).join('')}</select></div>
+   <div class="field"><label>الفترة</label><select id="s_period">${PERIODS.map((p,i)=>`<option value="${i}" ${i==s.period?'selected':''}>${p[0]} - ${p[1]}</option>`).join('')}</select></div>
+   <div class="field"><label>القاعة</label><select id="s_room">${ROOMS.map(r=>`<option ${r===s.room?'selected':''}>${r}</option>`).join('')}</select></div>
+   <div class="field"><label>النوع</label><select id="s_kind">${['نظري','عملي','تمارين'].map(k=>`<option ${k===s.kind?'selected':''}>${k}</option>`).join('')}</select></div>
+   <div class="field full"><label>إسناد المقرر إلى</label><select id="s_doc">${DB.doctors.map(d=>`<option value="${d.id}" ${d.id===c.doctorId?'selected':''}>${esc(d.name)}</option>`).join('')}</select><div class="small faint" style="margin-top:4px">تغيير الإسناد يطبَّق على المقرر كاملاً.</div></div>
+   <div class="full" id="s_check"></div></div>`,
+   `${id?`<button class="btn bad" onclick="delSlot('${id}')">${ic('trash')} حذف</button>`:''}<button class="btn" onclick="checkSlot('${id||''}')">فحص التعارض</button><button class="btn primary" onclick="saveSlot('${id||''}')">حفظ</button>`);
+}
+function slotForm(){return{courseId:val('s_course'),day:+val('s_day'),period:+val('s_period'),room:val('s_room'),kind:val('s_kind')}}
+function slotIssues(id,o){const c=C(o.courseId);const doc=val('s_doc')||c.doctorId;return DB.slots.filter(s=>s.id!==id&&s.day===o.day&&s.period===o.period).flatMap(s=>{const x=C(s.courseId),r=[];if(s.room===o.room)r.push(`القاعة ${o.room} مشغولة بـ ${x.code}`);if(x.doctorId===doc)r.push(`الدكتورة لديها ${x.code} في نفس الوقت`);if(x.level===c.level&&x.id!==c.id)r.push(`طالبات المستوى ${c.level} لديهن ${x.code}`);return r})}
+function checkSlot(id){const is=slotIssues(id,slotForm());$('#s_check').innerHTML=is.length?`<div class="stack">${is.map(t=>`<div class="alert bad">⚠ ${esc(t)}</div>`).join('')}</div>`:`<div class="note" style="background:var(--ok-soft)">✓ الموعد متاح بدون تعارض</div>`}
+function saveSlot(id){const o=slotForm();const is=slotIssues(id,o);if(is.length&&!confirm('يوجد تعارض:\n'+is.join('\n')+'\nهل تريدين الحفظ رغم ذلك؟'))return;
+  const c=C(o.courseId);const nd=val('s_doc');if(nd&&nd!==c.doctorId){c.doctorId=nd;DB.exams.filter(e=>e.courseId===c.id).forEach(e=>e.doctorId=nd);log(`إسناد ${c.code} إلى ${D(nd).name}`)}
+  if(id)Object.assign(DB.slots.find(s=>s.id===id),o);else DB.slots.push({id:uid('l'),...o});
+  log(`${id?'تعديل':'إضافة'} موعد ${c.code} — ${DAYS[o.day]} ${PERIODS[o.period][0]}`);closeModal();render();toast('تم تحديث الجدول')}
+function delSlot(id){if(!confirm('حذف هذه المحاضرة من الجدول؟'))return;DB.slots=DB.slots.filter(s=>s.id!==id);closeModal();render();toast('تم الحذف')}
+function exportSched(){csv('الجدول_الدراسي.csv',[['اليوم','الوقت','المقرر','اسم المقرر','الدكتورة','القاعة','النوع','المستوى']].concat(DB.slots.slice().sort((a,b)=>a.day-b.day||a.period-b.period).map(s=>{const c=C(s.courseId);return[DAYS[s.day],PERIODS[s.period].join('-'),c.code,c.name,D(c.doctorId).name,s.room,s.kind,c.level]})))}
+function csv(name,rows){const t='﻿'+rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));a.download=name;a.click();toast('تم تصدير الملف')}
+
+/* ---------- lectures ---------- */
+VIEWS.lectures=()=>{
+  const from=iso(addDays(TODAY,-ui.lecRange));
+  const list=DB.sessions.filter(s=>s.date>=from&&s.date<=TODAY_ISO&&(isHead()?(ui.lecDoc==='all'||C(s.courseId).doctorId===ui.lecDoc):C(s.courseId).doctorId===me())&&(ui.lecStatus==='all'||s.status===ui.lecStatus||(ui.lecStatus==='noatt'&&!s.att&&(s.status==='held'||s.status==='online')))).sort((a,b)=>b.date.localeCompare(a.date)||(a.period??9)-(b.period??9));
+  const cnt=k=>list.filter(s=>s.status===k).length;
+  return `
+  <div class="kpis">${kpi('إجمالي المحاضرات',list.length,'خلال الفترة المحددة')}${kpi('انعقدت',cnt('held')+cnt('online'),cnt('online')+' منها عن بُعد')}${kpi('مؤجلة',cnt('postponed'),'تحتاج تعويض')}${kpi('غياب',cnt('absent'),'بدون إبلاغ')}${kpi('بدون تحضير',list.filter(s=>!s.att&&(s.status==='held'||s.status==='online')).length,'كشوف لم تُرفع')}</div>
+  <div class="toolbar">
+   ${isHead()?`<select onchange="ui.lecDoc=this.value;render()"><option value="all">كل الدكتورات</option>${DB.doctors.map(d=>`<option value="${d.id}" ${ui.lecDoc===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select>`:''}
+   <select onchange="ui.lecStatus=this.value;render()">${[['all','كل الحالات'],['held','انعقدت'],['online','عن بُعد'],['postponed','مؤجلة'],['absent','غياب'],['scheduled','مجدولة'],['noatt','بدون تحضير']].map(([k,l])=>`<option value="${k}" ${ui.lecStatus===k?'selected':''}>${l}</option>`).join('')}</select>
+   <div class="tabs">${[[0,'اليوم'],[7,'أسبوع'],[14,'أسبوعان'],[30,'شهر']].map(([k,l])=>`<button class="${ui.lecRange===k?'on':''}" onclick="ui.lecRange=${k};render()">${l}</button>`).join('')}</div>
+   <span class="grow"></span><button class="btn" onclick="makeupModal()">${ic('plus')} محاضرة تعويضية</button>
+  </div>
+  <div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>الوقت</th><th>المقرر</th>${isHead()?'<th>الدكتورة</th>':''}<th>القاعة</th><th>الحالة</th><th>التحضير</th><th>ملاحظة</th><th></th></tr></thead><tbody>
+  ${list.length?list.map(s=>{const c=C(s.courseId);const att=s.att?`<span class="badge ok">✓ ${c.students.length-s.att.absent.length}/${c.students.length}</span>`:(s.status==='held'||s.status==='online')?'<span class="badge bad">لم يُرفع</span>':'<span class="faint">—</span>';
+   return `<tr><td class="small">${fs(s.date)}${s.makeup?' <span class="badge info">تعويضية</span>':''}</td><td class="num small">${PERIODS[s.period]?PERIODS[s.period][0]:'—'}</td><td><b>${esc(c.code)}</b> <span class="small muted">${esc(c.name)}</span></td>${isHead()?`<td class="small">${esc(D(c.doctorId).name)}</td>`:''}<td class="small">${esc(s.room||'—')}</td><td>${stBadge(s.status)}</td><td>${att}</td><td class="small muted" style="max-width:200px">${esc(s.note)}</td><td><button class="btn sm" onclick="sessionModal('${s.id}')">إدارة</button></td></tr>`}).join(''):`<tr><td colspan="9"><div class="empty">لا توجد محاضرات مطابقة</div></td></tr>`}
+  </tbody></table></div>`;
+};
+function sessionModal(id){
+  const s=DB.sessions.find(x=>x.id===id),c=C(s.courseId);
+  openModal(`${esc(c.code)} · ${esc(c.name)}`,`
+   <div class="muted small">${fd(s.date)} · ${PERIODS[s.period]?PERIODS[s.period].join(' - '):''} · ${esc(s.room||'')} · ${esc(D(c.doctorId).name)}</div>
+   <div class="field"><label>حالة المحاضرة</label><div class="tabs" id="stTabs">${Object.entries(ST).map(([k,[l]])=>`<button class="${s.status===k?'on':''}" data-k="${k}" onclick="document.querySelectorAll('#stTabs button').forEach(b=>b.classList.toggle('on',b===this))">${l}</button>`).join('')}</div></div>
+   <div class="field"><label>ملاحظة</label><textarea id="se_note" placeholder="سبب التأجيل، موضوع المحاضرة…">${esc(s.note)}</textarea></div>
+   <div class="row wrap">${s.att?`<span class="badge ok">تم رفع التحضير: حضور ${c.students.length-s.att.absent.length} من ${c.students.length}</span>`:'<span class="badge warn">لم يُرفع التحضير بعد</span>'}<button class="btn sm" onclick="attendModal('${c.id}','${s.id}')">${ic('att')} ${s.att?'تعديل':'تسجيل'} التحضير</button></div>`,
+   `${s.status==='postponed'||s.status==='absent'?`<button class="btn" onclick="closeModal();makeupModal('${c.id}')">جدولة تعويضية</button>`:''}<button class="btn" onclick="closeModal()">إلغاء</button><button class="btn primary" onclick="saveSession('${id}')">حفظ</button>`);
+}
+function saveSession(id){const s=DB.sessions.find(x=>x.id===id);const k=document.querySelector('#stTabs button.on').dataset.k;const old=s.status;s.status=k;s.note=val('se_note');if(old!==k)log(`${C(s.courseId).code} (${fs(s.date)}): ${ST[k][0]}`);closeModal();render();toast('تم الحفظ')}
+function makeupModal(cid){
+  const cs=myCourses();
+  openModal('جدولة محاضرة تعويضية',`<div class="fields">
+   <div class="field full"><label>المقرر</label><select id="mk_c">${cs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${esc(c.code)} — ${esc(c.name)}</option>`).join('')}</select></div>
+   <div class="field"><label>التاريخ</label><input type="date" id="mk_d" value="${iso(addDays(TODAY,1))}"></div>
+   <div class="field"><label>الفترة</label><select id="mk_p">${PERIODS.map((p,i)=>`<option value="${i}">${p[0]} - ${p[1]}</option>`).join('')}</select></div>
+   <div class="field"><label>القاعة</label><select id="mk_r">${ROOMS.map(r=>`<option>${r}</option>`).join('')}</select></div>
+   <div class="field"><label>ملاحظة</label><input type="text" id="mk_n" value="تعويض محاضرة مؤجلة"></div></div>`,
+   `<button class="btn" onclick="closeModal()">إلغاء</button><button class="btn primary" onclick="saveMakeup()">جدولة</button>`);
+}
+function saveMakeup(){const d=val('mk_d');if(!d)return;const s={id:uid('se'),slotId:null,courseId:val('mk_c'),date:d,period:+val('mk_p'),room:val('mk_r'),status:d<=TODAY_ISO?'held':'scheduled',att:null,note:val('mk_n'),makeup:true};
+  const busy=DB.sessions.find(x=>x.date===d&&x.period===s.period&&x.room===s.room);if(busy&&!confirm(`القاعة مشغولة بمحاضرة ${C(busy.courseId).code}. متابعة؟`))return;
+  DB.sessions.push(s);log(`جدولة محاضرة تعويضية ${C(s.courseId).code} — ${fs(d)}`);closeModal();render();toast('تمت الجدولة')}
+
+/* ---------- attendance ---------- */
+VIEWS.attendance=()=>{
+  const cs=myCourses();if(!cs.length)return '<div class="empty">لا توجد مقررات</div>';
+  if(!ui.attCourse||!cs.some(c=>c.id===ui.attCourse))ui.attCourse=cs[0].id;
+  const c=C(ui.attCourse),a=courseAtt(c);
+  return `
+  <div class="note" style="margin-bottom:16px;background:var(--info-soft)">سياسة الغياب: إنذار عند <b>15%</b> · حرمان عند <b>25%</b> من المحاضرات المسجلة.</div>
+  <div class="docs" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-bottom:20px">${cs.map(x=>{const r=courseAtt(x);return `<div class="card" style="cursor:pointer;padding:14px;${x.id===c.id?'border-color:var(--accent);background:var(--accent-soft)':''}" onclick="ui.attCourse='${x.id}';render()">
+   <div class="row"><b style="flex:1">${esc(x.code)}</b>${r.risk?`<span class="badge bad">${r.risk} حرمان</span>`:r.warn?`<span class="badge warn">${r.warn} إنذار</span>`:'<span class="badge ok">منتظم</span>'}</div>
+   <div class="small muted" style="margin-bottom:8px">${esc(x.name)}${isHead()?' · '+esc(D(x.doctorId).name):''}</div>
+   <div class="row"><div class="bar ${r.rate>=90?'ok':r.rate>=80?'warn':'bad'}" style="flex:1"><i style="width:${r.rate}%"></i></div><b class="num small">${r.rate}%</b></div></div>`}).join('')}</div>
+  <div class="card">
+   <h3><span class="grow">${esc(c.code)} · ${esc(c.name)} <span class="small muted">— ${a.total} محاضرة مسجلة · ${c.students.length} طالبة</span></span>
+   <button class="btn sm" onclick="exportAtt('${c.id}')">${ic('dl')} CSV</button><button class="btn sm primary" onclick="attendModal('${c.id}')">${ic('att')} تسجيل تحضير</button></h3>
+   <div class="tbl-wrap"><table><thead><tr><th>#</th><th>الطالبة</th><th>الرقم الجامعي</th><th>الغياب</th><th style="min-width:160px">نسبة الغياب</th><th>الحالة</th>${isHead()?'':'<th></th>'}</tr></thead><tbody>
+   ${a.rows.sort((x,y)=>y.abs-x.abs).map((r,i)=>`<tr><td class="faint num">${i+1}</td><td>${esc(r.name)}</td><td class="num small">${r.id.slice(1)}</td><td class="num">${r.abs}</td><td><div class="row"><div class="bar ${r.state}" style="flex:1"><i style="width:${Math.min(100,r.p*3)}%"></i></div><span class="num small">${r.p}%</span></div></td><td>${r.state==='bad'?'<span class="badge bad">محرومة</span>':r.state==='warn'?'<span class="badge warn">إنذار</span>':'<span class="badge ok">منتظمة</span>'}</td>${isHead()?'':`<td>${r.state!=='ok'?`<button class="btn sm" onclick="toast('تم إرسال إشعار ${r.state==='bad'?'الحرمان':'الإنذار'} للطالبة ${esc(r.name)}')">إشعار</button>`:''}</td>`}</tr>`).join('')}
+   </tbody></table></div></div>
+  ${isHead()?`<div class="section-title"><h2>التزام الدكتورات برفع التحضير</h2></div><div class="tbl-wrap"><table><thead><tr><th>الدكتورة</th><th>محاضرات منعقدة</th><th>كشوف مرفوعة</th><th style="min-width:180px">نسبة الالتزام</th><th></th></tr></thead><tbody>${DB.doctors.map(d=>{const s=docStats(d.id);return `<tr><td><div class="row">${av(d)}<b>${esc(d.name)}</b></div></td><td class="num">${s.held}</td><td class="num">${s.held-s.missing}</td><td><div class="row"><div class="bar ${s.subP>=90?'ok':s.subP>=75?'warn':'bad'}" style="flex:1"><i style="width:${s.subP}%"></i></div><span class="num small">${s.subP}%</span></div></td><td>${s.missing?`<button class="btn sm" onclick="remind('${d.id}',${s.missing})">تذكير</button>`:'<span class="badge ok">مكتمل</span>'}</td></tr>`}).join('')}</tbody></table></div>`:''}`;
+};
+function remind(id,n){DB.messages.unshift({id:uid('m'),doctorId:id,fromHead:true,cat:'متابعة',priority:'متوسطة',subject:'تذكير برفع كشوف التحضير',status:'open',readHead:true,readDoc:false,decision:null,date:new Date().toISOString(),thread:[{from:'head',date:new Date().toISOString(),text:`نأمل رفع كشوف التحضير المتأخرة (${n} محاضرات) في أقرب وقت. شاكرين تعاونك.`}]});log('تذكير '+D(id).name+' برفع التحضير');render();toast('تم إرسال التذكير إلى '+D(id).name)}
+function attendModal(cid,sid){
+  const cs=myCourses();cid=cid||ui.attCourse||cs[0].id;const c=C(cid);
+  const s=sid?DB.sessions.find(x=>x.id===sid):null;const abs=new Set(s&&s.att?s.att.absent:[]);
+  openModal('تسجيل تحضير الطالبات',`<div class="fields">
+   <div class="field"><label>المقرر</label><select id="at_c" ${sid?'disabled':''} onchange="closeModal();attendModal(this.value)">${cs.map(x=>`<option value="${x.id}" ${x.id===cid?'selected':''}>${esc(x.code)} — ${esc(x.name)}</option>`).join('')}</select></div>
+   <div class="field"><label>التاريخ</label><input type="date" id="at_d" value="${s?s.date:TODAY_ISO}" max="${TODAY_ISO}" ${sid?'disabled':''}></div></div>
+   <div class="row wrap"><span class="small muted" style="flex:1">اضغطي على اسم الطالبة لتسجيلها غائبة · <b id="at_sum"></b></span><button class="btn sm" onclick="document.querySelectorAll('#at_list input').forEach(i=>{i.checked=true;i.onchange()})">الكل حاضرات</button></div>
+   <div class="check-list" id="at_list">${c.students.map(st=>`<label class="${abs.has(st.id)?'abs':''}"><input type="checkbox" value="${st.id}" ${abs.has(st.id)?'':'checked'} onchange="this.parentElement.classList.toggle('abs',!this.checked);atSum()"> ${esc(st.name)}</label>`).join('')}</div>`,
+   `<button class="btn" onclick="closeModal()">إلغاء</button><button class="btn primary" onclick="saveAtt('${cid}','${sid||''}')">حفظ ورفع التحضير</button>`,true);
+  atSum();
+}
+function atSum(){const all=document.querySelectorAll('#at_list input');const p=[...all].filter(i=>i.checked).length;const e=$('#at_sum');if(e)e.textContent=`حاضرات ${p} · غائبات ${all.length-p}`}
+function saveAtt(cid,sid){
+  const absent=[...document.querySelectorAll('#at_list input')].filter(i=>!i.checked).map(i=>i.value);
+  let s=sid?DB.sessions.find(x=>x.id===sid):null;
+  if(!s){const d=val('at_d')||TODAY_ISO;s=DB.sessions.find(x=>x.courseId===cid&&x.date===d&&!x.att);if(!s){s={id:uid('se'),slotId:null,courseId:cid,date:d,period:null,room:'',status:'held',att:null,note:'محاضرة إضافية'};DB.sessions.push(s)}}
+  s.att={absent};if(s.status==='scheduled')s.status='held';
+  log(`رفع تحضير ${C(cid).code} — ${fs(s.date)} (غياب ${absent.length})`);closeModal();render();toast('تم رفع التحضير بنجاح')}
+function exportAtt(cid){const c=C(cid),a=courseAtt(c);csv(`تحضير_${c.code}.csv`,[['الطالبة','الرقم الجامعي','الغياب','النسبة','الحالة']].concat(a.rows.map(r=>[r.name,r.id.slice(1),r.abs,r.p+'%',r.state==='bad'?'محرومة':r.state==='warn'?'إنذار':'منتظمة'])))}
+
+/* ---------- exams ---------- */
+const EX={draft:['مسودة',''],submitted:['بانتظار المراجعة','warn'],revision:['يحتاج تعديل','bad'],approved:['معتمد','ok']};
+const exBadge=s=>`<span class="badge ${EX[s][1]}">${EX[s][0]}</span>`;
+VIEWS.exams=()=>{
+  const all=DB.exams.filter(e=>isHead()||e.doctorId===me());
+  const list=all.filter(e=>ui.examTab==='all'||e.status===ui.examTab).sort((a,b)=>a.date.localeCompare(b.date));
+  const clashes=examClashes();const clashSet=new Set(clashes.flat().map(e=>e.id));
+  const next=all.filter(e=>daysTo(e.date)>=0&&daysTo(e.date)<=30).sort((a,b)=>a.date.localeCompare(b.date));
+  const byDate={};next.forEach(e=>(byDate[e.date]=byDate[e.date]||[]).push(e));
+  return `
+  <div class="kpis">${Object.entries(EX).map(([k,[l]])=>kpi(l,all.filter(e=>e.status===k).length,k==='submitted'?'تحتاج قرارك':k==='revision'?'أُعيدت للدكتورة':k==='approved'?'جاهزة للطباعة':'لم تُرسل بعد')).join('')}</div>
+  <div class="grid g-main">
+   <div>
+    <div class="toolbar"><div class="tabs">${[['all','الكل'],...Object.entries(EX).map(([k,[l]])=>[k,l])].map(([k,l])=>`<button class="${ui.examTab===k?'on':''}" onclick="ui.examTab='${k}';render()">${l}</button>`).join('')}</div><span class="grow"></span><button class="btn primary" onclick="examModal()">${ic('plus')} ${isHead()?'إضافة اختبار':'رفع اختبار جديد'}</button></div>
+    <div class="stack">${list.length?list.map(e=>{const c=C(e.courseId),d=D(e.doctorId);const tot=e.questions.reduce((t,q)=>t+(+q.marks||0),0);const dt=daysTo(e.date);
+     return `<div class="card" style="padding:14px 16px"><div class="row wrap">${av(d)}<div style="flex:1;min-width:200px"><div class="row wrap"><b>${esc(c.code)} · ${esc(c.name)}</b>${exBadge(e.status)}${clashSet.has(e.id)?'<span class="badge bad">⚠ تعارض مستوى</span>':''}</div>
+     <div class="small muted">${esc(e.type)} · ${isHead()?esc(d.name)+' · ':''}${fd(e.date)} ${e.time} · ${e.duration} دقيقة · ${esc(e.room)}</div>
+     <div class="small faint">${e.questions.length} سؤال · ${tot} درجة · ${dt<0?'انتهى':dt===0?'اليوم':'بعد '+dt+' يوم'}${e.notes.length?' · '+e.notes.length+' ملاحظات':''}</div></div>
+     <div class="row wrap">${examActions(e)}</div></div></div>`}).join(''):'<div class="card empty">لا توجد اختبارات في هذا التصنيف</div>'}</div>
+   </div>
+   <div class="card" style="align-self:start"><h3>${ic('cal')} تقويم الاختبارات (30 يوماً)</h3>${Object.keys(byDate).length?Object.entries(byDate).map(([dt,es])=>{const lv={};es.forEach(e=>{const l=C(e.courseId).level;lv[l]=(lv[l]||0)+1});const clash=Object.values(lv).some(n=>n>1);
+     return `<div class="cal-day"><div class="cal-date" style="${clash?'background:var(--bad-soft);color:var(--bad)':''}"><b>${parseISO(dt).getDate()}</b><small>${fmtWd.format(parseISO(dt))}</small></div><div class="stack" style="flex:1;gap:4px">${es.map(e=>`<div class="small" style="cursor:pointer" onclick="examModal('${e.id}')"><b>${esc(C(e.courseId).code)}</b> · م${C(e.courseId).level} · ${esc(e.type)} ${exBadge(e.status)}</div>`).join('')}${clash?'<div class="small" style="color:var(--bad)">⚠ أكثر من اختبار لنفس المستوى</div>':''}</div></div>`}).join(''):'<div class="empty">لا توجد اختبارات خلال 30 يوماً</div>'}
+   <div class="note small" style="margin-top:12px">💡 يجب رفع الاختبار للمراجعة قبل موعده بـ 7 أيام على الأقل.</div></div>
+  </div>`;
+};
+function examActions(e){
+  const b=[`<button class="btn sm" onclick="examModal('${e.id}')">${isHead()?'مراجعة وتعديل':'فتح'}</button>`,`<button class="btn sm" onclick="printExam('${e.id}')" title="معاينة الطباعة">${ic('print')}</button>`];
+  if(isHead()&&e.status==='submitted'){b.push(`<button class="btn sm ok" onclick="setExam('${e.id}','approved')">اعتماد</button>`,`<button class="btn sm bad" onclick="examModal('${e.id}',true)">طلب تعديل</button>`)}
+  if(!isHead()&&(e.status==='draft'||e.status==='revision'))b.push(`<button class="btn sm primary" onclick="setExam('${e.id}','submitted')">إرسال للمراجعة</button>`);
+  return b.join('');
+}
+function setExam(id,st,note){const e=DB.exams.find(x=>x.id===id);e.status=st;const t={approved:'اعتماد الاختبار',submitted:'إرسال الاختبار للمراجعة',revision:'طلب تعديل على الاختبار',draft:'إعادة الاختبار لمسودة'}[st];
+  e.history.push({date:TODAY_ISO,by:me(),text:t});if(note)e.notes.push({by:me(),date:TODAY_ISO,text:note});log(`${t}: ${C(e.courseId).code}`);closeModal();render();toast(t)}
+let QS=[];
+function examModal(id,focusNote){
+  const e=id?DB.exams.find(x=>x.id===id):{courseId:myCourses()[0].id,type:'اختبار فصلي أول',date:iso(addDays(TODAY,14)),time:'10:00',duration:90,room:'ق-201',status:'draft',questions:[],notes:[],history:[]};
+  QS=JSON.parse(JSON.stringify(e.questions));if(!QS.length)QS=[{text:'',type:'اختيار من متعدد',marks:1}];
+  const locked=!isHead()&&e.status==='approved';
+  openModal(id?`${esc(C(e.courseId).code)} · ${esc(e.type)} ${exBadge(e.status)}`:'اختبار جديد',`
+   ${locked?'<div class="note">هذا الاختبار معتمد. للتعديل تواصلي مع رئيسة القسم.</div>':''}
+   ${e.status==='revision'&&e.notes.length?`<div class="alert bad" style="cursor:default"><div><b>ملاحظات رئيسة القسم:</b> ${esc(e.notes[e.notes.length-1].text)}</div></div>`:''}
+   <div class="fields">
+    <div class="field"><label>المقرر</label><select id="ex_c" ${locked?'disabled':''}>${myCourses().map(c=>`<option value="${c.id}" ${c.id===e.courseId?'selected':''}>${esc(c.code)} — ${esc(c.name)}</option>`).join('')}</select></div>
+    <div class="field"><label>نوع الاختبار</label><select id="ex_t" ${locked?'disabled':''}>${['اختبار قصير','اختبار فصلي أول','اختبار فصلي ثاني','اختبار عملي','اختبار نهائي'].map(t=>`<option ${t===e.type?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="field"><label>التاريخ</label><input type="date" id="ex_d" value="${e.date}" ${locked?'disabled':''}></div>
+    <div class="field"><label>الوقت</label><input type="time" id="ex_tm" value="${e.time}" ${locked?'disabled':''}></div>
+    <div class="field"><label>المدة (دقيقة)</label><input type="number" id="ex_du" value="${e.duration}" min="10" ${locked?'disabled':''}></div>
+    <div class="field"><label>القاعة</label><select id="ex_r" ${locked?'disabled':''}>${ROOMS.map(r=>`<option ${r===e.room?'selected':''}>${r}</option>`).join('')}</select></div>
+   </div>
+   <div><div class="row" style="margin-bottom:8px"><b style="flex:1">الأسئلة <span class="small muted" id="qTot"></span></b>${locked?'':`<button class="btn sm" onclick="QS.push({text:'',type:'مقالي',marks:2});drawQ()">${ic('plus')} سؤال</button>`}</div><div class="stack" id="qList"></div></div>
+   ${id?`<div><b>الملاحظات والمراجعة</b><div class="thread" style="margin-top:6px">${e.notes.map(n=>`<div class="bubble ${n.by===me()?'me':''}"><div class="meta">${esc(nameOf(n.by))} · ${fs(n.date)}</div>${esc(n.text)}</div>`).join('')||'<div class="small faint">لا توجد ملاحظات</div>'}</div>
+     <div class="field" style="margin-top:8px"><textarea id="ex_note" placeholder="${isHead()?'اكتبي ملاحظاتك للدكتورة…':'رد على الملاحظات أو توضيح…'}" style="min-height:60px"></textarea></div></div>
+   <details><summary class="small muted" style="cursor:pointer">سجل التعديلات (${e.history.length})</summary><div class="stack small" style="margin-top:8px">${e.history.map(h=>`<div class="row"><span class="dot"></span><span style="flex:1">${esc(h.text)} — ${esc(nameOf(h.by))}</span><span class="faint">${fs(h.date)}</span></div>`).join('')}</div></details>`:''}`,
+   `${id&&isHead()?`<button class="btn bad" onclick="delExam('${id}')">${ic('trash')}</button>`:''}
+    ${id?`<button class="btn" onclick="printExam('${id}')">${ic('print')} معاينة</button>`:''}
+    ${locked?'':`<button class="btn" onclick="saveExam('${id||''}')">حفظ</button>`}
+    ${isHead()&&id?`<button class="btn bad" onclick="saveExam('${id}','revision')">طلب تعديل</button><button class="btn ok" onclick="saveExam('${id}','approved')">حفظ واعتماد</button>`:''}
+    ${!isHead()&&!locked?`<button class="btn primary" onclick="saveExam('${id||''}','submitted')">حفظ وإرسال للمراجعة</button>`:''}`,true);
+  drawQ(locked);if(focusNote)setTimeout(()=>{const n=$('#ex_note');if(n)n.focus()},50);
+}
+function drawQ(locked){
+  locked=locked??document.getElementById('ex_c')?.disabled;
+  $('#qList').innerHTML=QS.map((q,i)=>`<div class="q-row"><div class="n">${i+1}</div><textarea style="min-height:42px" placeholder="نص السؤال" oninput="QS[${i}].text=this.value" ${locked?'disabled':''}>${esc(q.text)}</textarea>
+   <select onchange="QS[${i}].type=this.value" ${locked?'disabled':''}>${['اختيار من متعدد','صح وخطأ','مقالي','تطبيقي','برمجي'].map(t=>`<option ${t===q.type?'selected':''}>${t}</option>`).join('')}</select>
+   <input type="number" min="0" step="0.5" value="${q.marks}" title="الدرجة" oninput="QS[${i}].marks=+this.value;qTot()" ${locked?'disabled':''}>
+   ${locked?'<span></span>':`<button class="btn icon" onclick="QS.splice(${i},1);drawQ()" aria-label="حذف">${ic('trash')}</button>`}</div>`).join('');qTot()}
+function qTot(){const e=$('#qTot');if(e)e.textContent=`— ${QS.length} سؤال · المجموع ${QS.reduce((t,q)=>t+(+q.marks||0),0)} درجة`}
+function saveExam(id,st){
+  const o={courseId:val('ex_c'),type:val('ex_t'),date:val('ex_d'),time:val('ex_tm'),duration:+val('ex_du'),room:val('ex_r'),questions:QS.filter(q=>q.text.trim())};
+  if(!o.date)return toast('حددي تاريخ الاختبار');
+  if(st==='submitted'&&!o.questions.length)return toast('أضيفي سؤالاً واحداً على الأقل');
+  const note=val('ex_note');
+  if(st==='revision'&&!note)return toast('اكتبي ملاحظات التعديل المطلوبة');
+  if(st==='submitted'&&daysTo(o.date)<7&&!confirm('موعد الاختبار بعد أقل من 7 أيام (المهلة المعتمدة). متابعة الإرسال؟'))return;
+  let e;
+  if(id){e=DB.exams.find(x=>x.id===id);const changed=JSON.stringify(e.questions)!==JSON.stringify(o.questions)||e.date!==o.date;Object.assign(e,o);e.doctorId=C(o.courseId).doctorId;if(changed)e.history.push({date:TODAY_ISO,by:me(),text:isHead()?'تعديل من رئيسة القسم':'تحديث الاختبار'})}
+  else{e={id:uid('e'),...o,doctorId:C(o.courseId).doctorId,status:'draft',notes:[],history:[{date:TODAY_ISO,by:me(),text:'إنشاء الاختبار'}]};DB.exams.push(e)}
+  if(note&&!st)e.notes.push({by:me(),date:TODAY_ISO,text:note});
+  if(st){setExam(e.id,st,note);return}
+  log('حفظ اختبار '+C(e.courseId).code);closeModal();render();toast('تم حفظ الاختبار')
+}
+function delExam(id){if(!confirm('حذف الاختبار نهائياً؟'))return;DB.exams=DB.exams.filter(e=>e.id!==id);closeModal();render();toast('تم الحذف')}
+function printExam(id){
+  const e=DB.exams.find(x=>x.id===id),c=C(e.courseId),d=D(e.doctorId);const tot=e.questions.reduce((t,q)=>t+(+q.marks||0),0);
+  const w=window.open('','_blank');if(!w)return toast('اسمحي بالنوافذ المنبثقة للمعاينة');
+  w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(c.code)} ${esc(e.type)}</title><style>body{font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;max-width:780px;margin:30px auto;padding:0 20px;color:#111;line-height:1.8}header{border:2px solid #111;padding:14px 18px;display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;margin-bottom:20px}h1{text-align:center;font-size:20px}.q{margin:14px 0;padding-bottom:10px;border-bottom:1px dashed #bbb}.m{float:left;font-size:13px;border:1px solid #111;padding:0 8px;border-radius:4px}.wm{position:fixed;top:40%;left:0;right:0;text-align:center;font-size:80px;color:rgba(0,0,0,.06);transform:rotate(-20deg);pointer-events:none}</style></head><body>
+   ${e.status!=='approved'?'<div class="wm">مسودة غير معتمدة</div>':''}
+   <h1>${esc(document.getElementById('deptName').textContent)} — ${esc(e.type)}</h1>
+   <header><div>المقرر: <b>${esc(c.code)} ${esc(c.name)}</b></div><div>أستاذة المقرر: ${esc(d.name)}</div><div>التاريخ: ${fd(e.date)}</div><div>الزمن: ${e.duration} دقيقة</div><div>الدرجة الكلية: ${tot}</div><div>اسم الطالبة: ..............................</div></header>
+   ${e.questions.map((q,i)=>`<div class="q"><span class="m">${q.marks} درجة</span><b>السؤال ${i+1}</b> <small>(${esc(q.type)})</small><br>${esc(q.text)}</div>`).join('')}
+   <p style="text-align:center;margin-top:30px">انتهت الأسئلة — بالتوفيق</p><script>setTimeout(()=>print(),300)<\/script></body></html>`);
+  w.document.close();
+}
+
+/* ---------- messages ---------- */
+const PR={'عالية':'bad','متوسطة':'warn','منخفضة':''};
+const MS={open:['مفتوحة','info'],progress:['قيد المعالجة','warn'],closed:['مغلقة','']};
+VIEWS.messages=()=>{
+  let list=DB.messages.filter(m=>isHead()||m.doctorId===me());
+  const unread=m=>isHead()?!m.readHead:!m.readDoc;
+  if(ui.msgFilter==='unread')list=list.filter(unread);
+  if(ui.msgFilter==='requests')list=list.filter(m=>['إجازة','تعديل جدول'].includes(m.cat));
+  if(ui.msgFilter==='open')list=list.filter(m=>m.status!=='closed');
+  if(ui.msgFilter==='closed')list=list.filter(m=>m.status==='closed');
+  list.sort((a,b)=>b.date.localeCompare(a.date));
+  const sel=DB.messages.find(m=>m.id===ui.msgSel&&list.includes(m))||null;
+  return `
+  <div class="toolbar"><div class="tabs">${[['all','الكل'],['unread','غير مقروءة'],['requests','طلبات'],['open','مفتوحة'],['closed','مغلقة']].map(([k,l])=>`<button class="${ui.msgFilter===k?'on':''}" onclick="ui.msgFilter='${k}';render()">${l}</button>`).join('')}</div><span class="grow"></span><button class="btn primary" onclick="composeMsg()">${ic('plus')} رسالة جديدة</button></div>
+  <div class="msg-layout">
+   <div class="card msg-list">${list.length?list.map(m=>{const d=D(m.doctorId);const last=m.thread[m.thread.length-1];return `<button class="msg-item ${m.id===ui.msgSel?'on':''} ${unread(m)?'unread':''}" onclick="openMsg('${m.id}')">${av(d)}<div style="flex:1;min-width:0"><div class="row"><span class="small" style="flex:1">${isHead()?esc(d.name):(m.fromHead?'منكِ إلى رئيسة القسم':'')}${isHead()?'':(m.fromHead?'من رئيسة القسم':'إلى رئيسة القسم')}</span>${unread(m)?'<span class="dot"></span>':''}</div><div class="subj">${esc(m.subject)}</div><div class="prev">${esc(last.text)}</div><div class="row" style="gap:4px;margin-top:4px"><span class="badge acc">${esc(m.cat)}</span><span class="badge ${PR[m.priority]}">${m.priority}</span><span class="badge ${MS[m.status][1]}">${MS[m.status][0]}</span></div></div></button>`}).join(''):'<div class="empty">لا توجد رسائل</div>'}</div>
+   <div class="card">${sel?msgView(sel):'<div class="empty" style="padding:80px 20px">اختاري رسالة لعرض المحادثة</div>'}</div>
+  </div>`;
+};
+function openMsg(id){ui.msgSel=id;const m=DB.messages.find(x=>x.id===id);if(isHead())m.readHead=true;else m.readDoc=true;render()}
+function msgView(m){
+  const d=D(m.doctorId);const req=['إجازة','تعديل جدول'].includes(m.cat);
+  return `<div class="row wrap" style="margin-bottom:12px">${av(d)}<div style="flex:1"><h3 style="margin:0">${esc(m.subject)}</h3><div class="small muted">${esc(d.name)} · ${esc(m.cat)} · أولوية ${m.priority}</div></div>
+   ${isHead()?`<select style="width:auto" onchange="DB.messages.find(x=>x.id==='${m.id}').status=this.value;render()">${Object.entries(MS).map(([k,[l]])=>`<option value="${k}" ${m.status===k?'selected':''}>${l}</option>`).join('')}</select>`:`<span class="badge ${MS[m.status][1]}">${MS[m.status][0]}</span>`}</div>
+   ${req&&m.decision?`<div class="note" style="background:${m.decision==='approved'?'var(--ok-soft)':'var(--bad-soft)'};margin-bottom:10px">قرار رئيسة القسم: <b>${m.decision==='approved'?'تمت الموافقة':'مرفوض'}</b></div>`:''}
+   ${req&&isHead()&&!m.decision?`<div class="note row wrap" style="margin-bottom:10px"><span style="flex:1">هذا طلب رسمي (${esc(m.cat)}) يحتاج قراراً</span><button class="btn sm ok" onclick="decide('${m.id}','approved')">موافقة</button><button class="btn sm bad" onclick="decide('${m.id}','rejected')">رفض</button></div>`:''}
+   <div class="thread" id="thread">${m.thread.map(t=>`<div class="bubble ${t.from===me()?'me':''}"><div class="meta">${esc(nameOf(t.from))} · ${new Date(t.date).toLocaleString('ar-u-nu-latn',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>${esc(t.text).replace(/\n/g,'<br>')}</div>`).join('')}</div>
+   ${m.status==='closed'?'<div class="small muted" style="margin-top:12px">المحادثة مغلقة.</div>':`<div style="margin-top:12px"><div class="row wrap" style="gap:6px;margin-bottom:6px">${(isHead()?['تم الاطلاع، شكراً لك.','سيتم النظر في الطلب ومتابعته.','نأمل الحضور لمكتب رئيسة القسم للنقاش.']:['شكراً لكِ.','تم التنفيذ.']).map(q=>`<button class="btn sm" onclick="$('#reply').value='${q}'">${q}</button>`).join('')}</div>
+   <textarea id="reply" placeholder="اكتبي ردك…" style="min-height:70px"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn primary" onclick="reply('${m.id}')">إرسال الرد</button></div></div>`}`;
+}
+function reply(id){const t=val('reply');if(!t)return;const m=DB.messages.find(x=>x.id===id);const now=new Date().toISOString();m.thread.push({from:me(),date:now,text:t});m.date=now;if(isHead()){m.readDoc=false;if(m.status==='open')m.status='progress'}else{m.readHead=false}render();toast('تم إرسال الرد')}
+function decide(id,dec){const m=DB.messages.find(x=>x.id===id);m.decision=dec;m.status='closed';m.readDoc=false;const now=new Date().toISOString();m.thread.push({from:'head',date:now,text:dec==='approved'?'تمت الموافقة على طلبك.':'نعتذر، لم تتم الموافقة على الطلب. يمكن مناقشته في مكتب رئيسة القسم.'});log(`${dec==='approved'?'موافقة على':'رفض'} طلب ${m.cat} — ${D(m.doctorId).name}`);render();toast('تم تسجيل القرار وإشعار الدكتورة')}
+function composeMsg(to,cat,subj){
+  openModal('رسالة جديدة',`<div class="fields">
+   ${isHead()?`<div class="field full"><label>إلى</label><select id="cm_to"><option value="all">جميع الدكتورات</option>${DB.doctors.map(d=>`<option value="${d.id}" ${d.id===to?'selected':''}>${esc(d.name)}</option>`).join('')}</select></div>`:'<div class="field full"><label>إلى</label><input type="text" value="رئيسة القسم — '+esc(DB.head)+'" disabled></div>'}
+   <div class="field"><label>التصنيف</label><select id="cm_cat">${(isHead()?['متابعة','تكليف','استفسار','اجتماع']:['استفسار','إجازة','تعديل جدول','اختبارات','اقتراح','شكوى']).map(c=>`<option ${c===cat?'selected':''}>${c}</option>`).join('')}</select></div>
+   <div class="field"><label>الأولوية</label><select id="cm_pr"><option>منخفضة</option><option selected>متوسطة</option><option>عالية</option></select></div>
+   <div class="field full"><label>الموضوع</label><input type="text" id="cm_s" value="${esc(subj||'')}"></div>
+   <div class="field full"><label>نص الرسالة</label><textarea id="cm_b" style="min-height:130px"></textarea></div></div>`,
+   `<button class="btn" onclick="closeModal()">إلغاء</button><button class="btn primary" onclick="sendMsg()">إرسال</button>`);
+}
+function sendMsg(){const s=val('cm_s'),b=val('cm_b');if(!s||!b)return toast('أكملي الموضوع ونص الرسالة');const now=new Date().toISOString();
+  const tos=isHead()?(val('cm_to')==='all'?DB.doctors.map(d=>d.id):[val('cm_to')]):[me()];
+  let last;tos.forEach(t=>{last={id:uid('m'),doctorId:t,fromHead:isHead(),cat:val('cm_cat'),priority:val('cm_pr'),subject:s,status:'open',readHead:isHead(),readDoc:!isHead(),decision:null,date:now,thread:[{from:me(),date:now,text:b}]};DB.messages.unshift(last)});
+  log('رسالة: '+s);closeModal();ui.msgSel=last.id;ui.msgFilter='all';if(view!=='messages')go('messages');else render();toast('تم الإرسال')}
+
+/* ---------- announcements ---------- */
+VIEWS.announcements=()=>{
+  const list=DB.announcements.slice().sort((a,b)=>(b.pinned-a.pinned)||b.date.localeCompare(a.date));
+  return `<div class="toolbar"><span class="grow muted small">${isHead()?'تابعي من اطّلعت على كل تعميم من الدكتورات':'يرجى تأكيد الاطلاع على التعاميم'}</span>${isHead()?`<button class="btn primary" onclick="annModal()">${ic('plus')} تعميم جديد</button>`:''}</div>
+  <div class="stack">${list.map(a=>{const pend=DB.doctors.filter(d=>!a.acks.includes(d.id));return `<div class="card" ${a.pinned?'style="border-color:var(--accent)"':''}>
+   <h3>${a.pinned?'📌 ':''}<span class="grow">${esc(a.title)}</span><span class="small faint">${fd(a.date)}</span></h3>
+   <p style="margin:0 0 12px">${esc(a.body).replace(/\n/g,'<br>')}</p>
+   ${isHead()?`<div class="row wrap small"><span class="badge ok">اطّلعت ${a.acks.length} من ${DB.doctors.length}</span>${pend.length?`<span class="muted">لم تطّلع بعد: ${pend.map(d=>esc(d.name)).join('، ')}</span>`:'<span class="muted">اطّلعت جميع الدكتورات ✓</span>'}<span class="grow" style="flex:1"></span><button class="btn sm" onclick="pinAnn('${a.id}')">${a.pinned?'إلغاء التثبيت':'تثبيت'}</button><button class="btn sm bad" onclick="delAnn('${a.id}')">${ic('trash')}</button></div>`
+   :(a.acks.includes(me())?'<span class="badge ok">✓ تم الاطلاع</span>':`<button class="btn sm primary" onclick="ackAnn('${a.id}')">تأكيد الاطلاع</button>`)}</div>`}).join('')||'<div class="empty">لا توجد تعاميم</div>'}</div>`;
+};
+function annModal(){openModal('تعميم جديد',`<div class="field"><label>العنوان</label><input type="text" id="an_t"></div><div class="field"><label>النص</label><textarea id="an_b" style="min-height:140px"></textarea></div><label class="row small"><input type="checkbox" id="an_p"> تثبيت أعلى القائمة</label>`,`<button class="btn" onclick="closeModal()">إلغاء</button><button class="btn primary" onclick="saveAnn()">نشر التعميم</button>`)}
+function saveAnn(){const t=val('an_t'),b=val('an_b');if(!t||!b)return toast('أكملي العنوان والنص');DB.announcements.push({id:uid('a'),title:t,body:b,date:TODAY_ISO,pinned:$('#an_p').checked,acks:[]});log('نشر تعميم: '+t);closeModal();go('announcements');toast('تم نشر التعميم لجميع الدكتورات')}
+function ackAnn(id){DB.announcements.find(a=>a.id===id).acks.push(me());render();toast('شكراً، تم تسجيل اطلاعك')}
+function pinAnn(id){const a=DB.announcements.find(a=>a.id===id);a.pinned=!a.pinned;render()}
+function delAnn(id){if(!confirm('حذف التعميم؟'))return;DB.announcements=DB.announcements.filter(a=>a.id!==id);render()}
+
+/* ---------- reports ---------- */
+VIEWS.reports=()=>{
+  const rows=DB.doctors.map(d=>({d,s:docStats(d.id)}));
+  const score=s=>Math.round(s.heldP*.4+s.subP*.3+s.stuRate*.2+(s.exams.length?pct(s.exams.filter(e=>e.status==='approved'||e.status==='submitted').length,s.exams.length):100)*.1);
+  return `
+  <div class="toolbar"><span class="grow muted small">الفترة: آخر 4 أسابيع حتى ${fd(TODAY_ISO)}</span><button class="btn" onclick="exportReport()">${ic('dl')} تصدير Excel (CSV)</button><button class="btn primary" onclick="window.print()">${ic('print')} طباعة التقرير</button></div>
+  <div class="card" style="margin-bottom:16px"><h3>${ic('rep')} مؤشر الأداء المركّب للدكتورات</h3><div class="small muted" style="margin-bottom:12px">40% انعقاد المحاضرات · 30% رفع التحضير · 20% حضور الطالبات · 10% جاهزية الاختبارات</div>
+  <div class="stack">${rows.map(r=>({...r,sc:score(r.s)})).sort((a,b)=>b.sc-a.sc).map((r,i)=>`<div class="row"><span class="num faint" style="width:18px">${i+1}</span>${av(r.d)}<span style="width:170px" class="small"><b>${esc(r.d.name)}</b></span><div class="bar ${r.sc>=90?'ok':r.sc>=80?'warn':'bad'}" style="flex:1;height:12px"><i style="width:${r.sc}%"></i></div><b class="num" style="width:44px;text-align:end">${r.sc}</b></div>`).join('')}</div></div>
+  <div class="tbl-wrap"><table><thead><tr><th>الدكتورة</th><th>المقررات</th><th>ساعات/أسبوع</th><th>محاضرات</th><th>انعقاد</th><th>غياب</th><th>تأجيل</th><th>رفع التحضير</th><th>حضور الطالبات</th><th>الاختبارات المعتمدة</th></tr></thead><tbody>
+  ${rows.map(({d,s})=>`<tr><td><b>${esc(d.name)}</b><div class="small muted">${esc(d.rank)}</div></td><td class="num">${s.courses.length}</td><td class="num">${s.hours}</td><td class="num">${s.total}</td><td class="num"><span class="badge ${s.heldP>=90?'ok':s.heldP>=80?'warn':'bad'}">${s.heldP}%</span></td><td class="num">${s.absent}</td><td class="num">${s.postponed}</td><td class="num"><span class="badge ${s.subP>=90?'ok':s.subP>=75?'warn':'bad'}">${s.subP}%</span></td><td class="num">${s.stuRate}%</td><td class="num">${s.exams.filter(e=>e.status==='approved').length}/${s.exams.length}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="section-title"><h2>ملخص المقررات</h2></div>
+  <div class="tbl-wrap"><table><thead><tr><th>المقرر</th><th>المستوى</th><th>الدكتورة</th><th>الطالبات</th><th>نسبة الحضور</th><th>إنذار</th><th>حرمان</th></tr></thead><tbody>
+  ${DB.courses.map(c=>{const a=courseAtt(c);return `<tr><td><b>${esc(c.code)}</b> ${esc(c.name)}</td><td>${c.level}</td><td class="small">${esc(D(c.doctorId).name)}</td><td class="num">${c.students.length}</td><td><div class="row"><div class="bar ${a.rate>=90?'ok':a.rate>=80?'warn':'bad'}" style="flex:1"><i style="width:${a.rate}%"></i></div><span class="num small">${a.rate}%</span></div></td><td class="num">${a.warn}</td><td class="num">${a.risk?`<span class="badge bad">${a.risk}</span>`:0}</td></tr>`}).join('')}
+  </tbody></table></div>`;
+};
+function exportReport(){csv('تقرير_أداء_القسم.csv',[['الدكتورة','الرتبة','المقررات','ساعات/أسبوع','المحاضرات','نسبة الانعقاد','غياب','تأجيل','رفع التحضير','حضور الطالبات','الاختبارات المعتمدة']].concat(DB.doctors.map(d=>{const s=docStats(d.id);return[d.name,d.rank,s.courses.length,s.hours,s.total,s.heldP+'%',s.absent,s.postponed,s.subP+'%',s.stuRate+'%',s.exams.filter(e=>e.status==='approved').length+'/'+s.exams.length]})))}
+
+render();
+setInterval(()=>{if(view==='overview'&&!$('#modalBg').classList.contains('show'))render()},60000);
+</script>
+</body>
+</html>
