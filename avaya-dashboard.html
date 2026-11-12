@@ -1,0 +1,626 @@
+<title>مركز تقارير أفايا</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* Layout: a control-room console. Sticky header + two views (collect reports / dashboard). Collect = active request card beside a checklist; dashboard = summary band, KPI tiles, charts, scorecards. */
+:root{
+  --bg:#EEF2F6; --surface:#FFFFFF; --surface-2:#F6F8FB; --line:#D9E0E8; --ink:#15233B; --muted:#5B6B80;
+  --accent:#0B7A83; --accent-ink:#FFFFFF; --accent-soft:#DDF1F2; --signal:#C9861A; --signal-soft:#FBF0DC;
+  --good:#1E8E52; --good-soft:#DFF3E7; --warn:#B7790A; --warn-soft:#FBF0D6; --bad:#C63E3E; --bad-soft:#F9E1E1;
+  --c1:#0B7A83; --c2:#C9861A; --c3:#5A63C8; --c4:#C63E3E; --c5:#7B8BA0;
+  --shadow:0 1px 2px rgba(21,35,59,.06),0 6px 20px rgba(21,35,59,.06);
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C131E; --surface:#131D2C; --surface-2:#182436; --line:#26354B; --ink:#E6EDF6; --muted:#93A3B8;
+  --accent:#2BB3BC; --accent-ink:#06191B; --accent-soft:#123A3F; --signal:#E5A845; --signal-soft:#3A2D14;
+  --good:#45C17E; --good-soft:#123323; --warn:#E3AE3C; --warn-soft:#3A2E12; --bad:#EE6B6B; --bad-soft:#3D1A1C;
+  --c1:#2BB3BC; --c2:#E5A845; --c3:#8F96F0; --c4:#EE6B6B; --c5:#8EA0B8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C131E; --surface:#131D2C; --surface-2:#182436; --line:#26354B; --ink:#E6EDF6; --muted:#93A3B8;
+  --accent:#2BB3BC; --accent-ink:#06191B; --accent-soft:#123A3F; --signal:#E5A845; --signal-soft:#3A2D14;
+  --good:#45C17E; --good-soft:#123323; --warn:#E3AE3C; --warn-soft:#3A2E12; --bad:#EE6B6B; --bad-soft:#3D1A1C;
+  --c1:#2BB3BC; --c2:#E5A845; --c3:#8F96F0; --c4:#EE6B6B; --c5:#8EA0B8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+*{box-sizing:border-box}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.3}
+.num{font-family:var(--f-data);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-inline-end:auto}
+.mark{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center}
+.mark svg{width:22px;height:22px}
+.brand h1{font-size:18px}
+.brand small{display:block;color:var(--muted);font-size:12px;font-family:var(--f-body)}
+.tabs{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:4px}
+.tab{border:0;background:transparent;padding:7px 14px;border-radius:7px;cursor:pointer;font-weight:600;color:var(--muted);display:flex;gap:8px;align-items:center}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.tab .step{font-family:var(--f-data);font-size:11px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--line);color:var(--ink)}
+.tab[aria-selected="true"] .step{background:var(--accent);color:var(--accent-ink)}
+
+main{padding-block:24px 64px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:transform .1s,background .15s}
+.btn:hover{background:var(--surface-2)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.signal{background:var(--signal);border-color:var(--signal);color:#1E1404}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:5px 10px;font-size:13px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.label{font-size:12px;letter-spacing:.02em;color:var(--muted);font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.chip.sig{background:var(--signal-soft);color:var(--signal);border-color:transparent}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+/* collect view */
+.collect{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.collect{grid-template-columns:1fr}}
+.req{padding:24px;display:grid;gap:18px}
+.req-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.req h2{font-size:24px}
+.req .en{font-family:var(--f-data);font-size:13px;color:var(--muted);direction:ltr;text-align:right}
+.path{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;direction:ltr;justify-content:flex-end}
+.path span{background:var(--surface-2);border:1px solid var(--line);padding:2px 8px;border-radius:6px;font-family:var(--f-data);font-size:12px}
+.path i{color:var(--muted);font-style:normal}
+.why{background:var(--surface-2);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--muted)}
+.why b{color:var(--ink)}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;display:grid;gap:8px;justify-items:center}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop svg{width:40px;height:40px;color:var(--accent)}
+.drop strong{font-size:16px}
+.drop small{color:var(--muted)}
+.req-actions{display:flex;gap:8px;flex-wrap:wrap}
+.reading{display:flex;gap:14px;align-items:center;padding:14px;border-radius:10px;background:var(--accent-soft)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs img{width:64px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid var(--accent);border-top-color:transparent;animation:sp 0.9s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.result{border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px;background:var(--surface-2)}
+.result .rname{font-weight:700;font-size:16px}
+.mini-metrics{display:flex;flex-wrap:wrap;gap:6px}
+.mini-metrics span{font-size:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+
+.list{padding:8px}
+.list-head{padding:12px 12px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.list-head h3{font-size:16px}
+.progress{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin:0 12px 10px}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.item{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:9px;cursor:pointer;border:1px solid transparent;width:100%;background:transparent;text-align:right}
+.item:hover{background:var(--surface-2)}
+.item.current{border-color:var(--accent);background:var(--accent-soft)}
+.item .st{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);font-size:12px}
+.item.done .st{background:var(--good);border-color:var(--good);color:#fff}
+.item.skipped .st{border-style:dashed}
+.item .t,.item .s{display:block}
+.item .t{font-weight:600;font-size:14px;line-height:1.35}
+.item .s{font-size:12px;color:var(--muted);font-family:var(--f-data);direction:ltr;text-align:right}
+.analyze-bar{margin-top:20px;padding:18px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.analyze-bar p{margin:0;color:var(--muted);font-size:14px}
+.analyze-bar strong{color:var(--ink)}
+.notice{padding:12px 14px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:14px}
+.notice.err{background:var(--bad-soft);color:var(--bad)}
+
+/* dashboard */
+.dash{display:grid;gap:20px}
+.example{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:var(--signal-soft);color:var(--signal);font-weight:600;font-size:14px}
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:24px;align-items:center;padding:22px 24px}
+@media (max-width:760px){.hero{grid-template-columns:1fr;justify-items:start}}
+.ring{position:relative;width:118px;height:118px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .val b{font-family:var(--f-data);font-size:30px;line-height:1}
+.ring .val small{font-size:11px;color:var(--muted);display:block}
+.hero h2{font-size:22px;margin-bottom:6px}
+.hero p{margin:0;color:var(--muted);max-width:70ch}
+.hero .meta{display:grid;gap:8px;justify-items:end}
+@media (max-width:760px){.hero .meta{justify-items:start}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.kpi{padding:16px;display:grid;gap:6px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--line)}
+.kpi.good::before{background:var(--good)} .kpi.warn::before{background:var(--warn)} .kpi.bad::before{background:var(--bad)}
+.kpi .k-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.kpi .v{font-family:var(--f-data);font-size:28px;font-weight:600;line-height:1.1;direction:ltr;text-align:right}
+.kpi .tg{font-size:12px;color:var(--muted)}
+.kpi .src{font-size:11px;color:var(--muted);font-family:var(--f-data);direction:ltr;text-align:right;opacity:.85}
+.grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px}
+.grid2b{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media (max-width:900px){.grid2,.grid2b{grid-template-columns:1fr}}
+.card{padding:18px 20px;display:grid;gap:12px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.card-h h3{font-size:16px}
+.chart-box{position:relative;height:280px}
+.chart-box.sm{height:240px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-size:12px;color:var(--muted);font-weight:600;text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--f-data);font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+.bar{display:flex;align-items:center;gap:8px;min-width:120px}
+.bar i{display:block;height:6px;border-radius:9px;background:var(--accent)}
+.bar i.warn{background:var(--warn)} .bar i.bad{background:var(--bad)} .bar i.good{background:var(--good)}
+.ins{display:grid;gap:10px}
+.ins-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;padding:12px;border-radius:10px;background:var(--surface-2)}
+.ins-item .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:700}
+.ins-item.strength .ic{background:var(--good-soft);color:var(--good)}
+.ins-item.risk .ic{background:var(--bad-soft);color:var(--bad)}
+.ins-item.opportunity .ic{background:var(--signal-soft);color:var(--signal)}
+.ins-item b{display:block;margin-bottom:2px}
+.ins-item p{margin:0;color:var(--muted);font-size:14px}
+.rec{display:grid;gap:10px}
+.rec-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.rec-item:last-child{border-bottom:0}
+.rec-item p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.gaps{display:flex;flex-wrap:wrap;gap:6px}
+.ask{display:grid;gap:10px}
+.ask-row{display:flex;gap:8px;flex-wrap:wrap}
+.ask-row input{flex:1 1 240px;min-width:0;border:1px solid var(--line);background:var(--surface-2);padding:10px 12px;border-radius:9px}
+.answer{white-space:pre-wrap;background:var(--surface-2);border-radius:10px;padding:14px;font-size:14.5px;min-height:20px}
+.sugs{display:flex;gap:6px;flex-wrap:wrap}
+.sugs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer}
+.sugs button:hover{border-color:var(--accent);color:var(--accent)}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:600;z-index:20;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.analyzing{padding:40px 24px;display:grid;gap:14px;justify-items:center;text-align:center}
+.analyzing .spin{width:42px;height:42px;border-width:4px}
+.analyzing p{color:var(--muted);margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app" dir="rtl" lang="ar">
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round"><path d="M4 18V11"/><path d="M9 18V6"/><path d="M14 18v-9"/><path d="M19 18V4"/></svg></div>
+      <div><h1>مركز تقارير أفايا</h1><small>تحليل تقارير Avaya CMS بالذكاء الاصطناعي</small></div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-collect" aria-selected="true"><span class="step">1</span>جمع التقارير</button>
+      <button class="tab" role="tab" id="tab-dash" aria-selected="false"><span class="step">2</span>الداش بورد</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="view-collect">
+    <div class="collect">
+      <div class="panel req" id="req"></div>
+      <aside class="panel list">
+        <div class="list-head"><h3>قائمة التقارير المطلوبة</h3><span class="chip" id="count-chip"></span></div>
+        <div class="progress"><i id="prog" style="width:0"></i></div>
+        <div id="items"></div>
+      </aside>
+    </div>
+    <div class="panel analyze-bar">
+      <p id="analyze-text"></p>
+      <div class="req-actions">
+        <button class="btn" id="btn-reset">مسح كل التقارير</button>
+        <button class="btn primary" id="btn-analyze">بدء التحليل</button>
+      </div>
+    </div>
+    <div id="reset-confirm" class="panel analyze-bar" hidden>
+      <p><strong>متأكد؟</strong> سيتم حذف كل التقارير المرفقة ونتيجة التحليل.</p>
+      <div class="req-actions"><button class="btn" id="reset-no">إلغاء</button><button class="btn" id="reset-yes" style="color:var(--bad)">نعم، امسح الكل</button></div>
+    </div>
+  </section>
+
+  <section id="view-dash" hidden>
+    <div class="dash" id="dash"></div>
+  </section>
+</main>
+<input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+<div class="toast" id="toast" hidden></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const isNum=v=>typeof v==="number"&&isFinite(v);
+const fmtN=v=>isNum(v)?v.toLocaleString("en-US",{maximumFractionDigits:1}):"—";
+const fmtSec=s=>{if(!isNum(s))return"—";s=Math.round(s);const m=Math.floor(s/60),r=s%60;return m+":"+String(r).padStart(2,"0")};
+const fmtPct=v=>isNum(v)?(Math.round(v*10)/10)+"%":"—";
+
+/* Avaya CMS report checklist, in the order we ask for them */
+const TYPES=[
+ {id:"skill_monthly_bymonth",ar:"أداء المهارات الشهري (MPR)",en:"CrysKSA_Skill_Monthly_ByMonth_Less X sec",tip:"اختر آخر 3 إلى 6 أشهر لنقارن الشهر بما قبله",why:"أساس تقرير MPR الشهري: المكالمات، مستوى الخدمة SLA، الإغلاق، ASA و AHT لكل شهر.",req:true},
+ {id:"skill_monthly_byskill",ar:"الشهر حسب كل مهارة",en:"CrysKSA_Skill_Monthly_BySkill_Less X sec",tip:"الشهر الحالي أو الشهر الماضي كاملاً",why:"يقارن المهارات (الطوابير) ببعض خلال الشهر ويكشف أضعفها.",req:true},
+ {id:"skill_daily_byday",ar:"الأداء اليومي",en:"CrysKSA_Skill_Daily_ByDay_Less X sec",tip:"كل أيام الشهر من 1 إلى آخر يوم",why:"اتجاه مستوى الخدمة والإغلاق يوماً بيوم، والأيام السيئة.",req:true},
+ {id:"skill_interval",ar:"الأداء حسب الساعة",en:"CrysKSA_Skill_Interval_Less X sec",tip:"يوم واحد مزدحم أو أسبوع",why:"يحدد ساعات الذروة وأين ينهار مستوى الخدمة لتعديل الجدولة.",req:true},
+ {id:"agtgrp_monthly_occ",ar:"الموظفون: الإشغال الشهري",en:"CrysKSA_AgtGrp_Monthly_Occupancy",tip:"نفس شهر تقرير MPR",why:"أداء كل موظف خلال الشهر: الإشغال Occupancy، وقت المكالمات، ACW، وقت الدخول.",req:true},
+ {id:"agtgrp_daily_ans",ar:"الموظفون: المكالمات المجابة",en:"CrysKSA_AgtGrp_Daily_AnsCalls",tip:"الشهر كاملاً",why:"عدد المكالمات التي رد عليها كل موظف وزمن المعالجة AHT، لترتيب الموظفين.",req:true},
+ {id:"agent_aux",ar:"أكواد الراحة AUX",en:"CrysKSA_Agent AUX Interval",tip:"الشهر أو الأسبوع",why:"وقت الراحات والاجتماعات وأسباب AUX لكل موظف، وكم يأخذ من وقت الإنتاج.",req:true},
+ {id:"calling_party",ar:"أرقام المتصلين (لحساب FCR)",en:"CrysKSA_CallingParty_1.1",tip:"أسبوع أو شهر",why:"المتصلون المتكررون من نفس الرقم. منه نحسب تقريباً نسبة الحل من أول اتصال FCR.",req:true},
+ {id:"skill_daily_byskill",ar:"اليومي حسب كل مهارة",en:"CrysKSA_Skill_Daily_BySkill_Less X sec",tip:"الشهر كاملاً",why:"تفصيل يومي لكل مهارة.",req:false},
+ {id:"skill_interval_byskill",ar:"الساعات حسب كل مهارة",en:"CrysKSA_Skill_Interval_BySkill_Less X sec",tip:"يوم مزدحم",why:"ذروة كل مهارة على حدة.",req:false},
+ {id:"agtgrp_daily_occ",ar:"الموظفون: الإشغال اليومي",en:"CrysKSA_AgtGrp_Daily_Occupancy (_New / _HC)",tip:"الشهر كاملاً",why:"الإشغال يوماً بيوم وعدد الموظفين HC.",req:false},
+ {id:"agtgrp_interval_occ",ar:"الموظفون: الإشغال حسب الساعة",en:"CrysKSA_AgtGrp_Interval_Occupancy",tip:"نفس يوم تقرير الساعات",why:"هل عدد الموظفين يغطي الذروة؟",req:false},
+ {id:"attendance",ar:"الحضور والالتزام",en:"CrysKSA_Attendance_Daily_Agent Based",tip:"الشهر كاملاً",why:"التأخير والغياب والالتزام بالجدول Adherence.",req:false},
+ {id:"login_logout",ar:"الدخول والخروج",en:"Login/Logout (Skill)",tip:"أسبوع",why:"أوقات تسجيل الدخول والخروج الفعلية.",req:false}
+];
+const OTHER={id:"other",ar:"تقرير آخر",en:"Other report"};
+const typeOf=id=>TYPES.find(t=>t.id===id)||OTHER;
+
+let entries=[];       // {id,typeId,name,nameAr,period,metrics,data,readability,notes,at}
+let skipped=new Set();
+let currentId=null;   // type being requested
+let dashboard=null;   // real result
+let busy=false;
+let sample=null,db=null,uid=null,canImages=false;
+
+/* ---------- persistence: private per-viewer db, else browser storage ---------- */
+const LS="avaya-dash-v1";
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({entries,skipped:[...skipped],dashboard}))}catch(e){}}
+function lsLoad(){try{const o=JSON.parse(localStorage.getItem(LS)||"null");if(o){entries=o.entries||[];skipped=new Set(o.skipped||[]);dashboard=o.dashboard||null}}catch(e){}}
+const base=()=>"data/users/"+uid;
+async function saveEntry(e){lsSave();if(!db||!uid)return;try{await db.doc(base()+"/reports/"+e.id).set({json:JSON.stringify(e).slice(0,240000),at:e.at})}catch(err){}}
+async function deleteEntry(id){lsSave();if(!db||!uid)return;try{await db.doc(base()+"/reports/"+id).delete()}catch(err){}}
+async function saveState(){lsSave();if(!db||!uid)return;try{await db.doc(base()+"/state/main").set({skipped:[...skipped],dashboard:dashboard?JSON.stringify(dashboard).slice(0,240000):""})}catch(err){}}
+async function loadDb(){
+  if(!db||!uid)return;
+  try{
+    const q=await db.collection(base()+"/reports").get();
+    const list=q.docs.map(d=>{try{return JSON.parse(d.data().json)}catch(e){return null}}).filter(Boolean).sort((a,b)=>a.at-b.at);
+    const st=await db.doc(base()+"/state/main").get();
+    if(list.length||st.exists){
+      entries=list;
+      if(st.exists){const d=st.data();skipped=new Set(d.skipped||[]);try{dashboard=d.dashboard?JSON.parse(d.dashboard):null}catch(e){}}
+      lsSave();
+    }
+  }catch(e){}
+}
+
+/* ---------- helpers ---------- */
+let toastT;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
+const doneTypes=()=>new Set(entries.map(e=>e.typeId));
+function nextType(){const d=doneTypes();return (TYPES.find(t=>!d.has(t.id)&&!skipped.has(t.id))||null)}
+const errCopy=c=>({not_granted:"لم يتم السماح للصفحة باستخدام Claude. فعّل الإذن من قائمة الأذونات ثم أعد المحاولة.",sampling_disabled:"Claude غير متاح لهذا الحساب.",rate_limited:"طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة.",image_rejected:"الصورة غير مقبولة. استخدم PNG أو JPG بحجم أقل من 20MB.",images_unavailable:"قراءة الصور غير متاحة في هذا العرض. افتح الصفحة في claude.ai.",invalid_json:"لم أستطع قراءة الرد بشكل منظم. أعد المحاولة.",refused:"تم رفض الطلب. جرّب صورة أوضح.",session_expired:"انتهت الجلسة. سجّل الدخول من جديد.",prompt_too_large:"البيانات كبيرة جداً. احذف بعض التقارير المكررة ثم أعد التحليل."}[c]||"حدث خطأ مؤقت في الاتصال. أعد المحاولة.");
+
+/* ---------- collect view ---------- */
+let reading=null; // {thumbs,typeId,error,result}
+function renderReq(){
+  const t=currentId?typeOf(currentId):null;
+  const el=$("#req");
+  if(reading&&reading.state==="busy"){
+    el.innerHTML=`<div class="label">جاري القراءة</div><div class="reading"><div class="spin"></div><div><strong>Claude يقرأ التقرير ويتعرف على اسمه وأرقامه…</strong><div class="label">عادة 20 إلى 60 ثانية</div></div></div><div class="thumbs">${reading.thumbs.map(s=>`<img alt="" src="${s}">`).join("")}</div>`;
+    return;
+  }
+  let res="";
+  if(reading&&reading.state==="done"){
+    const e=reading.entry;const m=e.metrics||{};
+    const mm=[["المكالمات",m.calls_offered,fmtN],["رُدّ",m.calls_answered,fmtN],["SL",m.service_level_pct,fmtPct],["ASA",m.asa_sec,fmtSec],["AHT",m.aht_sec,fmtSec],["Abandon",m.abandon_rate_pct,fmtPct]].filter(x=>isNum(x[1]));
+    res=`<div class="result"><div class="label">تم التعرف على التقرير</div><div class="rname">${esc(e.nameAr||e.name)}</div><div class="en">${esc(e.name)}${e.period?" · "+esc(e.period):""}</div>
+    <div class="mini-metrics">${mm.map(x=>`<span>${x[0]}: <b class="num">${x[2](x[1])}</b></span>`).join("")}${(e.data&&e.data.tables||[]).length?`<span>${e.data.tables.length} جدول مستخرج</span>`:""}</div>
+    ${e.readability&&e.readability!=="good"?`<div class="notice">الصورة مقروءة جزئياً. لنتيجة أدق أرفق لقطة أوضح أو مكبرة.</div>`:""}
+    ${e.typeId!==reading.asked&&reading.asked?`<div class="label">صنّفته تحت: ${esc(typeOf(e.typeId).ar)}</div>`:""}</div>`;
+  }else if(reading&&reading.state==="error"){
+    res=`<div class="notice err">${esc(reading.error)}</div>`;
+  }
+  if(!t){
+    el.innerHTML=`${res}<div class="label">اكتملت القائمة</div><h2>كل التقارير المطلوبة جاهزة</h2><p class="why">تقدر تضيف أي تقرير إضافي، أو اضغط <b>بدء التحليل</b> لبناء الداش بورد.</p>
+    <div class="drop" id="drop" tabindex="0" role="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><strong>أرفق تقرير إضافي</strong><small>Claude سيتعرف على اسم التقرير من الصورة</small></div>`;
+  }else{
+    const done=entries.filter(e=>e.typeId===t.id);
+    el.innerHTML=`${res}<div class="req-head"><div><div class="label">${done.length?"تم إرفاقه · تقدر تضيف صفحة أخرى":"التقرير المطلوب الآن"}</div><h2>${esc(t.ar)}</h2><div class="en">${esc(t.en)}</div></div>${t.req?`<span class="chip acc">أساسي</span>`:`<span class="chip">اختياري</span>`}</div>
+    <div><div class="label">افتحه من Avaya CMS Supervisor</div><div class="path"><span>Reports</span><i>›</i><span>Historical</span><i>›</i><span>${esc(t.en)}</span></div><div class="label" style="margin-top:6px">الفترة المقترحة: ${esc(t.tip||"")}</div></div>
+    <div class="why"><b>ليش نحتاجه:</b> ${esc(t.why)}</div>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="أرفق صورة التقرير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-8 7"/></svg><strong>أرفق صورة التقرير هنا</strong><small>اسحب الصورة أو اضغط للاختيار · تقدر تلصق لقطة الشاشة مباشرة Ctrl+V · حتى عدة صور لنفس التقرير</small></div>
+    <div class="req-actions">${done.length?`<button class="btn primary" id="btn-next">التقرير التالي</button>`:`<button class="btn" id="btn-skip">ما عندي هذا التقرير، تخطَّ</button>`}</div>`;
+  }
+  const drop=$("#drop");
+  drop.onclick=()=>$("#file").click();
+  drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("#file").click()}};
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};
+  drop.ondragleave=()=>drop.classList.remove("over");
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");handleFiles([...e.dataTransfer.files])};
+  const sk=$("#btn-skip");if(sk)sk.onclick=()=>{skipped.add(t.id);reading=null;currentId=(nextType()||{}).id||null;saveState();renderCollect()};
+  const nx=$("#btn-next");if(nx)nx.onclick=()=>{reading=null;currentId=(nextType()||{}).id||null;renderCollect()};
+}
+function renderList(){
+  const d=doneTypes();
+  const rows=TYPES.map(t=>{
+    const n=entries.filter(e=>e.typeId===t.id).length;
+    const cls=[d.has(t.id)?"done":"",skipped.has(t.id)&&!d.has(t.id)?"skipped":"",t.id===currentId?"current":""].join(" ");
+    return `<button class="item ${cls}" data-id="${t.id}"><span class="st">${d.has(t.id)?"✓":""}</span><span><span class="t">${esc(t.ar)}</span><span class="s">${esc(t.en)}</span></span>${d.has(t.id)?`<span class="chip good">${n} ${n>1?"صور":"صورة"}</span>`:skipped.has(t.id)?`<span class="chip">متخطى</span>`:t.req?`<span class="chip acc">أساسي</span>`:`<span class="chip">اختياري</span>`}</button>`;
+  });
+  const others=entries.filter(e=>e.typeId==="other");
+  others.forEach(e=>rows.push(`<div class="item done"><span class="st">✓</span><span><span class="t">${esc(e.nameAr||e.name)}</span><span class="s">${esc(e.name)}</span></span><button class="btn sm" data-del="${e.id}">حذف</button></div>`));
+  $("#items").innerHTML=rows.join("");
+  $("#items").querySelectorAll("button.item").forEach(b=>b.onclick=()=>{currentId=b.dataset.id;skipped.delete(currentId);reading=null;renderCollect()});
+  $("#items").querySelectorAll("[data-del]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const id=b.dataset.del;entries=entries.filter(x=>x.id!==id);deleteEntry(id);renderCollect()});
+  const core=TYPES.filter(t=>t.req),coreDone=core.filter(t=>d.has(t.id)).length;
+  const total=TYPES.filter(t=>d.has(t.id)).length;
+  $("#count-chip").textContent=`${total} / ${TYPES.length}`;
+  $("#prog").style.width=(total/TYPES.length*100)+"%";
+  $("#analyze-text").innerHTML=entries.length?`<strong>${entries.length} ${entries.length>1?"صور تقارير":"صورة تقرير"} جاهزة</strong> · الأساسية ${coreDone} من ${core.length}. ${coreDone<core.length?"تقدر تبدأ الحين، والنتيجة أدق مع التقارير الأساسية كاملة.":"كل التقارير الأساسية موجودة."}`:"أرفق تقريراً واحداً على الأقل لتفعيل التحليل.";
+  $("#btn-analyze").disabled=!entries.length||busy||!sample;
+}
+function renderCollect(){renderReq();renderList()}
+
+async function fileToThumb(f){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=()=>r("");fr.readAsDataURL(f)})}
+
+const EXTRACT_PROMPT=asked=>`You are reading screenshot(s) of a contact-center report from Avaya (usually a custom CrysKSA_* report in CMS Supervisor, Avaya Analytics, Call Center Elite, IP Office or similar). The user expects: "${asked?typeOf(asked).en:"unknown"}", but identify what it really is.
+Known report types (type_id: name):
+${TYPES.map(t=>`- ${t.id}: ${t.en}`).join("\n")}
+- other: anything else
+
+Rules:
+- Read every visible number exactly. Never invent values. If a field is not visible, omit it.
+- Convert durations like 0:03:25 or 3:25 to seconds in "metrics". Keep raw text in tables.
+- Percentages as plain numbers (82.4 not "82.4%").
+- If the report shows totals and per-row data, put totals in "metrics" and rows in "tables".
+- Each table max 80 rows. Keep column headers as shown.
+
+Reply with ONLY this JSON:
+{"type_id":"one of the ids","report_name":"exact title as on screen","report_name_ar":"Arabic name","period":"date range or date as shown","granularity":"interval|daily|weekly|monthly|other","scope":"skills / agents / VDNs covered",
+"metrics":{"calls_offered":n,"calls_answered":n,"calls_abandoned":n,"service_level_pct":n,"service_level_target_sec":n,"asa_sec":n,"aht_sec":n,"avg_talk_sec":n,"avg_acw_sec":n,"avg_hold_sec":n,"max_delay_sec":n,"abandon_rate_pct":n,"avg_abandon_time_sec":n,"occupancy_pct":n,"aux_pct":n,"staffed_hours":n,"agents_count":n,"transfers":n,"fcr_pct":n,"repeat_calls":n,"flow_out":n},
+"tables":[{"title":"...","columns":["..."],"rows":[["..."]]}],
+"readability":"good|partial|poor","notes_ar":"one Arabic sentence about what this report shows"}`;
+
+async function handleFiles(files){
+  files=files.filter(f=>/^image\//.test(f.type));
+  if(!files.length){toast("أرفق صورة (PNG أو JPG)");return}
+  if(!sample){toast("قراءة الصور تحتاج فتح الصفحة داخل claude.ai");return}
+  if(busy)return;
+  if(!canImages){reading={state:"error",error:errCopy("images_unavailable")};renderReq();return}
+  busy=true;
+  const asked=currentId;
+  const thumbs=await Promise.all(files.map(fileToThumb));
+  reading={state:"busy",thumbs,asked};renderCollect();
+  try{
+    const r=await sample.json(EXTRACT_PROMPT(asked),{images:files.slice(0,4),modelTier:"default"});
+    const tid=TYPES.some(t=>t.id===r.type_id)?r.type_id:(r.type_id==="other"?"other":(asked||"other"));
+    const e={id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),typeId:tid,name:String(r.report_name||typeOf(tid).en),nameAr:String(r.report_name_ar||typeOf(tid).ar),period:r.period?String(r.period):"",metrics:r.metrics&&typeof r.metrics==="object"?r.metrics:{},data:{granularity:r.granularity,scope:r.scope,tables:Array.isArray(r.tables)?r.tables.slice(0,8):[],notes:r.notes_ar},readability:r.readability||"good",at:Date.now()};
+    entries.push(e);skipped.delete(tid);
+    await saveEntry(e);
+    reading={state:"done",entry:e,asked};
+    currentId=tid;
+    toast("تم التعرف: "+e.nameAr);
+  }catch(err){
+    reading={state:"error",error:errCopy(err&&err.code),asked};
+  }finally{busy=false;renderCollect()}
+}
+$("#file").addEventListener("change",e=>{const f=[...e.target.files];e.target.value="";handleFiles(f)});
+document.addEventListener("paste",e=>{if($("#view-collect").hidden)return;const f=[...(e.clipboardData&&e.clipboardData.files||[])];if(f.length)handleFiles(f)});
+
+$("#btn-reset").onclick=()=>{$("#reset-confirm").hidden=false};
+$("#reset-no").onclick=()=>{$("#reset-confirm").hidden=true};
+$("#reset-yes").onclick=async()=>{const ids=entries.map(e=>e.id);entries=[];skipped=new Set();dashboard=null;reading=null;currentId=TYPES[0].id;$("#reset-confirm").hidden=true;renderCollect();renderDash();for(const id of ids)await deleteEntry(id);saveState();toast("تم مسح التقارير")};
+
+/* ---------- analysis ---------- */
+const ANALYZE_PROMPT=()=>`You are a senior contact-center performance analyst (Avaya CMS expert). Below is data extracted from the user's Avaya report screenshots. Build a performance dashboard in Arabic.
+
+Industry targets to judge against (unless the reports show their own targets): Service Level 80% answered in 20s; ASA <= 20s; Abandon rate <= 5%; AHT per data norms (flag outliers vs team average); ACW <= 15% of AHT; Occupancy 75-85%; AUX (non-productive) <= 12%; FCR >= 70%.
+Definitions: SL = answered within threshold / (offered - short abandons); Abandon% = abandoned / offered; AHT = talk + hold + ACW; FCR = resolved on first contact / total. These are custom CrysKSA reports: \"Less X sec\" means the SLA threshold, \"Within SLA\" / \"% SLA\" columns give service level directly. If CrysKSA_CallingParty data exists, estimate FCR = 1 - (calls from repeat numbers beyond the first / total calls) and say it is an estimate; MPR = Monthly Performance Report scorecard (each KPI: target vs actual, achievement %).
+
+Rules:
+- Use ONLY numbers present in the data or computed from it. If a KPI cannot be computed, give value null, status "na", and list it in data_gaps (Arabic, saying which report would supply it).
+- All text in Arabic (report names / skill / agent names stay as written).
+- Agents score 0-100 from calls handled, AHT vs team, ACW, AUX, occupancy, FCR when available. flag: "top" (best ~20%), "coach" (needs coaching), else "ok".
+- trend: use daily/interval/monthly series if any exist, else null. intervals: only if interval data exists, else null.
+- 4-7 insights, 4-6 concrete recommendations tied to the numbers (e.g., add 2 agents 10:00-13:00).
+
+Reply with ONLY this JSON:
+{"title_period":"...","health_score":0-100,"headline":"one sentence","summary":"3-4 sentences",
+"kpis":[{"id":"sl|asa|abandon|aht|acw|occupancy|aux|fcr|offered|answered|...","label":"Arabic","value":number|null,"unit":"%|sec|count","target":"text","status":"good|warn|bad|na","delta":"text or null","source":"report name"}],
+"volume":{"offered":n,"answered":n,"abandoned":n},
+"trend":{"title":"...","labels":["..."],"series":[{"name":"...","unit":"%|sec|count","values":[n]}]} or null,
+"intervals":{"labels":["08:00"],"offered":[n],"answered":[n],"sl":[n]} or null,
+"skills":[{"name":"...","offered":n,"answered":n,"abandon_pct":n,"sl_pct":n,"asa_sec":n,"aht_sec":n}],
+"agents":[{"name":"...","calls":n,"aht_sec":n,"acw_sec":n,"aux_pct":n,"occupancy_pct":n,"fcr_pct":n,"score":n,"flag":"top|ok|coach"}],
+"aux":[{"reason":"...","pct":n}],
+"mpr":[{"metric":"...","target":"...","actual":"...","achievement_pct":n,"status":"good|warn|bad|na"}],
+"insights":[{"type":"strength|risk|opportunity","title":"...","detail":"..."}],
+"recommendations":[{"priority":"high|medium|low","action":"...","impact":"...","owner":"..."}],
+"data_gaps":["..."]}
+
+DATA:
+${JSON.stringify(entries.map(e=>({report:e.name,type:e.typeId,period:e.period,metrics:e.metrics,granularity:e.data&&e.data.granularity,scope:e.data&&e.data.scope,tables:e.data&&e.data.tables}))).slice(0,200000)}`;
+
+let analyzeCtl=null,analyzeChars=0,analyzeErr="";
+async function analyze(){
+  if(!sample||!entries.length||busy)return;
+  busy=true;analyzeErr="";analyzeChars=0;
+  analyzeCtl=new AbortController();
+  showTab("dash");renderDash();
+  try{
+    const r=await sample.json(ANALYZE_PROMPT(),{modelTier:"complex",signal:analyzeCtl.signal,cache:false,onText:({text})=>{analyzeChars=text.length;const p=$("#an-prog");if(p)p.textContent="جاري كتابة الداش بورد… "+text.length.toLocaleString("en-US")+" حرف"}});
+    if(!r||typeof r!=="object")throw{code:"invalid_json"};
+    r.generatedAt=Date.now();r.reportCount=entries.length;
+    dashboard=r;await saveState();toast("الداش بورد جاهز");
+  }catch(err){
+    if(!(err&&err.code==="cancelled"))analyzeErr=errCopy(err&&err.code);
+  }finally{busy=false;analyzeCtl=null;renderDash();renderList()}
+}
+$("#btn-analyze").onclick=analyze;
+
+/* ---------- dashboard ---------- */
+const DEMO={example:true,title_period:"أكتوبر 2026 (مثال)",health_score:71,headline:"مستوى الخدمة قريب من الهدف، لكن الإغلاق مرتفع في ذروة الظهر.",summary:"استقبل المركز 48,210 مكالمة ورُدّ على 45,320 منها. مستوى الخدمة 78.4% مقابل هدف 80/20، ونسبة الإغلاق 6.0% تتركز بين 11:00 و14:00. متوسط زمن المعالجة 4:12 مستقر، بينما وقت AUX أعلى من المستهدف بثلاث نقاط.",
+kpis:[{id:"sl",label:"مستوى الخدمة",value:78.4,unit:"%",target:"80% خلال 20 ث",status:"warn",delta:"+2.1 عن سبتمبر",source:"Split/Skill Summary"},{id:"asa",label:"متوسط زمن الرد ASA",value:24,unit:"sec",target:"≤ 20 ث",status:"warn",delta:"-3 ث",source:"Split/Skill Summary"},{id:"abandon",label:"نسبة الإغلاق",value:6.0,unit:"%",target:"≤ 5%",status:"bad",delta:"+0.4",source:"Split/Skill Summary"},{id:"aht",label:"متوسط زمن المعالجة AHT",value:252,unit:"sec",target:"≤ 4:30",status:"good",delta:null,source:"Agent Group Summary"},{id:"fcr",label:"الحل من أول اتصال FCR",value:72.5,unit:"%",target:"≥ 70%",status:"good",delta:"+1.8",source:"FCR Report"},{id:"occupancy",label:"الإشغال Occupancy",value:83.1,unit:"%",target:"75–85%",status:"good",delta:null,source:"Agent Group Summary"},{id:"aux",label:"وقت AUX",value:15.2,unit:"%",target:"≤ 12%",status:"bad",delta:"+1.1",source:"Agent AUX Report"},{id:"offered",label:"المكالمات الواردة",value:48210,unit:"count",target:"—",status:"na",delta:"+5.6%",source:"Split/Skill Summary"}],
+volume:{offered:48210,answered:45320,abandoned:2890},
+trend:{title:"مستوى الخدمة والإغلاق يومياً",labels:["1","3","5","7","9","11","13","15","17","19","21","23","25","27","29","31"],series:[{name:"مستوى الخدمة %",unit:"%",values:[81,79,76,83,80,74,77,82,79,72,78,80,84,77,75,79]},{name:"الإغلاق %",unit:"%",values:[5.1,5.8,6.9,4.6,5.2,7.8,6.4,4.9,5.7,8.3,6.1,5.5,4.2,6.6,7.1,5.9]}]},
+intervals:{labels:["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"],offered:[3100,4650,5820,6240,6390,5980,5110,4330,3720,2870],answered:[3040,4480,5470,5710,5800,5530,4840,4150,3610,2790],sl:[88,84,76,68,66,71,79,85,87,90]},
+skills:[{name:"Customer Service",offered:26300,answered:24850,abandon_pct:5.5,sl_pct:80.2,asa_sec:21,aht_sec:238},{name:"Billing",offered:12100,answered:11220,abandon_pct:7.3,sl_pct:74.1,asa_sec:31,aht_sec:284},{name:"Technical Support",offered:7400,answered:6950,abandon_pct:6.1,sl_pct:76.9,asa_sec:26,aht_sec:301},{name:"VIP",offered:2410,answered:2300,abandon_pct:4.6,sl_pct:86.5,asa_sec:14,aht_sec:219}],
+agents:[{name:"موظف 1",calls:1420,aht_sec:221,acw_sec:24,aux_pct:9.1,occupancy_pct:86,fcr_pct:78,score:92,flag:"top"},{name:"موظف 2",calls:1365,aht_sec:236,acw_sec:28,aux_pct:10.4,occupancy_pct:84,fcr_pct:76,score:88,flag:"top"},{name:"موظف 3",calls:1290,aht_sec:248,acw_sec:31,aux_pct:12.2,occupancy_pct:82,fcr_pct:73,score:79,flag:"ok"},{name:"موظف 4",calls:1210,aht_sec:259,acw_sec:35,aux_pct:13.8,occupancy_pct:80,fcr_pct:71,score:72,flag:"ok"},{name:"موظف 5",calls:1105,aht_sec:287,acw_sec:44,aux_pct:17.5,occupancy_pct:76,fcr_pct:66,score:58,flag:"coach"},{name:"موظف 6",calls:980,aht_sec:312,acw_sec:52,aux_pct:19.9,occupancy_pct:72,fcr_pct:63,score:49,flag:"coach"}],
+aux:[{reason:"راحة",pct:5.8},{reason:"غداء",pct:4.1},{reason:"اجتماع",pct:2.3},{reason:"تدريب",pct:1.6},{reason:"مهام إدارية",pct:1.4}],
+mpr:[{metric:"مستوى الخدمة",target:"80%",actual:"78.4%",achievement_pct:98,status:"warn"},{metric:"نسبة الإغلاق",target:"≤ 5%",actual:"6.0%",achievement_pct:83,status:"bad"},{metric:"AHT",target:"≤ 4:30",actual:"4:12",achievement_pct:107,status:"good"},{metric:"FCR",target:"70%",actual:"72.5%",achievement_pct:104,status:"good"},{metric:"AUX",target:"≤ 12%",actual:"15.2%",achievement_pct:79,status:"bad"}],
+insights:[{type:"risk",title:"انهيار الخدمة في ذروة الظهر",detail:"بين 11:00 و13:00 ينخفض مستوى الخدمة إلى 66–68% ويحدث 41% من حالات الإغلاق."},{type:"risk",title:"Billing الأضعف",detail:"أعلى نسبة إغلاق 7.3% وأطول ASA بـ31 ثانية."},{type:"strength",title:"FCR فوق الهدف",detail:"72.5% مع تحسن 1.8 نقطة، ويقوده موظف 1 وموظف 2."},{type:"opportunity",title:"وقت AUX قابل للاسترداد",detail:"خفض AUX إلى 12% يعادل تقريباً 2.4 موظف إضافي في كل وردية."}],
+recommendations:[{priority:"high",action:"نقل فترات الغداء خارج 11:00–13:00 وإضافة موظفين اثنين للذروة",impact:"رفع SL في الذروة إلى نحو 78%",owner:"مسؤول الجدولة"},{priority:"high",action:"تدريب مركّز لموظف 5 وموظف 6 على تقليل ACW",impact:"خفض AHT للفريق نحو 9 ثوان",owner:"قائد الفريق"},{priority:"medium",action:"تفعيل Overflow من Billing إلى Customer Service عند تجاوز الانتظار 30 ث",impact:"خفض إغلاق Billing إلى أقل من 6%",owner:"مدير النظام"},{priority:"low",action:"مراجعة أكواد AUX الإدارية أسبوعياً",impact:"استرداد 1–2% من وقت الإنتاج",owner:"المشرف"}],
+data_gaps:["تقرير Trunk Group غير مرفق: لا يمكن قياس انشغال الخطوط"]};
+
+const charts=[];
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function killCharts(){while(charts.length)charts.pop().destroy()}
+function chartBase(){
+  if(!window.Chart)return false;
+  Chart.defaults.font.family=css("--f-body")||"sans-serif";
+  Chart.defaults.color=css("--muted");
+  Chart.defaults.borderColor=css("--line");
+  return true;
+}
+const statusChip=s=>({good:`<span class="chip good"><span class="dot"></span>ضمن الهدف</span>`,warn:`<span class="chip warn"><span class="dot"></span>قريب</span>`,bad:`<span class="chip bad"><span class="dot"></span>خارج الهدف</span>`}[s]||`<span class="chip">—</span>`);
+function kpiVal(k){if(!isNum(k.value))return"—";if(k.unit==="%")return fmtPct(k.value);if(k.unit==="sec")return fmtSec(k.value);return fmtN(k.value)}
+
+function renderDash(){
+  killCharts();
+  const el=$("#dash");
+  if(busy&&analyzeCtl){
+    el.innerHTML=`<div class="panel analyzing"><div class="spin"></div><h2>جاري تحليل ${entries.length} تقرير</h2><p>Claude يحسب مؤشرات الأداء ويقارنها بالأهداف ويكتب التوصيات. قد يستغرق دقيقة إلى دقيقتين.</p><p class="num" id="an-prog">${analyzeChars?"جاري كتابة الداش بورد… "+analyzeChars+" حرف":"يفكر…"}</p><button class="btn" id="an-stop">إيقاف</button></div>`;
+    $("#an-stop").onclick=()=>analyzeCtl&&analyzeCtl.abort();
+    return;
+  }
+  const D=dashboard||DEMO;
+  const k=Array.isArray(D.kpis)?D.kpis:[];
+  const hs=isNum(D.health_score)?Math.max(0,Math.min(100,D.health_score)):null;
+  const hsCol=hs==null?"--line":hs>=80?"--good":hs>=60?"--warn":"--bad";
+  const C=2*Math.PI*48;
+  const top=`${analyzeErr?`<div class="notice err">${esc(analyzeErr)}</div>`:""}
+  ${D.example?`<div class="example"><span>هذا داش بورد مثال بأرقام توضيحية. أرفق تقاريرك واضغط بدء التحليل لتظهر أرقامك.</span><button class="btn sm signal" id="go-collect">ابدأ بإرفاق التقارير</button></div>`:`<div class="example" style="background:var(--accent-soft);color:var(--accent)"><span>مبني من ${D.reportCount||entries.length} صورة تقرير · ${D.generatedAt?new Date(D.generatedAt).toLocaleString("ar-SA-u-nu-latn",{dateStyle:"medium",timeStyle:"short"}):""}</span><button class="btn sm" id="re-analyze" ${!sample||!entries.length?"disabled":""}>إعادة التحليل</button></div>`}
+  <div class="panel hero">
+    <div class="ring" role="img" aria-label="مؤشر الصحة ${hs==null?"غير متاح":hs+" من 100"}"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="55" cy="55" r="48" fill="none" stroke="var(${hsCol})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${hs==null?C:C*(1-hs/100)}"/></svg><div class="val"><div><b>${hs==null?"—":Math.round(hs)}</b><small>مؤشر الأداء</small></div></div></div>
+    <div><div class="label">${esc(D.title_period||"")}</div><h2>${esc(D.headline||"")}</h2><p>${esc(D.summary||"")}</p></div>
+    <div class="meta">${D.volume?`<span class="chip acc">واردة <b class="num">${fmtN(D.volume.offered)}</b></span><span class="chip good">رُدّ <b class="num">${fmtN(D.volume.answered)}</b></span><span class="chip bad">مغلقة <b class="num">${fmtN(D.volume.abandoned)}</b></span>`:""}</div>
+  </div>`;
+  const kpiHtml=k.length?`<div class="kpis">${k.map(x=>`<div class="panel kpi ${esc(x.status)}"><div class="k-top"><span class="label">${esc(x.label)}</span>${x.status&&x.status!=="na"?statusChip(x.status):""}</div><div class="v">${kpiVal(x)}</div><div class="tg">الهدف: ${esc(x.target||"—")}${x.delta?` · <span class="num">${esc(x.delta)}</span>`:""}</div>${x.source?`<div class="src">${esc(x.source)}</div>`:""}</div>`).join("")}</div>`:"";
+  const hasTrend=D.trend&&Array.isArray(D.trend.labels)&&D.trend.labels.length&&Array.isArray(D.trend.series);
+  const hasInt=D.intervals&&Array.isArray(D.intervals.labels)&&D.intervals.labels.length;
+  const hasVol=D.volume&&isNum(D.volume.answered);
+  const sk=Array.isArray(D.skills)?D.skills:[];
+  const ag=Array.isArray(D.agents)?D.agents.slice().sort((a,b)=>(b.score||0)-(a.score||0)):[];
+  const aux=Array.isArray(D.aux)?D.aux:[];
+  const mpr=Array.isArray(D.mpr)?D.mpr:[];
+  const ins=Array.isArray(D.insights)?D.insights:[];
+  const rec=Array.isArray(D.recommendations)?D.recommendations:[];
+  const gaps=Array.isArray(D.data_gaps)?D.data_gaps:[];
+  const maxCalls=Math.max(1,...ag.map(a=>a.calls||0));
+  const prio={high:`<span class="chip bad">عاجل</span>`,medium:`<span class="chip warn">متوسط</span>`,low:`<span class="chip">منخفض</span>`};
+  const icon={strength:"↑",risk:"!",opportunity:"◆"};
+  const flag={top:`<span class="chip good">متميز</span>`,coach:`<span class="chip bad">يحتاج تدريب</span>`,ok:`<span class="chip">جيد</span>`};
+  const lvl=(v,good,bad,low)=>!isNum(v)?"":low?(v<=good?"good":v>=bad?"bad":"warn"):(v>=good?"good":v<=bad?"bad":"warn");
+
+  el.innerHTML=top+kpiHtml+`
+  ${hasTrend||hasVol?`<div class="grid2">
+    ${hasTrend?`<div class="panel card"><div class="card-h"><h3>${esc(D.trend.title||"الاتجاه")}</h3></div><div class="chart-box"><canvas id="ch-trend" aria-label="${esc(D.trend.title||"")}"></canvas></div></div>`:`<div class="panel card"><div class="card-h"><h3>الاتجاه</h3></div><p class="label">لا توجد بيانات يومية أو شهرية. أرفق تقرير Daily أو Monthly.</p></div>`}
+    ${hasVol?`<div class="panel card"><div class="card-h"><h3>مصير المكالمات</h3><span class="label">من إجمالي الواردة</span></div><div class="chart-box sm"><canvas id="ch-vol"></canvas></div></div>`:""}
+  </div>`:""}
+  ${hasInt?`<div class="panel card"><div class="card-h"><h3>الحمل ومستوى الخدمة حسب الساعة</h3><span class="label">الأعمدة: المكالمات · الخط: SL%</span></div><div class="chart-box"><canvas id="ch-int"></canvas></div></div>`:""}
+  ${sk.length?`<div class="panel card"><div class="card-h"><h3>أداء المهارات / الطوابير</h3><span class="label">${sk.length} مهارة</span></div><div class="tbl"><table><thead><tr><th>المهارة</th><th>واردة</th><th>رُدّ</th><th>مستوى الخدمة</th><th>الإغلاق</th><th>ASA</th><th>AHT</th></tr></thead><tbody>${sk.map(s=>`<tr><td>${esc(s.name)}</td><td class="n">${fmtN(s.offered)}</td><td class="n">${fmtN(s.answered)}</td><td><div class="bar"><i class="${lvl(s.sl_pct,80,70)}" style="width:${isNum(s.sl_pct)?Math.max(4,s.sl_pct*.8):0}px"></i><span class="num">${fmtPct(s.sl_pct)}</span></div></td><td class="n" style="color:var(--${lvl(s.abandon_pct,5,8,true)||"ink"})">${fmtPct(s.abandon_pct)}</td><td class="n">${fmtSec(s.asa_sec)}</td><td class="n">${fmtSec(s.aht_sec)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
+  ${ag.length?`<div class="panel card"><div class="card-h"><h3>ترتيب الموظفين</h3><span class="label">مرتب حسب التقييم</span></div><div class="tbl"><table><thead><tr><th>#</th><th>الموظف</th><th>المكالمات</th><th>AHT</th><th>ACW</th><th>AUX</th><th>الإشغال</th><th>FCR</th><th>التقييم</th><th></th></tr></thead><tbody>${ag.map((a,i)=>`<tr><td class="n">${i+1}</td><td>${esc(a.name)}</td><td><div class="bar"><i style="width:${Math.max(4,(a.calls||0)/maxCalls*90)}px"></i><span class="num">${fmtN(a.calls)}</span></div></td><td class="n">${fmtSec(a.aht_sec)}</td><td class="n">${fmtSec(a.acw_sec)}</td><td class="n" style="color:var(--${lvl(a.aux_pct,12,16,true)||"ink"})">${fmtPct(a.aux_pct)}</td><td class="n">${fmtPct(a.occupancy_pct)}</td><td class="n">${fmtPct(a.fcr_pct)}</td><td class="n"><b>${fmtN(a.score)}</b></td><td>${flag[a.flag]||""}</td></tr>`).join("")}</tbody></table></div></div>`:""}
+  ${mpr.length||aux.length?`<div class="grid2b">
+    ${mpr.length?`<div class="panel card"><div class="card-h"><h3>MPR · بطاقة الأداء الشهري</h3><span class="label">الهدف مقابل الفعلي</span></div><div class="tbl"><table><thead><tr><th>المؤشر</th><th>الهدف</th><th>الفعلي</th><th>نسبة التحقيق</th></tr></thead><tbody>${mpr.map(m=>`<tr><td>${esc(m.metric)}</td><td class="n">${esc(m.target)}</td><td class="n"><b>${esc(m.actual)}</b></td><td><div class="bar"><i class="${esc(m.status)}" style="width:${isNum(m.achievement_pct)?Math.min(100,Math.max(4,m.achievement_pct*.8)):0}px"></i><span class="num">${isNum(m.achievement_pct)?Math.round(m.achievement_pct)+"%":"—"}</span></div></td></tr>`).join("")}</tbody></table></div></div>`:""}
+    ${aux.length?`<div class="panel card"><div class="card-h"><h3>توزيع وقت AUX</h3><span class="label">% من وقت الدوام</span></div><div class="chart-box sm"><canvas id="ch-aux"></canvas></div></div>`:""}
+  </div>`:""}
+  <div class="grid2b">
+    <div class="panel card"><div class="card-h"><h3>أبرز الملاحظات</h3></div><div class="ins">${ins.map(i=>`<div class="ins-item ${esc(i.type)}"><span class="ic">${icon[i.type]||"•"}</span><div><b>${esc(i.title)}</b><p>${esc(i.detail)}</p></div></div>`).join("")||`<p class="label">لا توجد ملاحظات.</p>`}</div></div>
+    <div class="panel card"><div class="card-h"><h3>خطة العمل والتوصيات</h3></div><div class="rec">${rec.map(r=>`<div class="rec-item">${prio[r.priority]||prio.low}<div><b>${esc(r.action)}</b><p>${esc(r.impact)}${r.owner?" · المسؤول: "+esc(r.owner):""}</p></div></div>`).join("")||`<p class="label">لا توجد توصيات.</p>`}</div></div>
+  </div>
+  ${gaps.length?`<div class="panel card"><div class="card-h"><h3>بيانات ناقصة</h3><span class="label">أرفق هذه التقارير لتحليل أكمل</span></div><div class="gaps">${gaps.map(g=>`<span class="chip warn">${esc(g)}</span>`).join("")}</div></div>`:""}
+  <div class="panel card ask"><div class="card-h"><h3>اسأل عن أدائك</h3><span class="label">Claude يجاوب من بيانات الداش بورد</span></div>
+    <div class="sugs">${["وش أكبر مشكلة لازم أحلها هذا الأسبوع؟","كم موظف أحتاج أضيف للذروة؟","اكتب لي ملخص للإدارة","مين الموظفين اللي يحتاجون تدريب وليش؟"].map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+    <div class="ask-row"><input id="q" placeholder="اكتب سؤالك…" autocomplete="off"><button class="btn primary" id="ask-btn">اسأل</button></div>
+    <div class="answer" id="answer" hidden></div>
+  </div>`;
+
+  const gc=$("#go-collect");if(gc)gc.onclick=()=>showTab("collect");
+  const ra=$("#re-analyze");if(ra)ra.onclick=analyze;
+  el.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{$("#q").value=b.dataset.q;ask()});
+  $("#ask-btn").onclick=ask;
+  $("#q").onkeydown=e=>{if(e.key==="Enter")ask()};
+  if(!sample){$("#ask-btn").disabled=true}
+  drawCharts(D,{hasTrend,hasInt,hasVol,aux});
+}
+
+function drawCharts(D,f){
+  if(!chartBase())return;
+  const col=["--c1","--c2","--c3","--c4","--c5"].map(css);
+  const grid={color:css("--line")};
+  const common={responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{position:"bottom",rtl:true,labels:{usePointStyle:true,boxWidth:8}},tooltip:{rtl:true}}};
+  if(f.hasTrend){
+    const series=D.trend.series.slice(0,4);
+    const units=[...new Set(series.map(s=>s.unit||""))];
+    charts.push(new Chart($("#ch-trend"),{type:"line",data:{labels:D.trend.labels,datasets:series.map((s,i)=>({label:s.name,data:s.values,borderColor:col[i],backgroundColor:col[i]+"22",fill:i===0,tension:.35,pointRadius:2,borderWidth:2,yAxisID:units.length>1&&s.unit!==units[0]?"y1":"y"}))},options:{...common,scales:{x:{grid:{display:false}},y:{grid,beginAtZero:false},...(units.length>1?{y1:{position:"right",grid:{display:false}}}:{})}}}));
+  }
+  if(f.hasVol){
+    const v=D.volume;const other=isNum(v.offered)&&isNum(v.answered)?Math.max(0,v.offered-v.answered-(v.abandoned||0)):0;
+    const data=[v.answered||0,v.abandoned||0].concat(other?[other]:[]);
+    charts.push(new Chart($("#ch-vol"),{type:"doughnut",data:{labels:["رُدّ عليها","مغلقة"].concat(other?["أخرى"]:[]),datasets:[{data,backgroundColor:[css("--good"),css("--bad"),css("--c5")],borderColor:css("--surface"),borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{position:"bottom",rtl:true,labels:{usePointStyle:true,boxWidth:8}},tooltip:{rtl:true}}}}));
+  }
+  if(f.hasInt){
+    const I=D.intervals;
+    const ds=[];
+    if(Array.isArray(I.offered))ds.push({type:"bar",label:"واردة",data:I.offered,backgroundColor:css("--c5")+"66",borderRadius:4,yAxisID:"y"});
+    if(Array.isArray(I.answered))ds.push({type:"bar",label:"رُدّ",data:I.answered,backgroundColor:css("--c1"),borderRadius:4,yAxisID:"y"});
+    if(Array.isArray(I.sl))ds.push({type:"line",label:"مستوى الخدمة %",data:I.sl,borderColor:css("--c2"),backgroundColor:css("--c2"),tension:.35,pointRadius:3,borderWidth:2.5,yAxisID:"y1"});
+    charts.push(new Chart($("#ch-int"),{data:{labels:I.labels,datasets:ds},options:{...common,scales:{x:{grid:{display:false}},y:{grid,beginAtZero:true},y1:{position:"right",min:0,max:100,grid:{display:false},ticks:{callback:v=>v+"%"}}}}}));
+  }
+  if(f.aux.length){
+    charts.push(new Chart($("#ch-aux"),{type:"bar",data:{labels:f.aux.map(a=>a.reason),datasets:[{label:"%",data:f.aux.map(a=>a.pct),backgroundColor:css("--c2"),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{rtl:true}},scales:{x:{grid,beginAtZero:true,ticks:{callback:v=>v+"%"}},y:{grid:{display:false},position:"right"}}}}));
+  }
+}
+
+let askCtl=null;
+async function ask(){
+  const q=$("#q").value.trim();if(!q||!sample)return;
+  const out=$("#answer");out.hidden=false;out.textContent="يفكر…";
+  if(askCtl)askCtl.abort();askCtl=new AbortController();
+  const D=dashboard||DEMO;
+  try{
+    await sample(`أنت محلل أداء مراكز اتصال خبير في Avaya. أجب بالعربية باختصار ووضوح وبنقاط عملية، معتمداً فقط على البيانات التالية${D.example?" (ملاحظة: هذه بيانات مثال توضيحية)":""}.\n\nالبيانات:\n${JSON.stringify(D).slice(0,60000)}\n\nالسؤال: ${q}`,{signal:askCtl.signal,cache:false,onText:({text})=>{out.textContent=text}});
+  }catch(e){if(e&&e.code!=="cancelled")out.textContent=(e.text?e.text+"\n\n":"")+errCopy(e.code)}
+}
+
+/* ---------- tabs ---------- */
+function showTab(name){
+  const c=name==="collect";
+  $("#view-collect").hidden=!c;$("#view-dash").hidden=c;
+  $("#tab-collect").setAttribute("aria-selected",String(c));$("#tab-dash").setAttribute("aria-selected",String(!c));
+  if(!c&&!busy)renderDash();
+  try{localStorage.setItem(LS+"-tab",name)}catch(e){}
+  window.scrollTo(0,0);
+}
+$("#tab-collect").onclick=()=>showTab("collect");
+$("#tab-dash").onclick=()=>showTab("dash");
+
+/* re-theme charts when the viewer theme changes */
+const rerender=()=>{if(!$("#view-dash").hidden&&!busy)renderDash()};
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",rerender)}catch(e){}
+new MutationObserver(rerender).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+/* ---------- boot ---------- */
+lsLoad();
+currentId=(nextType()||{}).id||null;
+renderCollect();renderDash();
+try{if(localStorage.getItem(LS+"-tab")==="dash")showTab("dash")}catch(e){}
+
+(async()=>{
+  if(!window.claude||!claude.use)return;
+  const [s,d,u]=await Promise.all([claude.use("sample"),claude.use("db"),claude.use("user")]);
+  sample=s;db=d;
+  if(sample){try{const lim=await sample.limits();canImages=!!(lim&&lim.images)}catch(e){canImages=false}}
+  if(u&&db){try{uid=await u.id()}catch(e){uid=null}}
+  await loadDb();
+  currentId=(nextType()||{}).id||null;
+  renderCollect();
+  if(!$("#view-dash").hidden&&!busy)renderDash();
+})();
+})();
+</script>
