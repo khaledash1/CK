@@ -301,20 +301,52 @@ body::before{background:rgba(5,10,21,.9)}
 .rpt .foot{position:absolute;bottom:12px;left:46px;right:46px;display:flex;justify-content:space-between;font-size:10px;color:var(--rp-muted);border-top:1px solid var(--rp-line);padding-top:6px}
 .rpt .wm{position:absolute;top:420px;left:0;right:0;text-align:center;font-family:var(--f-display);font-size:90px;color:rgba(185,28,28,.07);transform:rotate(-18deg);pointer-events:none}
 .rpt .small{font-size:11px;color:var(--rp-muted)}
+
+/* ---- LTR (English) overrides ---- */
+[dir="ltr"] .req .en,[dir="ltr"] .item .s,[dir="ltr"] .kpi .v,[dir="ltr"] .kpi .src,[dir="ltr"] td.n,[dir="ltr"] .item,[dir="ltr"] th{text-align:left}
+[dir="ltr"] .path{justify-content:flex-start}
+.rpt[dir="ltr"] th,.rpt[dir="ltr"] td.n,.rpt[dir="ltr"] .k .v,.rpt[dir="ltr"] .vol b,.rpt[dir="ltr"] .hb span:last-child{text-align:left}
+.rpt[dir="ltr"] .band .meta{text-align:right}
+.lang{font-family:var(--f-body);min-width:84px;justify-content:center}
+/* ---- SLA 80% + month vs month ---- */
+.sla-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.sla-grid{grid-template-columns:1fr}}
+.sla-months{display:grid;gap:8px}
+.sla-m{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.sla-m.met{border-color:rgba(52,211,153,.35)} .sla-m.miss{border-color:rgba(248,113,113,.35)}
+.sla-m b{font-size:14px}
+.sla-m .big{font-family:var(--f-data);font-size:22px;font-weight:700;direction:ltr}
+.sla-m .met .big{color:var(--good)}
+.sla-m small{grid-column:1/-1;color:var(--muted);font-size:12.5px}
+.sla-sum{display:flex;gap:8px;flex-wrap:wrap}
+.mvm-head{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center}
+.mvm-head .mo{padding:12px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)}
+.mvm-head .mo.cur{border-color:rgba(34,211,238,.45);box-shadow:0 0 18px rgba(34,211,238,.12)}
+.mvm-head .mo span{display:block;font-size:12px;color:var(--muted)}
+.mvm-head .mo b{font-family:var(--f-display);font-size:18px}
+.mvm-head .vs{font-family:var(--f-data);color:var(--accent);font-weight:700}
+.pcbar{display:flex;align-items:center;gap:6px;min-width:110px}
+.pcbar i{display:block;height:6px;border-radius:6px}
+.verdict{font-weight:700}
+.dnum{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+.rpt .sla-m{background:var(--rp-soft);border-color:var(--rp-line)}
+.rpt .sla-m small{color:var(--rp-muted)}
+.rpt .sla-months{grid-template-columns:repeat(3,1fr)}
 </style>
 
 <canvas id="bg" aria-hidden="true"></canvas><div class="gridbg" aria-hidden="true"></div>
-<div class="app" dir="rtl" lang="ar">
+<div class="app" id="app" dir="rtl" lang="ar">
 <header class="top">
   <div class="wrap">
     <div class="brand">
       <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round"><path d="M4 18V11"/><path d="M9 18V6"/><path d="M14 18v-9"/><path d="M19 18V4"/></svg></div>
-      <div><h1>مركز تقارير أفايا</h1><small>تحليل تقارير Avaya CMS بالذكاء الاصطناعي · ملفات Excel</small></div>
+      <div><h1 data-ar="مركز تقارير أفايا" data-en="Avaya Reports Center">مركز تقارير أفايا</h1><small data-ar="تحليل تقارير Avaya CMS بالذكاء الاصطناعي · ملفات Excel" data-en="AI analysis of Avaya CMS reports · Excel files">تحليل تقارير Avaya CMS بالذكاء الاصطناعي · ملفات Excel</small></div>
     </div>
-    <span class="live off" id="live"><i></i>OFFLINE</span>
+    <span class="live off" id="live"><i></i><span id="live-t">OFFLINE</span></span>
+    <button class="btn sm lang" id="lang-btn">English</button>
     <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tab-collect" aria-selected="true"><span class="step">1</span>جمع التقارير</button>
-      <button class="tab" role="tab" id="tab-dash" aria-selected="false"><span class="step">2</span>الداش بورد</button>
+      <button class="tab" role="tab" id="tab-collect" aria-selected="true"><span class="step">1</span><span data-ar="جمع التقارير" data-en="Collect reports">جمع التقارير</span></button>
+      <button class="tab" role="tab" id="tab-dash" aria-selected="false"><span class="step">2</span><span data-ar="الداش بورد" data-en="Dashboard">الداش بورد</span></button>
     </nav>
   </div>
 </header>
@@ -324,7 +356,7 @@ body::before{background:rgba(5,10,21,.9)}
     <div class="collect">
       <div class="panel req" id="req"></div>
       <details class="panel list all" id="all-list">
-        <summary><span>كل التقارير (اضغط للعرض أو للرجوع لتقرير معيّن)</span><span class="chip" id="count-chip"></span></summary>
+        <summary><span data-ar="كل التقارير (اضغط للعرض أو للرجوع لتقرير معيّن)" data-en="All reports (open to view or jump to a report)">كل التقارير</span><span class="chip" id="count-chip"></span></summary>
         <div class="progress"><i id="prog" style="width:0"></i></div>
         <div id="items"></div>
       </details>
@@ -332,13 +364,13 @@ body::before{background:rgba(5,10,21,.9)}
     <div class="panel analyze-bar">
       <p id="analyze-text"></p>
       <div class="req-actions">
-        <button class="btn" id="btn-reset">مسح كل التقارير</button>
-        <button class="btn primary" id="btn-analyze">بدء التحليل</button>
+        <button class="btn" id="btn-reset" data-ar="مسح كل التقارير" data-en="Clear all reports">مسح كل التقارير</button>
+        <button class="btn primary" id="btn-analyze" data-ar="بدء التحليل" data-en="Start analysis">بدء التحليل</button>
       </div>
     </div>
     <div id="reset-confirm" class="panel analyze-bar" hidden>
-      <p><strong>متأكد؟</strong> سيتم حذف كل التقارير المرفقة ونتيجة التحليل.</p>
-      <div class="req-actions"><button class="btn" id="reset-no">إلغاء</button><button class="btn" id="reset-yes" style="color:var(--bad)">نعم، امسح الكل</button></div>
+      <p><strong data-ar="متأكد؟" data-en="Are you sure?">متأكد؟</strong> <span data-ar="سيتم حذف كل التقارير المرفقة ونتيجة التحليل." data-en="All attached reports and the analysis will be deleted.">سيتم حذف كل التقارير المرفقة ونتيجة التحليل.</span></p>
+      <div class="req-actions"><button class="btn" id="reset-no" data-ar="إلغاء" data-en="Cancel">إلغاء</button><button class="btn" id="reset-yes" style="color:var(--bad)" data-ar="نعم، امسح الكل" data-en="Yes, clear everything">نعم، امسح الكل</button></div>
     </div>
   </section>
 
@@ -357,29 +389,37 @@ const $=s=>document.querySelector(s);
 const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const isNum=v=>typeof v==="number"&&isFinite(v);
 const fmtN=v=>isNum(v)?v.toLocaleString("en-US",{maximumFractionDigits:1}):"—";
-const fmtSec=s=>{if(!isNum(s))return"—";s=Math.round(s);const m=Math.floor(s/60),r=s%60;return m+":"+String(r).padStart(2,"0")};
+const fmtSec=s=>{if(!isNum(s))return"—";const neg=s<0;s=Math.round(Math.abs(s));const m=Math.floor(s/60),r=s%60;return (neg?"-":"")+m+":"+String(r).padStart(2,"0")};
 const fmtPct=v=>isNum(v)?(Math.round(v*10)/10)+"%":"—";
+const fmtU=(v,u)=>u==="%"?fmtPct(v):u==="sec"?fmtSec(v):fmtN(v);
 
-/* Avaya CMS report checklist, in the order we ask for them */
+/* ---------- language ---------- */
+let lang="ar";
+try{const l=localStorage.getItem("avaya-lang");if(l==="en"||l==="ar")lang=l}catch(e){}
+const T=(ar,en)=>lang==="en"?en:ar;
+const L=(o,k)=>{if(!o)return"";const en=o[k+"_en"];return lang==="en"&&en!=null&&en!==""?en:(o[k]==null?"":o[k])};
+const SLA_TARGET=80;
+
+/* ---------- Avaya CMS report checklist, in the order we ask for them ---------- */
 const BASE_TYPES=[
- {id:"skill_monthly_bymonth",months:3,ar:"أداء المهارات الشهري (MPR)",en:"CrysKSA_Skill_Monthly_ByMonth_Less X sec",tip:"اختر آخر 3 إلى 6 أشهر لنقارن الشهر بما قبله",why:"أساس تقرير MPR الشهري: المكالمات، مستوى الخدمة SLA، الإغلاق، ASA و AHT لكل شهر.",req:true},
- {id:"skill_monthly_byskill",months:2,ar:"الشهر حسب كل مهارة",en:"CrysKSA_Skill_Monthly_BySkill_Less X sec",tip:"الشهر الحالي أو الشهر الماضي كاملاً",why:"يقارن المهارات (الطوابير) ببعض خلال الشهر ويكشف أضعفها.",req:true},
- {id:"skill_daily_byday",ar:"الأداء اليومي",en:"CrysKSA_Skill_Daily_ByDay_Less X sec",tip:"كل أيام الشهر من 1 إلى آخر يوم",why:"اتجاه مستوى الخدمة والإغلاق يوماً بيوم، والأيام السيئة.",req:true},
- {id:"skill_interval",ar:"الأداء حسب الساعة",en:"CrysKSA_Skill_Interval_Less X sec",tip:"يوم واحد مزدحم أو أسبوع",why:"يحدد ساعات الذروة وأين ينهار مستوى الخدمة لتعديل الجدولة.",req:true},
- {id:"agtgrp_monthly_occ",months:2,ar:"الموظفون: الإشغال الشهري",en:"CrysKSA_AgtGrp_Monthly_Occupancy",tip:"نفس شهر تقرير MPR",why:"أداء كل موظف خلال الشهر: الإشغال Occupancy، وقت المكالمات، ACW، وقت الدخول.",req:true},
- {id:"agtgrp_daily_ans",ar:"الموظفون: المكالمات المجابة",en:"CrysKSA_AgtGrp_Daily_AnsCalls",tip:"الشهر كاملاً",why:"عدد المكالمات التي رد عليها كل موظف وزمن المعالجة AHT، لترتيب الموظفين.",req:true},
- {id:"agent_aux",ar:"أكواد الراحة AUX",en:"CrysKSA_Agent AUX Interval",tip:"الشهر أو الأسبوع",why:"وقت الراحات والاجتماعات وأسباب AUX لكل موظف، وكم يأخذ من وقت الإنتاج.",req:true},
- {id:"calling_party",ar:"أرقام المتصلين (لحساب FCR)",en:"CrysKSA_CallingParty_1.1",tip:"أسبوع أو شهر",why:"المتصلون المتكررون من نفس الرقم. منه نحسب تقريباً نسبة الحل من أول اتصال FCR.",req:true},
- {id:"skill_daily_byskill",ar:"اليومي حسب كل مهارة",en:"CrysKSA_Skill_Daily_BySkill_Less X sec",tip:"الشهر كاملاً",why:"تفصيل يومي لكل مهارة.",req:false},
- {id:"skill_interval_byskill",ar:"الساعات حسب كل مهارة",en:"CrysKSA_Skill_Interval_BySkill_Less X sec",tip:"يوم مزدحم",why:"ذروة كل مهارة على حدة.",req:false},
- {id:"agtgrp_daily_occ",ar:"الموظفون: الإشغال اليومي",en:"CrysKSA_AgtGrp_Daily_Occupancy (_New / _HC)",tip:"الشهر كاملاً",why:"الإشغال يوماً بيوم وعدد الموظفين HC.",req:false},
- {id:"agtgrp_interval_occ",ar:"الموظفون: الإشغال حسب الساعة",en:"CrysKSA_AgtGrp_Interval_Occupancy",tip:"نفس يوم تقرير الساعات",why:"هل عدد الموظفين يغطي الذروة؟",req:false},
- {id:"attendance",ar:"الحضور والالتزام",en:"CrysKSA_Attendance_Daily_Agent Based",tip:"الشهر كاملاً",why:"التأخير والغياب والالتزام بالجدول Adherence.",req:false},
- {id:"login_logout",ar:"الدخول والخروج",en:"Login/Logout (Skill)",tip:"أسبوع",why:"أوقات تسجيل الدخول والخروج الفعلية.",req:false}
+ {id:"skill_monthly_bymonth",months:3,ar:"أداء المهارات الشهري (MPR)",nm:"Monthly skill performance (MPR)",en:"CrysKSA_Skill_Monthly_ByMonth_Less X sec",why:"أساس تقرير MPR ومقارنة الأشهر: المكالمات، SLA مقابل هدف 80%، الإغلاق، ASA و AHT لكل شهر.",why_en:"Core of the MPR and month comparison: calls, SLA vs the 80% target, abandons, ASA and AHT per month.",req:true},
+ {id:"skill_monthly_byskill",months:2,ar:"الشهر حسب كل مهارة",nm:"Monthly by skill",en:"CrysKSA_Skill_Monthly_BySkill_Less X sec",why:"يقارن المهارات (الطوابير) ببعض خلال الشهر ويكشف أضعفها.",why_en:"Compares skills (queues) within the month and finds the weakest.",req:true},
+ {id:"skill_daily_byday",ar:"الأداء اليومي",nm:"Daily performance",en:"CrysKSA_Skill_Daily_ByDay_Less X sec",tip:"كل أيام الشهر من 1 إلى آخر يوم",tip_en:"Every day of the month",why:"مستوى الخدمة يوماً بيوم، وكم يوم حققنا هدف 80%.",why_en:"Day-by-day service level and how many days met the 80% target.",req:true},
+ {id:"skill_interval",ar:"الأداء حسب الساعة",nm:"Hourly performance",en:"CrysKSA_Skill_Interval_Less X sec",tip:"يوم واحد مزدحم أو أسبوع",tip_en:"One busy day or a week",why:"يحدد ساعات الذروة وأين ينهار مستوى الخدمة لتعديل الجدولة.",why_en:"Finds peak hours and where SLA collapses, to fix scheduling.",req:true},
+ {id:"agtgrp_monthly_occ",months:2,ar:"الموظفون: الإشغال الشهري",nm:"Agents: monthly occupancy",en:"CrysKSA_AgtGrp_Monthly_Occupancy",why:"أداء كل موظف خلال الشهر: الإشغال، وقت المكالمات، ACW، وقت الدخول.",why_en:"Each agent's month: occupancy, talk time, ACW and staffed time.",req:true},
+ {id:"agtgrp_daily_ans",ar:"الموظفون: المكالمات المجابة",nm:"Agents: answered calls",en:"CrysKSA_AgtGrp_Daily_AnsCalls",tip:"الشهر كاملاً",tip_en:"Full month",why:"عدد المكالمات التي رد عليها كل موظف وزمن المعالجة AHT، لترتيب الموظفين.",why_en:"Calls answered and AHT per agent, to rank agents.",req:true},
+ {id:"agent_aux",ar:"أكواد الراحة AUX",nm:"AUX codes",en:"CrysKSA_Agent AUX Interval",tip:"الشهر أو الأسبوع",tip_en:"Month or week",why:"وقت الراحات والاجتماعات وأسباب AUX لكل موظف، وكم يأخذ من وقت الإنتاج.",why_en:"Breaks, meetings and AUX reasons per agent, and their cost in productive time.",req:true},
+ {id:"calling_party",ar:"أرقام المتصلين (لحساب FCR)",nm:"Caller numbers (for FCR)",en:"CrysKSA_CallingParty_1.1",tip:"أسبوع أو شهر",tip_en:"Week or month",why:"المتصلون المتكررون من نفس الرقم. منه نحسب تقريباً نسبة الحل من أول اتصال FCR.",why_en:"Repeat callers from the same number; used to estimate First Contact Resolution.",req:true},
+ {id:"skill_daily_byskill",ar:"اليومي حسب كل مهارة",nm:"Daily by skill",en:"CrysKSA_Skill_Daily_BySkill_Less X sec",tip:"الشهر كاملاً",tip_en:"Full month",why:"تفصيل يومي لكل مهارة.",why_en:"Daily detail per skill.",req:false},
+ {id:"skill_interval_byskill",ar:"الساعات حسب كل مهارة",nm:"Hourly by skill",en:"CrysKSA_Skill_Interval_BySkill_Less X sec",tip:"يوم مزدحم",tip_en:"One busy day",why:"ذروة كل مهارة على حدة.",why_en:"Peak hours per skill.",req:false},
+ {id:"agtgrp_daily_occ",ar:"الموظفون: الإشغال اليومي",nm:"Agents: daily occupancy",en:"CrysKSA_AgtGrp_Daily_Occupancy (_New / _HC)",tip:"الشهر كاملاً",tip_en:"Full month",why:"الإشغال يوماً بيوم وعدد الموظفين HC.",why_en:"Daily occupancy and headcount (HC).",req:false},
+ {id:"agtgrp_interval_occ",ar:"الموظفون: الإشغال حسب الساعة",nm:"Agents: hourly occupancy",en:"CrysKSA_AgtGrp_Interval_Occupancy",tip:"نفس يوم تقرير الساعات",tip_en:"Same day as the hourly report",why:"هل عدد الموظفين يغطي الذروة؟",why_en:"Does staffing cover the peak?",req:false},
+ {id:"attendance",ar:"الحضور والالتزام",nm:"Attendance & adherence",en:"CrysKSA_Attendance_Daily_Agent Based",tip:"الشهر كاملاً",tip_en:"Full month",why:"التأخير والغياب والالتزام بالجدول Adherence.",why_en:"Lateness, absence and schedule adherence.",req:false},
+ {id:"login_logout",ar:"الدخول والخروج",nm:"Login / logout",en:"Login/Logout (Skill)",tip:"أسبوع",tip_en:"Week",why:"أوقات تسجيل الدخول والخروج الفعلية.",why_en:"Actual login and logout times.",req:false}
 ];
 const AR_M=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const EN_M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const SLOT_NAMES=["الشهر الحالي","الشهر الماضي","قبل شهرين"];
+const SLOT_AR=["الشهر الحالي","الشهر الماضي","قبل شهرين"],SLOT_EN=["Current month","Last month","Month before last"];
 function monthAt(off){
   const now=new Date(),d=new Date(now.getFullYear(),now.getMonth()-off,1);
   const last=off===0?now:new Date(d.getFullYear(),d.getMonth()+1,0);
@@ -388,18 +428,16 @@ function monthAt(off){
 }
 const TYPES=[];
 BASE_TYPES.forEach(b=>{
-  if(b.months){for(let i=0;i<b.months;i++){const m=monthAt(i);TYPES.push({...b,id:b.id+"@m"+i,base:b.id,slot:i,month:m,ar:b.ar+" · "+SLOT_NAMES[i]+" ("+m.ar+")",tip:m.range+(i===0?" (من أول الشهر حتى اليوم)":"")})}}
+  if(b.months){for(let i=0;i<b.months;i++){const m=monthAt(i);TYPES.push({...b,id:b.id+"@m"+i,base:b.id,slot:i,month:m,tip:m.range+(i===0?" (من أول الشهر حتى اليوم)":""),tip_en:m.range+(i===0?" (month to date)":"")})}}
   else TYPES.push({...b,base:b.id});
 });
 const baseOf=id=>String(id||"").split("@")[0];
-const OTHER={id:"other",ar:"تقرير آخر",en:"Other report"};
+const OTHER={id:"other",ar:"تقرير آخر",nm:"Other report",en:"Other report"};
 const typeOf=id=>TYPES.find(t=>t.id===id)||OTHER;
+const nameOf=t=>T(t.ar,t.nm)+(t.month?" · "+T(SLOT_AR[t.slot]+" ("+t.month.ar+")",SLOT_EN[t.slot]+" ("+t.month.en+")"):"");
+const entryName=e=>lang==="en"?e.name:(e.nameAr||e.name);
 
-let entries=[];       // {id,typeId,name,nameAr,period,metrics,data,readability,notes,at}
-let skipped=new Set();
-let currentId=null;   // type being requested
-let dashboard=null;   // real result
-let busy=false;
+let entries=[],skipped=new Set(),currentId=null,dashboard=null,busy=false;
 let sample=null,db=null,uid=null,downloads=null;
 
 /* ---------- persistence: private per-viewer db, else browser storage ---------- */
@@ -423,74 +461,81 @@ async function loadDb(){
     }
   }catch(e){}
 }
+const migrate=()=>entries.forEach(e=>{if(!TYPES.some(t=>t.id===e.typeId)&&TYPES.some(t=>t.base===e.typeId))e.typeId=e.typeId+"@m0"});
 
 /* ---------- helpers ---------- */
 let toastT;
 function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
 const doneTypes=()=>new Set(entries.map(e=>e.typeId));
 function nextType(){const d=doneTypes();return (TYPES.find(t=>!d.has(t.id)&&!skipped.has(t.id))||null)}
-const errCopy=c=>({not_granted:"لم يتم السماح للصفحة باستخدام Claude. فعّل الإذن من قائمة الأذونات ثم أعد المحاولة.",sampling_disabled:"Claude غير متاح لهذا الحساب.",rate_limited:"طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة.",invalid_json:"لم أستطع قراءة الرد بشكل منظم. أعد المحاولة.",refused:"تم رفض الطلب. تأكد أن الملف تقرير Avaya صحيح.",session_expired:"انتهت الجلسة. سجّل الدخول من جديد.",prompt_too_large:"البيانات كبيرة جداً. احذف بعض التقارير المكررة ثم أعد التحليل."}[c]||"حدث خطأ مؤقت في الاتصال. أعد المحاولة.");
+const ERR={not_granted:["لم يتم السماح للصفحة باستخدام Claude. فعّل الإذن من قائمة الأذونات ثم أعد المحاولة.","This page isn't allowed to use Claude. Allow it from the Permissions menu and try again."],sampling_disabled:["Claude غير متاح لهذا الحساب.","Claude isn't available for this account."],rate_limited:["طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة.","Too many requests. Wait a minute and try again."],invalid_json:["لم أستطع قراءة الرد بشكل منظم. أعد المحاولة.","The reply couldn't be read as data. Try again."],refused:["تم رفض الطلب. تأكد أن الملف تقرير Avaya صحيح.","The request was refused. Check the file is an Avaya report."],session_expired:["انتهت الجلسة. سجّل الدخول من جديد.","Your session expired. Sign in again."],prompt_too_large:["البيانات كبيرة جداً. احذف بعض التقارير المكررة ثم أعد التحليل.","Too much data. Remove duplicate reports and analyze again."]};
+const errCopy=c=>{const e=ERR[c]||["حدث خطأ مؤقت في الاتصال. أعد المحاولة.","A temporary connection error occurred. Try again."];return T(e[0],e[1])};
+
+function applyStatic(){
+  const app=$("#app");app.setAttribute("dir",lang==="en"?"ltr":"rtl");app.setAttribute("lang",lang);
+  document.querySelectorAll("[data-ar]").forEach(el=>{el.textContent=lang==="en"?el.dataset.en:el.dataset.ar});
+  $("#lang-btn").textContent=lang==="en"?"العربية":"English";
+  $("#lang-btn").setAttribute("aria-label",lang==="en"?"التبديل إلى العربية":"Switch to English");
+}
+$("#lang-btn").onclick=()=>{lang=lang==="en"?"ar":"en";try{localStorage.setItem("avaya-lang",lang)}catch(e){}applyStatic();renderCollect();if(!busy)renderDash()};
 
 /* ---------- collect view ---------- */
-let reading=null; // {thumbs,typeId,error,result}
-let optIn=null; // after the core reports: continue with optional ones?
+let reading=null,optIn=null;
 function renderReq(){
   const el=$("#req");
   if(reading&&reading.state==="busy"){
-    el.innerHTML=`<div class="counter">جاري القراءة</div><div class="reading"><div class="spin"></div><div><strong>Claude يقرأ ملف ${esc(typeOf(reading.asked||"other").en)} ويستخرج الأرقام…</strong><div class="label">عادة 15 إلى 45 ثانية</div></div></div><div class="files">${reading.files.map(f=>`<span>${esc(f.name)} · <b>${f.rows}</b> rows</span>`).join("")}</div>`;
+    el.innerHTML=`<div class="counter">${T("جاري القراءة","Reading")}</div><div class="reading"><div class="spin"></div><div><strong>${T("Claude يقرأ ملف","Claude is reading")} ${esc(typeOf(reading.asked||"other").en)} ${T("ويستخرج الأرقام…","and extracting the numbers…")}</strong><div class="label">${T("عادة 15 إلى 45 ثانية","Usually 15 to 45 seconds")}</div></div></div><div class="files">${reading.files.map(f=>`<span>${esc(f.name)} · <b>${f.rows}</b> rows</span>`).join("")}</div>`;
     return;
   }
-  const d=doneTypes();
-  const core=TYPES.filter(t=>t.req);
+  const d=doneTypes(),core=TYPES.filter(t=>t.req);
   let t=currentId?typeOf(currentId):null;
-  // after core: ask once whether to continue with optional reports
   const coreLeft=core.some(c=>!d.has(c.id)&&!skipped.has(c.id));
   const askOpt=t&&!t.req&&!coreLeft&&optIn===null&&!d.has(t.id);
   if(t&&!t.req&&optIn===false&&!d.has(t.id))t=null;
   let got="";
   if(reading&&reading.state==="done"){
-    const e=reading.entry;const m=e.metrics||{};
-    const mm=[["المكالمات",m.calls_offered,fmtN],["SL",m.service_level_pct,fmtPct],["ASA",m.asa_sec,fmtSec],["AHT",m.aht_sec,fmtSec],["Abandon",m.abandon_rate_pct,fmtPct]].filter(x=>isNum(x[1]));
-    got=`<div class="got"><span>✓ استلمت: ${esc(e.nameAr||e.name)}${e.period?" · "+esc(e.period):""}</span>${mm.map(x=>`<span class="chip">${x[0]} <b class="num">${x[2](x[1])}</b></span>`).join("")}<button class="link" id="add-more" data-id="${esc(e.typeId)}">إضافة ملف آخر لنفس التقرير</button></div>
-    ${e.readability&&e.readability!=="good"?`<div class="notice">بعض أعمدة الملف غير واضحة. تأكد أن التصدير يحتوي عناوين الأعمدة.</div>`:""}`;
+    const e=reading.entry,m=e.metrics||{};
+    const mm=[[T("المكالمات","Calls"),m.calls_offered,fmtN],["SLA",m.service_level_pct,fmtPct],["ASA",m.asa_sec,fmtSec],["AHT",m.aht_sec,fmtSec],["Abandon",m.abandon_rate_pct,fmtPct]].filter(x=>isNum(x[1]));
+    got=`<div class="got"><span>✓ ${T("استلمت:","Received:")} ${esc(entryName(e))}${e.period?" · "+esc(e.period):""}</span>${mm.map(x=>`<span class="chip">${x[0]} <b class="num">${x[2](x[1])}</b></span>`).join("")}<button class="link" id="add-more" data-id="${esc(e.typeId)}">${T("إضافة ملف آخر لنفس التقرير","Add another file to this report")}</button></div>
+    ${e.readability&&e.readability!=="good"?`<div class="notice">${T("بعض أعمدة الملف غير واضحة. تأكد أن التصدير يحتوي عناوين الأعمدة.","Some columns were unclear. Make sure the export includes column headers.")}</div>`:""}`;
   }else if(reading&&reading.state==="error"){
     got=`<div class="notice err">${esc(reading.error)}</div>`;
   }
   const seq=TYPES.filter(x=>x.req||optIn===true||d.has(x.id));
   const steps=`<div class="steps" aria-hidden="true">${seq.map(x=>`<i class="${d.has(x.id)?"done":t&&x.id===t.id?"cur":skipped.has(x.id)?"skip":""}"></i>`).join("")}</div>`;
   if(askOpt){
-    el.innerHTML=`${got}${steps}<div class="counter">خلصنا التقارير الأساسية ✓</div><h2>تبي نكمل التقارير الاختيارية؟</h2><p class="why">باقي ${TYPES.filter(x=>!x.req&&!d.has(x.id)).length} تقارير اختيارية (تفصيل المهارات، الإشغال اليومي، الحضور، الدخول والخروج). تزيد دقة التحليل لكنها مو ضرورية.</p>
-    <div class="choice"><button class="btn primary" id="opt-yes">كمّل، اطلبها مني بالدور</button><button class="btn" id="opt-no">لا، ابدأ التحليل الآن</button></div>`;
+    const left=TYPES.filter(x=>!x.req&&!d.has(x.id)).length;
+    el.innerHTML=`${got}${steps}<div class="counter">${T("خلصنا التقارير الأساسية ✓","Core reports done ✓")}</div><h2>${T("تبي نكمل التقارير الاختيارية؟","Continue with the optional reports?")}</h2><p class="why">${T(`باقي ${left} تقارير اختيارية (تفصيل المهارات، الإشغال اليومي، الحضور، الدخول والخروج). تزيد دقة التحليل لكنها مو ضرورية.`,`${left} optional reports left (skill detail, daily occupancy, attendance, login/logout). They improve accuracy but aren't required.`)}</p>
+    <div class="choice"><button class="btn primary" id="opt-yes">${T("كمّل، اطلبها مني بالدور","Yes, ask me for them one by one")}</button><button class="btn" id="opt-no">${T("لا، ابدأ التحليل الآن","No, start the analysis now")}</button></div>`;
     $("#opt-yes").onclick=()=>{optIn=true;reading=null;renderCollect()};
     $("#opt-no").onclick=()=>{optIn=false;analyze()};
     bindMore();return;
   }
   if(!t){
-    el.innerHTML=`${got}${steps}<div class="counter">اكتمل الجمع ✓</div><h2>كل التقارير جاهزة للتحليل</h2><p class="why">${entries.length} ملف مستلم. اضغط <b>بدء التحليل</b> لبناء الداش بورد، أو ارفع أي تقرير إضافي هنا وClaude يتعرف عليه.</p>
-    <button class="btn primary" id="go-analyze" ${!sample||busy?"disabled":""}>بدء التحليل</button>
-    ${dropHtml("أرفق تقرير إضافي")}`;
+    el.innerHTML=`${got}${steps}<div class="counter">${T("اكتمل الجمع ✓","Collection complete ✓")}</div><h2>${T("كل التقارير جاهزة للتحليل","All reports are ready for analysis")}</h2><p class="why">${T(`${entries.length} ملف مستلم. اضغط <b>بدء التحليل</b> لبناء الداش بورد، أو ارفع أي تقرير إضافي هنا وClaude يتعرف عليه.`,`${entries.length} files received. Press <b>Start analysis</b> to build the dashboard, or upload any extra report and Claude will identify it.`)}</p>
+    <button class="btn primary" id="go-analyze" ${!sample||busy?"disabled":""}>${T("بدء التحليل","Start analysis")}</button>
+    ${dropHtml(T("أرفق تقرير إضافي","Attach an extra report"))}`;
     $("#go-analyze").onclick=analyze;
   }else{
-    const pos=seq.findIndex(x=>x.id===t.id)+1;
-    const has=entries.filter(e=>e.typeId===t.id).length;
+    const pos=seq.findIndex(x=>x.id===t.id)+1,has=entries.filter(e=>e.typeId===t.id).length;
     el.innerHTML=`${got}${steps}
-    <div class="req-head"><div class="counter">التقرير ${pos} من ${seq.length}${t.req?"":" · اختياري"}</div>${has?`<span class="chip good">${has} ملف مستلم</span>`:""}</div>
-    <div><div class="label">${has?"تقدر ترفع ملف إضافي لنفس التقرير أو تنتقل للتالي":"أرسل لي هذا التقرير"}</div><h2>${esc(t.ar)}</h2></div>
-    <div class="rep-name"><code id="rep-code">${esc(t.en)}</code><button class="btn sm" id="copy-name">نسخ الاسم</button></div>
-    <div class="label">افتحه من: Reports › Historical · الفترة المقترحة: ${esc(t.tip||"")}</div>
-    <div class="why"><b>ليش نحتاجه:</b> ${esc(t.why)}</div>
-    ${dropHtml("أرفق ملف Excel لهذا التقرير")}
-    <details class="export"><summary>كيف أصدّر التقرير من Avaya إلى Excel؟</summary><ol><li>شغّل التقرير في CMS Supervisor بالفترة المطلوبة.</li><li>من نافذة التقرير: <code>Report › Export All Data…</code></li><li>احفظه <code>.txt</code> أو <code>.csv</code>، أو افتحه في Excel واحفظه <code>.xlsx</code>.</li><li>ارفعه هنا.</li></ol></details>
-    <div class="req-actions">${has?`<button class="btn primary" id="btn-next">التقرير التالي</button>`:`<button class="btn" id="btn-skip">ما عندي هذا التقرير، تخطَّ</button>`}</div>`;
-    $("#copy-name").onclick=()=>{const txt=t.en;const b=$("#copy-name");const ok=()=>{b.textContent="تم النسخ ✓";setTimeout(()=>b.textContent="نسخ الاسم",1500)};
-      try{navigator.clipboard.writeText(txt).then(ok,()=>selectCode())}catch(e){selectCode()}};
+    <div class="req-head"><div class="counter">${T(`التقرير ${pos} من ${seq.length}`,`Report ${pos} of ${seq.length}`)}${t.req?"":T(" · اختياري"," · optional")}</div>${has?`<span class="chip good">${has} ${T("ملف مستلم","file(s) received")}</span>`:""}</div>
+    <div><div class="label">${has?T("تقدر ترفع ملف إضافي لنفس التقرير أو تنتقل للتالي","Upload another file for this report or move on"):T("أرسل لي هذا التقرير","Send me this report")}</div><h2>${esc(nameOf(t))}</h2></div>
+    <div class="rep-name"><code id="rep-code">${esc(t.en)}</code><button class="btn sm" id="copy-name">${T("نسخ الاسم","Copy name")}</button></div>
+    <div class="label">${T("افتحه من: Reports › Historical · الفترة المقترحة:","Open it from: Reports › Historical · Suggested period:")} ${esc(L(t,"tip"))}</div>
+    <div class="why"><b>${T("ليش نحتاجه:","Why we need it:")}</b> ${esc(L(t,"why"))}</div>
+    ${dropHtml(T("أرفق ملف Excel لهذا التقرير","Attach the Excel file for this report"))}
+    <details class="export"><summary>${T("كيف أصدّر التقرير من Avaya إلى Excel؟","How do I export the report from Avaya to Excel?")}</summary><ol><li>${T("شغّل التقرير في CMS Supervisor بالفترة المطلوبة.","Run the report in CMS Supervisor for the requested period.")}</li><li>${T("من نافذة التقرير:","In the report window:")} <code>Report › Export All Data…</code></li><li>${T("احفظه","Save it as")} <code>.txt</code> / <code>.csv</code> ${T("أو افتحه في Excel واحفظه","or open it in Excel and save as")} <code>.xlsx</code>.</li><li>${T("ارفعه هنا.","Upload it here.")}</li></ol></details>
+    <div class="req-actions">${has?`<button class="btn primary" id="btn-next">${T("التقرير التالي","Next report")}</button>`:`<button class="btn" id="btn-skip">${T("ما عندي هذا التقرير، تخطَّ","I don't have this report, skip")}</button>`}</div>`;
+    $("#copy-name").onclick=()=>{const b=$("#copy-name");const ok=()=>{b.textContent=T("تم النسخ ✓","Copied ✓");setTimeout(()=>b.textContent=T("نسخ الاسم","Copy name"),1500)};
+      try{navigator.clipboard.writeText(t.en).then(ok,()=>selectCode())}catch(e){selectCode()}};
     const sk=$("#btn-skip");if(sk)sk.onclick=()=>{skipped.add(t.id);reading=null;currentId=(nextType()||{}).id||null;saveState();renderCollect()};
     const nx=$("#btn-next");if(nx)nx.onclick=()=>{reading=null;currentId=(nextType()||{}).id||null;renderCollect()};
   }
   bindDrop();bindMore();
 }
-function selectCode(){const c=$("#rep-code");if(!c)return;const rg=document.createRange();rg.selectNodeContents(c);const sel=getSelection();sel.removeAllRanges();sel.addRange(rg);toast("الاسم محدد، انسخه بـ Ctrl+C")}
-function dropHtml(title){return `<div class="drop" id="drop" tabindex="0" role="button" aria-label="${esc(title)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="m9 12 4 5M13 12l-4 5"/></svg><strong>${esc(title)}</strong><small>اسحب الملف أو اضغط للاختيار · xlsx · xls · csv · txt</small></div>`}
+function selectCode(){const c=$("#rep-code");if(!c)return;const rg=document.createRange();rg.selectNodeContents(c);const sel=getSelection();sel.removeAllRanges();sel.addRange(rg);toast(T("الاسم محدد، انسخه بـ Ctrl+C","Name selected, copy it with Ctrl+C"))}
+function dropHtml(title){return `<div class="drop" id="drop" tabindex="0" role="button" aria-label="${esc(title)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="m9 12 4 5M13 12l-4 5"/></svg><strong>${esc(title)}</strong><small>${T("اسحب الملف أو اضغط للاختيار","Drag the file here or click to choose")} · xlsx · xls · csv · txt</small></div>`}
 function bindDrop(){
   const drop=$("#drop");if(!drop)return;
   drop.onclick=()=>$("#file").click();
@@ -505,28 +550,25 @@ function renderList(){
   const rows=TYPES.map(t=>{
     const n=entries.filter(e=>e.typeId===t.id).length;
     const cls=[d.has(t.id)?"done":"",skipped.has(t.id)&&!d.has(t.id)?"skipped":"",t.id===currentId?"current":""].join(" ");
-    return `<button class="item ${cls}" data-id="${t.id}"><span class="st">${d.has(t.id)?"✓":""}</span><span><span class="t">${esc(t.ar)}</span><span class="s">${esc(t.en)}</span></span>${d.has(t.id)?`<span class="chip good">${n} ${n>1?"ملفات":"ملف"}</span>`:skipped.has(t.id)?`<span class="chip">متخطى</span>`:t.req?`<span class="chip acc">أساسي</span>`:`<span class="chip">اختياري</span>`}</button>`;
+    return `<button class="item ${cls}" data-id="${t.id}"><span class="st">${d.has(t.id)?"✓":""}</span><span><span class="t">${esc(nameOf(t))}</span><span class="s">${esc(t.en)}</span></span>${d.has(t.id)?`<span class="chip good">${n} ${T(n>1?"ملفات":"ملف",n>1?"files":"file")}</span>`:skipped.has(t.id)?`<span class="chip">${T("متخطى","Skipped")}</span>`:t.req?`<span class="chip acc">${T("أساسي","Core")}</span>`:`<span class="chip">${T("اختياري","Optional")}</span>`}</button>`;
   });
-  const others=entries.filter(e=>e.typeId==="other");
-  others.forEach(e=>rows.push(`<div class="item done"><span class="st">✓</span><span><span class="t">${esc(e.nameAr||e.name)}</span><span class="s">${esc(e.name)}</span></span><button class="btn sm" data-del="${e.id}">حذف</button></div>`));
+  entries.filter(e=>e.typeId==="other").forEach(e=>rows.push(`<div class="item done"><span class="st">✓</span><span><span class="t">${esc(entryName(e))}</span><span class="s">${esc(e.name)}</span></span><button class="btn sm" data-del="${e.id}">${T("حذف","Delete")}</button></div>`));
   $("#items").innerHTML=rows.join("");
   $("#items").querySelectorAll("button.item").forEach(b=>b.onclick=()=>{currentId=b.dataset.id;skipped.delete(currentId);if(!typeOf(currentId).req)optIn=true;reading=null;$("#all-list").open=false;renderCollect();window.scrollTo({top:0,behavior:"smooth"})});
   $("#items").querySelectorAll("[data-del]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const id=b.dataset.del;entries=entries.filter(x=>x.id!==id);deleteEntry(id);renderCollect()});
-  const core=TYPES.filter(t=>t.req),coreDone=core.filter(t=>d.has(t.id)).length;
-  const total=TYPES.filter(t=>d.has(t.id)).length;
+  const core=TYPES.filter(t=>t.req),coreDone=core.filter(t=>d.has(t.id)).length,total=TYPES.filter(t=>d.has(t.id)).length;
   $("#count-chip").textContent=`${total} / ${TYPES.length}`;
   $("#prog").style.width=(total/TYPES.length*100)+"%";
-  $("#analyze-text").innerHTML=entries.length?`<strong>${entries.length} ${entries.length>1?"ملفات تقارير":"ملف تقرير"} جاهزة</strong> · الأساسية ${coreDone} من ${core.length}. ${coreDone<core.length?"تقدر تبدأ الحين، والنتيجة أدق مع التقارير الأساسية كاملة.":"كل التقارير الأساسية موجودة."}`:"أرفق تقريراً واحداً على الأقل لتفعيل التحليل.";
+  $("#analyze-text").innerHTML=entries.length?T(`<strong>${entries.length} ملف تقرير جاهز</strong> · الأساسية ${coreDone} من ${core.length}. ${coreDone<core.length?"تقدر تبدأ الحين، والنتيجة أدق مع التقارير الأساسية كاملة.":"كل التقارير الأساسية موجودة."}`,`<strong>${entries.length} report file(s) ready</strong> · core ${coreDone} of ${core.length}. ${coreDone<core.length?"You can start now; results are more accurate with all core reports.":"All core reports are in."}`):T("أرفق تقريراً واحداً على الأقل لتفعيل التحليل.","Attach at least one report to enable the analysis.");
   $("#btn-analyze").disabled=!entries.length||busy||!sample;
 }
 function renderCollect(){renderReq();renderList()}
 
-/* read Excel / CSV / CMS text export into compact CSV text */
+/* ---------- read Excel / CSV / CMS text export into compact CSV text ---------- */
 async function readSheetFile(f){
   const buf=await f.arrayBuffer();
-  let wb;
-  if(window.XLSX){wb=XLSX.read(buf,{type:"array",cellDates:true,raw:false})}
-  else{const txt=new TextDecoder().decode(buf);return {name:f.name,rows:txt.split(/\r?\n/).filter(l=>l.trim()).length,text:"FILE: "+f.name+"\n"+txt}}
+  if(!window.XLSX){const txt=new TextDecoder().decode(buf);return {name:f.name,rows:txt.split(/\r?\n/).filter(l=>l.trim()).length,text:"FILE: "+f.name+"\n"+txt}}
+  const wb=XLSX.read(buf,{type:"array",cellDates:true,raw:false});
   let out="FILE: "+f.name+"\n",rows=0;
   for(const sn of wb.SheetNames.slice(0,6)){
     const csv=XLSX.utils.sheet_to_csv(wb.Sheets[sn],{blankrows:false,strip:true});
@@ -548,12 +590,13 @@ Rules:
 - Convert durations like 0:03:25 or 3:25 to seconds in "metrics". Keep raw text in tables.
 - Percentages as plain numbers (82.4 not "82.4%").
 - If the report shows totals and per-row data, put totals in "metrics" and rows in "tables".
+- "Less X sec" reports: "Within SLA" = calls answered within the threshold; "% SLA" = service level.
 - The file name and sheet names are strong hints for the report name.
 - Each table max 150 rows (keep the Total row). Keep column headers as shown.
 
 Reply with ONLY this JSON:
 {"type_id":"one of the ids","report_name":"exact title as on screen","report_name_ar":"Arabic name","period":"date range or date as shown","granularity":"interval|daily|weekly|monthly|other","scope":"skills / agents / VDNs covered",
-"metrics":{"calls_offered":n,"calls_answered":n,"calls_abandoned":n,"service_level_pct":n,"service_level_target_sec":n,"asa_sec":n,"aht_sec":n,"avg_talk_sec":n,"avg_acw_sec":n,"avg_hold_sec":n,"max_delay_sec":n,"abandon_rate_pct":n,"avg_abandon_time_sec":n,"occupancy_pct":n,"aux_pct":n,"staffed_hours":n,"agents_count":n,"transfers":n,"fcr_pct":n,"repeat_calls":n,"flow_out":n},
+"metrics":{"calls_offered":n,"calls_answered":n,"calls_abandoned":n,"within_sla":n,"service_level_pct":n,"service_level_target_sec":n,"asa_sec":n,"aht_sec":n,"avg_talk_sec":n,"avg_acw_sec":n,"avg_hold_sec":n,"max_delay_sec":n,"abandon_rate_pct":n,"avg_abandon_time_sec":n,"occupancy_pct":n,"aux_pct":n,"staffed_hours":n,"agents_count":n,"transfers":n,"fcr_pct":n,"repeat_calls":n,"flow_out":n},
 "tables":[{"title":"...","columns":["..."],"rows":[["..."]]}],
 "readability":"good|partial|poor","notes_ar":"one Arabic sentence about what this report shows"}
 
@@ -562,19 +605,19 @@ ${data}`;
 
 async function handleFiles(files){
   files=files.filter(f=>/\.(xlsx|xls|xlsm|csv|txt|tsv)$/i.test(f.name));
-  if(!files.length){toast("أرفق ملف Excel أو CSV");return}
-  if(!sample){toast("التحليل يحتاج فتح الصفحة داخل claude.ai");return}
+  if(!files.length){toast(T("أرفق ملف Excel أو CSV","Attach an Excel or CSV file"));return}
+  if(!sample){toast(T("التحليل يحتاج فتح الصفحة داخل claude.ai","Analysis needs the page open inside claude.ai"));return}
   if(busy)return;
   busy=true;
   const asked=currentId;
   let parsed;
   try{parsed=await Promise.all(files.slice(0,5).map(readSheetFile))}
-  catch(e){busy=false;reading={state:"error",error:"تعذّر فتح الملف. احفظه من Excel بصيغة xlsx أو csv ثم أعد الرفع.",asked};renderCollect();return}
-  if(!parsed.some(p=>p.rows)){busy=false;reading={state:"error",error:"الملف فارغ أو لا يحتوي بيانات.",asked};renderCollect();return}
+  catch(e){busy=false;reading={state:"error",error:T("تعذّر فتح الملف. احفظه من Excel بصيغة xlsx أو csv ثم أعد الرفع.","Couldn't open the file. Save it from Excel as xlsx or csv and upload again."),asked};renderCollect();return}
+  if(!parsed.some(p=>p.rows)){busy=false;reading={state:"error",error:T("الملف فارغ أو لا يحتوي بيانات.","The file is empty or has no data."),asked};renderCollect();return}
   reading={state:"busy",files:parsed,asked};renderCollect();
   try{
     const r=await sample.json(EXTRACT_PROMPT(asked,parsed.map(p=>p.text).join("\n\n").slice(0,180000)),{modelTier:"default"});
-    const rb=String(r.type_id||"");const d0=doneTypes();
+    const rb=String(r.type_id||""),d0=doneTypes();
     const tid=asked&&baseOf(asked)===rb?asked
       :(TYPES.find(t=>t.base===rb&&!d0.has(t.id))||TYPES.find(t=>t.base===rb)||{}).id
       ||(rb==="other"?"other":(asked||"other"));
@@ -583,49 +626,52 @@ async function handleFiles(files){
     await saveEntry(e);
     reading={state:"done",entry:e,asked};
     currentId=(nextType()||{}).id||null;
-    toast("تم التعرف: "+e.nameAr);
+    toast(T("تم التعرف: ","Identified: ")+entryName(e));
   }catch(err){
     reading={state:"error",error:errCopy(err&&err.code),asked};
   }finally{busy=false;renderCollect()}
 }
 $("#file").addEventListener("change",e=>{const f=[...e.target.files];e.target.value="";handleFiles(f)});
 
-
 $("#btn-reset").onclick=()=>{$("#reset-confirm").hidden=false};
 $("#reset-no").onclick=()=>{$("#reset-confirm").hidden=true};
-$("#reset-yes").onclick=async()=>{const ids=entries.map(e=>e.id);entries=[];skipped=new Set();dashboard=null;reading=null;optIn=null;currentId=TYPES[0].id;$("#reset-confirm").hidden=true;renderCollect();renderDash();for(const id of ids)await deleteEntry(id);saveState();toast("تم مسح التقارير")};
+$("#reset-yes").onclick=async()=>{const ids=entries.map(e=>e.id);entries=[];skipped=new Set();dashboard=null;reading=null;optIn=null;currentId=TYPES[0].id;$("#reset-confirm").hidden=true;renderCollect();renderDash();for(const id of ids)await deleteEntry(id);saveState();toast(T("تم مسح التقارير","Reports cleared"))};
 
 /* ---------- analysis ---------- */
-const ANALYZE_PROMPT=()=>`You are a senior contact-center performance analyst (Avaya CMS expert). Below is data extracted from the user's Avaya report Excel exports. Build a performance dashboard in Arabic.
+const ANALYZE_PROMPT=()=>`You are a senior contact-center performance analyst (Avaya CMS expert). Below is data extracted from the user's Avaya report Excel exports. Build a bilingual (Arabic + English) performance dashboard.
 
-Industry targets to judge against (unless the reports show their own targets): Service Level 80% answered in 20s; ASA <= 20s; Abandon rate <= 5%; AHT per data norms (flag outliers vs team average); ACW <= 15% of AHT; Occupancy 75-85%; AUX (non-productive) <= 12%; FCR >= 70%.
-Definitions: SL = answered within threshold / (offered - short abandons); Abandon% = abandoned / offered; AHT = talk + hold + ACW; FCR = resolved on first contact / total. These are custom CrysKSA reports: \"Less X sec\" means the SLA threshold, \"Within SLA\" / \"% SLA\" columns give service level directly. If CrysKSA_CallingParty data exists, estimate FCR = 1 - (calls from repeat numbers beyond the first / total calls) and say it is an estimate; MPR = Monthly Performance Report scorecard (each KPI: target vs actual, achievement %).
+Targets (unless the reports show their own): Service Level (SLA) target = 80% EVERY MONTH (answered within the "Less X sec" threshold); ASA <= 20s; Abandon rate <= 5%; AHT per data norms (flag outliers vs team average); ACW <= 15% of AHT; Occupancy 75-85%; AUX <= 12%; FCR >= 70%.
+Definitions: SLA% = within SLA / offered (or the report's own "% SLA"); Abandon% = abandoned / offered; AHT = talk + hold + ACW; FCR = resolved on first contact / total. These are custom CrysKSA reports: "Less X sec" = SLA threshold, "Within SLA" / "% SLA" give service level directly. If CrysKSA_CallingParty data exists, estimate FCR = 1 - (calls from repeat numbers beyond the first / total calls) and say it is an estimate.
 
 Rules:
-- Use ONLY numbers present in the data or computed from it. If a KPI cannot be computed, give value null, status "na", and list it in data_gaps (Arabic, saying which report would supply it).
-- All text in Arabic (report names / skill / agent names stay as written).
-- Agents score 0-100 from calls handled, AHT vs team, ACW, AUX, occupancy, FCR when available. flag: "top" (best ~20%), "coach" (needs coaching), else "ok".
-- trend: use daily/interval/monthly series if any exist, else null. intervals: only if interval data exists, else null.
-- MPR = month comparison: use reports tagged month_slot (current month, last month, month before). Current month may be partial (month-to-date): compare rates/averages directly and for volumes note it is partial. Fill m2/m1/m0 for every MPR metric where data exists (null where missing). "months.series": 4-7 key KPIs (SL %, Abandon %, ASA sec, AHT sec, Offered calls, Occupancy %, FCR %) with 3 values each in the same order as labels. Mention month-over-month movement in insights.
-- 4-7 insights, 4-6 concrete recommendations tied to the numbers (e.g., add 2 agents 10:00-13:00).
+- Use ONLY numbers present in the data or computed from it. If a KPI cannot be computed, value null, status "na", and add it to data_gaps (say which report would supply it).
+- BILINGUAL: every human-readable text field X has a twin X_en. X is Arabic, X_en is the same meaning in professional English. Skill / agent / report names stay as written.
+- Agents score 0-100 from calls handled, AHT vs team, ACW, AUX, occupancy, FCR when available. flag: "top" (best ~20%), "coach", else "ok".
+- trend: daily/monthly series if any, else null. intervals: only if interval data exists, else null.
+- MONTHS: reports tagged month_slot are current month (month-to-date, may be partial), last month, and the month before. Fill m2/m1/m0 for each MPR metric (null if missing). "months.series": 4-7 key KPIs (SLA %, Abandon %, ASA sec, AHT sec, Offered calls, Occupancy %, FCR %) with 3 values each ordered [month before last, last month, current month]. Insights must discuss current vs last month and whether SLA hit 80% each month.
+- sla_monthly: one row per month found in ANY monthly data (up to 12 months, oldest first), with sl_pct and, when available, offered and within_sla.
+- sla_daily: daily SLA % for the most recent month that has daily data, else null.
+- 4-7 insights, 4-6 concrete recommendations tied to the numbers (e.g., add 2 agents 10:00-13:00 to recover SLA to 80%).
 
 Reply with ONLY this JSON:
-{"title_period":"...","health_score":0-100,"headline":"one sentence","summary":"3-4 sentences",
-"kpis":[{"id":"sl|asa|abandon|aht|acw|occupancy|aux|fcr|offered|answered|...","label":"Arabic","value":number|null,"unit":"%|sec|count","target":"text","status":"good|warn|bad|na","delta":"text or null","source":"report name"}],
+{"title_period":"...","title_period_en":"...","health_score":0-100,"headline":"...","headline_en":"...","summary":"3-4 sentences","summary_en":"...",
+"kpis":[{"id":"sl|asa|abandon|aht|acw|occupancy|aux|fcr|offered|answered","label":"...","label_en":"...","value":number|null,"unit":"%|sec|count","target":"short, language-neutral e.g. 80% / 20s","status":"good|warn|bad|na","delta":"language-neutral e.g. +2.1 pts or null","source":"report name"}],
 "volume":{"offered":n,"answered":n,"abandoned":n},
-"trend":{"title":"...","labels":["..."],"series":[{"name":"...","unit":"%|sec|count","values":[n]}]} or null,
+"sla_monthly":[{"month":"سبتمبر 2026","month_en":"Sep 2026","sl_pct":n,"offered":n,"within_sla":n,"answered":n,"abandoned":n}],
+"sla_daily":{"month":"...","month_en":"...","labels":["1","2"],"values":[n]} or null,
+"trend":{"title":"...","title_en":"...","labels":["..."],"series":[{"name":"...","name_en":"...","unit":"%|sec|count","values":[n]}]} or null,
 "intervals":{"labels":["08:00"],"offered":[n],"answered":[n],"sl":[n]} or null,
 "skills":[{"name":"...","offered":n,"answered":n,"abandon_pct":n,"sl_pct":n,"asa_sec":n,"aht_sec":n}],
 "agents":[{"name":"...","calls":n,"aht_sec":n,"acw_sec":n,"aux_pct":n,"occupancy_pct":n,"fcr_pct":n,"score":n,"flag":"top|ok|coach"}],
-"aux":[{"reason":"...","pct":n}],
-"mpr":[{"metric":"...","target":"...","m2":"month before last value","m1":"last month value","m0":"current month value","actual":"same as m0","change":"current vs last month, e.g. +2.1 نقطة","trend":"up|down|flat","better":true|false,"achievement_pct":n,"status":"good|warn|bad|na"}],
-"months":{"labels":["month before last","last month","current month"],"series":[{"name":"مستوى الخدمة %","unit":"%|sec|count","lower_is_better":false,"target":n|null,"values":[n,n,n]}]} or null,
-"insights":[{"type":"strength|risk|opportunity","title":"...","detail":"..."}],
-"recommendations":[{"priority":"high|medium|low","action":"...","impact":"...","owner":"..."}],
-"data_gaps":["..."]}
+"aux":[{"reason":"...","reason_en":"...","pct":n}],
+"mpr":[{"metric":"...","metric_en":"...","target":"...","m2":"value","m1":"value","m0":"value","actual":"same as m0","change":"+2.1 نقطة","change_en":"+2.1 pts","trend":"up|down|flat","better":true|false,"achievement_pct":n,"status":"good|warn|bad|na"}],
+"months":{"labels":["...","...","..."],"labels_en":["...","...","..."],"series":[{"name":"مستوى الخدمة %","name_en":"Service level %","unit":"%|sec|count","lower_is_better":false,"target":n|null,"values":[n,n,n]}]} or null,
+"insights":[{"type":"strength|risk|opportunity","title":"...","title_en":"...","detail":"...","detail_en":"..."}],
+"recommendations":[{"priority":"high|medium|low","action":"...","action_en":"...","impact":"...","impact_en":"...","owner":"...","owner_en":"..."}],
+"data_gaps":["..."],"data_gaps_en":["..."]}
 
 DATA:
-${JSON.stringify(entries.map(e=>({report:e.name,type:baseOf(e.typeId),month_slot:typeOf(e.typeId).month?SLOT_NAMES[typeOf(e.typeId).slot]+" = "+typeOf(e.typeId).month.en:undefined,period:e.period,metrics:e.metrics,granularity:e.data&&e.data.granularity,scope:e.data&&e.data.scope,tables:e.data&&e.data.tables}))).slice(0,200000)}`;
+${JSON.stringify(entries.map(e=>({report:e.name,type:baseOf(e.typeId),month_slot:typeOf(e.typeId).month?SLOT_EN[typeOf(e.typeId).slot]+" = "+typeOf(e.typeId).month.en:undefined,period:e.period,metrics:e.metrics,granularity:e.data&&e.data.granularity,scope:e.data&&e.data.scope,tables:e.data&&e.data.tables}))).slice(0,200000)}`;
 
 let analyzeCtl=null,analyzeChars=0,analyzeErr="";
 async function analyze(){
@@ -634,68 +680,103 @@ async function analyze(){
   analyzeCtl=new AbortController();
   showTab("dash");renderDash();
   try{
-    const r=await sample.json(ANALYZE_PROMPT(),{modelTier:"complex",signal:analyzeCtl.signal,cache:false,onText:({text})=>{analyzeChars=text.length;const p=$("#an-prog");if(p)p.textContent="جاري كتابة الداش بورد… "+text.length.toLocaleString("en-US")+" حرف"}});
+    const r=await sample.json(ANALYZE_PROMPT(),{modelTier:"complex",signal:analyzeCtl.signal,cache:false,onText:({text})=>{analyzeChars=text.length;const p=$("#an-prog");if(p)p.textContent=T("جاري كتابة الداش بورد… ","Writing the dashboard… ")+text.length.toLocaleString("en-US")+T(" حرف"," chars")}});
     if(!r||typeof r!=="object")throw{code:"invalid_json"};
     r.generatedAt=Date.now();r.reportCount=entries.length;
-    dashboard=r;await saveState();toast("الداش بورد جاهز");
+    dashboard=r;await saveState();toast(T("الداش بورد جاهز","Dashboard ready"));
   }catch(err){
     if(!(err&&err.code==="cancelled"))analyzeErr=errCopy(err&&err.code);
   }finally{busy=false;analyzeCtl=null;renderDash();renderList()}
 }
 $("#btn-analyze").onclick=analyze;
 
-/* ---------- dashboard ---------- */
-const DEMO={example:true,title_period:"أكتوبر 2026 (مثال)",health_score:71,headline:"مستوى الخدمة قريب من الهدف، لكن الإغلاق مرتفع في ذروة الظهر.",summary:"استقبل المركز 48,210 مكالمة ورُدّ على 45,320 منها. مستوى الخدمة 78.4% مقابل هدف 80/20، ونسبة الإغلاق 6.0% تتركز بين 11:00 و14:00. متوسط زمن المعالجة 4:12 مستقر، بينما وقت AUX أعلى من المستهدف بثلاث نقاط.",
-kpis:[{id:"sl",label:"مستوى الخدمة",value:78.4,unit:"%",target:"80% خلال 20 ث",status:"warn",delta:"+2.1 عن سبتمبر",source:"Split/Skill Summary"},{id:"asa",label:"متوسط زمن الرد ASA",value:24,unit:"sec",target:"≤ 20 ث",status:"warn",delta:"-3 ث",source:"Split/Skill Summary"},{id:"abandon",label:"نسبة الإغلاق",value:6.0,unit:"%",target:"≤ 5%",status:"bad",delta:"+0.4",source:"Split/Skill Summary"},{id:"aht",label:"متوسط زمن المعالجة AHT",value:252,unit:"sec",target:"≤ 4:30",status:"good",delta:null,source:"Agent Group Summary"},{id:"fcr",label:"الحل من أول اتصال FCR",value:72.5,unit:"%",target:"≥ 70%",status:"good",delta:"+1.8",source:"FCR Report"},{id:"occupancy",label:"الإشغال Occupancy",value:83.1,unit:"%",target:"75–85%",status:"good",delta:null,source:"Agent Group Summary"},{id:"aux",label:"وقت AUX",value:15.2,unit:"%",target:"≤ 12%",status:"bad",delta:"+1.1",source:"Agent AUX Report"},{id:"offered",label:"المكالمات الواردة",value:48210,unit:"count",target:"—",status:"na",delta:"+5.6%",source:"Split/Skill Summary"}],
+/* ---------- example data (shown until the first real analysis) ---------- */
+const DEMO={example:true,title_period:"أكتوبر 2026 (مثال)",title_period_en:"October 2026 (example)",health_score:71,
+headline:"مستوى الخدمة 78.4% تحت هدف 80% للشهر الثالث، لكنه يتحسن، والإغلاق مرتفع في ذروة الظهر.",headline_en:"SLA at 78.4% is below the 80% target for a third month but improving; abandons peak at midday.",
+summary:"استقبل المركز 48,210 مكالمة ورُدّ على 45,320 منها. مستوى الخدمة 78.4% مقابل هدف 80%، بتحسن 2.1 نقطة عن سبتمبر، ونسبة الإغلاق 6.0% تتركز بين 11:00 و14:00. متوسط زمن المعالجة 4:12 مستقر، بينما وقت AUX أعلى من المستهدف بثلاث نقاط.",
+summary_en:"The center received 48,210 calls and answered 45,320. SLA was 78.4% against the 80% target, up 2.1 points on September, and the 6.0% abandon rate is concentrated between 11:00 and 14:00. AHT is stable at 4:12, while AUX time is three points above target.",
+kpis:[{id:"sl",label:"مستوى الخدمة SLA",label_en:"Service level (SLA)",value:78.4,unit:"%",target:"80%",status:"warn",delta:"+2.1 pts",source:"Skill_Monthly_ByMonth"},{id:"asa",label:"متوسط زمن الرد ASA",label_en:"Avg speed of answer",value:24,unit:"sec",target:"≤ 20s",status:"warn",delta:"-3s",source:"Skill_Monthly_ByMonth"},{id:"abandon",label:"نسبة الإغلاق",label_en:"Abandon rate",value:6.0,unit:"%",target:"≤ 5%",status:"bad",delta:"+0.4 pts",source:"Skill_Monthly_ByMonth"},{id:"aht",label:"متوسط زمن المعالجة AHT",label_en:"Avg handle time",value:252,unit:"sec",target:"≤ 4:30",status:"good",delta:"-3s",source:"AgtGrp_Daily_AnsCalls"},{id:"fcr",label:"الحل من أول اتصال FCR",label_en:"First contact resolution",value:72.5,unit:"%",target:"≥ 70%",status:"good",delta:"+1.8 pts",source:"CallingParty_1.1"},{id:"occupancy",label:"الإشغال",label_en:"Occupancy",value:83.1,unit:"%",target:"75–85%",status:"good",delta:null,source:"AgtGrp_Monthly_Occupancy"},{id:"aux",label:"وقت AUX",label_en:"AUX time",value:15.2,unit:"%",target:"≤ 12%",status:"bad",delta:"+1.1 pts",source:"Agent AUX Interval"},{id:"offered",label:"المكالمات الواردة",label_en:"Calls offered",value:48210,unit:"count",target:"—",status:"na",delta:"+5.6%",source:"Skill_Monthly_ByMonth"}],
 volume:{offered:48210,answered:45320,abandoned:2890},
-trend:{title:"مستوى الخدمة والإغلاق يومياً",labels:["1","3","5","7","9","11","13","15","17","19","21","23","25","27","29","31"],series:[{name:"مستوى الخدمة %",unit:"%",values:[81,79,76,83,80,74,77,82,79,72,78,80,84,77,75,79]},{name:"الإغلاق %",unit:"%",values:[5.1,5.8,6.9,4.6,5.2,7.8,6.4,4.9,5.7,8.3,6.1,5.5,4.2,6.6,7.1,5.9]}]},
+sla_monthly:[{month:"مايو 2026",month_en:"May 2026",sl_pct:77.2,offered:41200,within_sla:31806},{month:"يونيو 2026",month_en:"Jun 2026",sl_pct:79.5,offered:42800,within_sla:34026},{month:"يوليو 2026",month_en:"Jul 2026",sl_pct:81.3,offered:40100,within_sla:32601},{month:"أغسطس 2026",month_en:"Aug 2026",sl_pct:74.9,offered:43900,within_sla:32881},{month:"سبتمبر 2026",month_en:"Sep 2026",sl_pct:76.3,offered:45650,within_sla:34831},{month:"أكتوبر 2026",month_en:"Oct 2026",sl_pct:78.4,offered:48210,within_sla:37797}],
+sla_daily:{month:"أكتوبر 2026",month_en:"Oct 2026",labels:Array.from({length:31},(_,i)=>String(i+1)),values:[81,80,79,77,76,79,83,82,80,78,74,75,77,79,82,80,79,77,72,74,78,80,80,83,84,81,77,76,75,78,79]},
+trend:{title:"مستوى الخدمة والإغلاق يومياً",title_en:"Daily service level and abandons",labels:["1","3","5","7","9","11","13","15","17","19","21","23","25","27","29","31"],series:[{name:"مستوى الخدمة %",name_en:"Service level %",unit:"%",values:[81,79,76,83,80,74,77,82,79,72,78,80,84,77,75,79]},{name:"الإغلاق %",name_en:"Abandon %",unit:"%",values:[5.1,5.8,6.9,4.6,5.2,7.8,6.4,4.9,5.7,8.3,6.1,5.5,4.2,6.6,7.1,5.9]}]},
 intervals:{labels:["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"],offered:[3100,4650,5820,6240,6390,5980,5110,4330,3720,2870],answered:[3040,4480,5470,5710,5800,5530,4840,4150,3610,2790],sl:[88,84,76,68,66,71,79,85,87,90]},
 skills:[{name:"Customer Service",offered:26300,answered:24850,abandon_pct:5.5,sl_pct:80.2,asa_sec:21,aht_sec:238},{name:"Billing",offered:12100,answered:11220,abandon_pct:7.3,sl_pct:74.1,asa_sec:31,aht_sec:284},{name:"Technical Support",offered:7400,answered:6950,abandon_pct:6.1,sl_pct:76.9,asa_sec:26,aht_sec:301},{name:"VIP",offered:2410,answered:2300,abandon_pct:4.6,sl_pct:86.5,asa_sec:14,aht_sec:219}],
-agents:[{name:"موظف 1",calls:1420,aht_sec:221,acw_sec:24,aux_pct:9.1,occupancy_pct:86,fcr_pct:78,score:92,flag:"top"},{name:"موظف 2",calls:1365,aht_sec:236,acw_sec:28,aux_pct:10.4,occupancy_pct:84,fcr_pct:76,score:88,flag:"top"},{name:"موظف 3",calls:1290,aht_sec:248,acw_sec:31,aux_pct:12.2,occupancy_pct:82,fcr_pct:73,score:79,flag:"ok"},{name:"موظف 4",calls:1210,aht_sec:259,acw_sec:35,aux_pct:13.8,occupancy_pct:80,fcr_pct:71,score:72,flag:"ok"},{name:"موظف 5",calls:1105,aht_sec:287,acw_sec:44,aux_pct:17.5,occupancy_pct:76,fcr_pct:66,score:58,flag:"coach"},{name:"موظف 6",calls:980,aht_sec:312,acw_sec:52,aux_pct:19.9,occupancy_pct:72,fcr_pct:63,score:49,flag:"coach"}],
-aux:[{reason:"راحة",pct:5.8},{reason:"غداء",pct:4.1},{reason:"اجتماع",pct:2.3},{reason:"تدريب",pct:1.6},{reason:"مهام إدارية",pct:1.4}],
-mpr:[{metric:"مستوى الخدمة",target:"80%",m2:"74.9%",m1:"76.3%",m0:"78.4%",actual:"78.4%",change:"+2.1 نقطة",trend:"up",better:true,achievement_pct:98,status:"warn"},{metric:"نسبة الإغلاق",target:"≤ 5%",m2:"5.2%",m1:"5.6%",m0:"6.0%",actual:"6.0%",change:"+0.4 نقطة",trend:"up",better:false,achievement_pct:83,status:"bad"},{metric:"AHT",target:"≤ 4:30",m2:"4:21",m1:"4:15",m0:"4:12",actual:"4:12",change:"-3 ث",trend:"down",better:true,achievement_pct:107,status:"good"},{metric:"FCR",target:"70%",m2:"69.8%",m1:"70.7%",m0:"72.5%",actual:"72.5%",change:"+1.8 نقطة",trend:"up",better:true,achievement_pct:104,status:"good"},{metric:"AUX",target:"≤ 12%",m2:"13.6%",m1:"14.1%",m0:"15.2%",actual:"15.2%",change:"+1.1 نقطة",trend:"up",better:false,achievement_pct:79,status:"bad"}],
-months:{labels:["أغسطس 2026","سبتمبر 2026","أكتوبر 2026"],series:[{name:"مستوى الخدمة %",unit:"%",target:80,values:[74.9,76.3,78.4]},{name:"نسبة الإغلاق %",unit:"%",lower_is_better:true,target:5,values:[5.2,5.6,6.0]},{name:"ASA",unit:"sec",lower_is_better:true,target:20,values:[31,27,24]},{name:"AHT",unit:"sec",lower_is_better:true,target:270,values:[261,255,252]},{name:"المكالمات الواردة",unit:"count",values:[43900,45650,48210]},{name:"FCR %",unit:"%",target:70,values:[69.8,70.7,72.5]}]},
-insights:[{type:"risk",title:"انهيار الخدمة في ذروة الظهر",detail:"بين 11:00 و13:00 ينخفض مستوى الخدمة إلى 66–68% ويحدث 41% من حالات الإغلاق."},{type:"risk",title:"Billing الأضعف",detail:"أعلى نسبة إغلاق 7.3% وأطول ASA بـ31 ثانية."},{type:"strength",title:"FCR فوق الهدف",detail:"72.5% مع تحسن 1.8 نقطة، ويقوده موظف 1 وموظف 2."},{type:"opportunity",title:"وقت AUX قابل للاسترداد",detail:"خفض AUX إلى 12% يعادل تقريباً 2.4 موظف إضافي في كل وردية."}],
-recommendations:[{priority:"high",action:"نقل فترات الغداء خارج 11:00–13:00 وإضافة موظفين اثنين للذروة",impact:"رفع SL في الذروة إلى نحو 78%",owner:"مسؤول الجدولة"},{priority:"high",action:"تدريب مركّز لموظف 5 وموظف 6 على تقليل ACW",impact:"خفض AHT للفريق نحو 9 ثوان",owner:"قائد الفريق"},{priority:"medium",action:"تفعيل Overflow من Billing إلى Customer Service عند تجاوز الانتظار 30 ث",impact:"خفض إغلاق Billing إلى أقل من 6%",owner:"مدير النظام"},{priority:"low",action:"مراجعة أكواد AUX الإدارية أسبوعياً",impact:"استرداد 1–2% من وقت الإنتاج",owner:"المشرف"}],
-data_gaps:["تقرير Trunk Group غير مرفق: لا يمكن قياس انشغال الخطوط"]};
+agents:[{name:"Agent 1",calls:1420,aht_sec:221,acw_sec:24,aux_pct:9.1,occupancy_pct:86,fcr_pct:78,score:92,flag:"top"},{name:"Agent 2",calls:1365,aht_sec:236,acw_sec:28,aux_pct:10.4,occupancy_pct:84,fcr_pct:76,score:88,flag:"top"},{name:"Agent 3",calls:1290,aht_sec:248,acw_sec:31,aux_pct:12.2,occupancy_pct:82,fcr_pct:73,score:79,flag:"ok"},{name:"Agent 4",calls:1210,aht_sec:259,acw_sec:35,aux_pct:13.8,occupancy_pct:80,fcr_pct:71,score:72,flag:"ok"},{name:"Agent 5",calls:1105,aht_sec:287,acw_sec:44,aux_pct:17.5,occupancy_pct:76,fcr_pct:66,score:58,flag:"coach"},{name:"Agent 6",calls:980,aht_sec:312,acw_sec:52,aux_pct:19.9,occupancy_pct:72,fcr_pct:63,score:49,flag:"coach"}],
+aux:[{reason:"راحة",reason_en:"Break",pct:5.8},{reason:"غداء",reason_en:"Lunch",pct:4.1},{reason:"اجتماع",reason_en:"Meeting",pct:2.3},{reason:"تدريب",reason_en:"Training",pct:1.6},{reason:"مهام إدارية",reason_en:"Admin tasks",pct:1.4}],
+mpr:[{metric:"مستوى الخدمة SLA",metric_en:"Service level (SLA)",target:"80%",m2:"74.9%",m1:"76.3%",m0:"78.4%",actual:"78.4%",change:"+2.1 نقطة",change_en:"+2.1 pts",trend:"up",better:true,achievement_pct:98,status:"warn"},{metric:"نسبة الإغلاق",metric_en:"Abandon rate",target:"≤ 5%",m2:"5.2%",m1:"5.6%",m0:"6.0%",actual:"6.0%",change:"+0.4 نقطة",change_en:"+0.4 pts",trend:"up",better:false,achievement_pct:83,status:"bad"},{metric:"AHT",metric_en:"AHT",target:"≤ 4:30",m2:"4:21",m1:"4:15",m0:"4:12",actual:"4:12",change:"-3 ث",change_en:"-3s",trend:"down",better:true,achievement_pct:107,status:"good"},{metric:"FCR",metric_en:"FCR",target:"70%",m2:"69.8%",m1:"70.7%",m0:"72.5%",actual:"72.5%",change:"+1.8 نقطة",change_en:"+1.8 pts",trend:"up",better:true,achievement_pct:104,status:"good"},{metric:"AUX",metric_en:"AUX",target:"≤ 12%",m2:"13.6%",m1:"14.1%",m0:"15.2%",actual:"15.2%",change:"+1.1 نقطة",change_en:"+1.1 pts",trend:"up",better:false,achievement_pct:79,status:"bad"}],
+months:{labels:["أغسطس 2026","سبتمبر 2026","أكتوبر 2026"],labels_en:["Aug 2026","Sep 2026","Oct 2026"],series:[{name:"مستوى الخدمة %",name_en:"Service level %",unit:"%",target:80,values:[74.9,76.3,78.4]},{name:"نسبة الإغلاق %",name_en:"Abandon rate %",unit:"%",lower_is_better:true,target:5,values:[5.2,5.6,6.0]},{name:"ASA",name_en:"ASA",unit:"sec",lower_is_better:true,target:20,values:[31,27,24]},{name:"AHT",name_en:"AHT",unit:"sec",lower_is_better:true,target:270,values:[261,255,252]},{name:"المكالمات الواردة",name_en:"Calls offered",unit:"count",values:[43900,45650,48210]},{name:"FCR %",name_en:"FCR %",unit:"%",target:70,values:[69.8,70.7,72.5]}]},
+insights:[{type:"risk",title:"SLA تحت 80% للشهر الثالث",title_en:"SLA below 80% for a third month",detail:"78.4% في أكتوبر، 76.3% في سبتمبر، 74.9% في أغسطس. آخر شهر حقق الهدف كان يوليو (81.3%).",detail_en:"78.4% in October, 76.3% in September, 74.9% in August. The last month on target was July (81.3%)."},{type:"strength",title:"تحسن عن الشهر الماضي",title_en:"Better than last month",detail:"تحسن 4 من 6 مؤشرات عن سبتمبر، وأبرزها SLA و ASA و FCR.",detail_en:"4 of 6 KPIs improved on September, led by SLA, ASA and FCR."},{type:"risk",title:"انهيار الخدمة في ذروة الظهر",title_en:"Service collapses at midday peak",detail:"بين 11:00 و13:00 ينخفض مستوى الخدمة إلى 66–68% ويحدث 41% من حالات الإغلاق.",detail_en:"Between 11:00 and 13:00 SLA drops to 66–68% and 41% of abandons happen."},{type:"opportunity",title:"وقت AUX قابل للاسترداد",title_en:"Recoverable AUX time",detail:"خفض AUX إلى 12% يعادل تقريباً 2.4 موظف إضافي في كل وردية، وهو كافٍ لتجاوز 80%.",detail_en:"Cutting AUX to 12% is worth about 2.4 extra agents per shift, enough to clear 80%."}],
+recommendations:[{priority:"high",action:"نقل فترات الغداء خارج 11:00–13:00 وإضافة موظفين اثنين للذروة",action_en:"Move lunch breaks out of 11:00–13:00 and add two agents at peak",impact:"رفع SLA الشهري فوق 80%",impact_en:"Lift monthly SLA above 80%",owner:"مسؤول الجدولة",owner_en:"Workforce planner"},{priority:"high",action:"تدريب مركّز لـ Agent 5 و Agent 6 على تقليل ACW",action_en:"Targeted coaching for Agent 5 and Agent 6 on ACW",impact:"خفض AHT للفريق نحو 9 ثوان",impact_en:"Cut team AHT by about 9s",owner:"قائد الفريق",owner_en:"Team leader"},{priority:"medium",action:"تفعيل Overflow من Billing إلى Customer Service عند تجاوز الانتظار 30 ث",action_en:"Overflow Billing to Customer Service when wait exceeds 30s",impact:"خفض إغلاق Billing إلى أقل من 6%",impact_en:"Bring Billing abandons under 6%",owner:"مدير النظام",owner_en:"System admin"},{priority:"low",action:"مراجعة أكواد AUX الإدارية أسبوعياً",action_en:"Review admin AUX codes weekly",impact:"استرداد 1–2% من وقت الإنتاج",impact_en:"Recover 1–2% of productive time",owner:"المشرف",owner_en:"Supervisor"}],
+data_gaps:["تقرير Login/Logout غير مرفق: لا يمكن قياس الالتزام بالجدول"],data_gaps_en:["Login/Logout report not attached: schedule adherence can't be measured"]};
 
-const charts=[];
-function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
-function killCharts(){while(charts.length)charts.pop().destroy()}
-function chartBase(){
-  if(!window.Chart)return false;
-  Chart.defaults.font.family=css("--f-body")||"sans-serif";
-  Chart.defaults.color=css("--muted");
-  Chart.defaults.borderColor=css("--line");
-  return true;
+/* ---------- shared calculations ---------- */
+const mLabels=D=>{const M=D.months;const a=M&&(lang==="en"&&Array.isArray(M.labels_en)&&M.labels_en.length===3?M.labels_en:M.labels);return Array.isArray(a)&&a.length===3?a:(lang==="en"?SLOT_EN.slice().reverse():SLOT_AR.slice().reverse())};
+const stTxt=s=>({good:T("ضمن الهدف","On target"),warn:T("قريب","Close"),bad:T("خارج الهدف","Off target"),na:"—"}[s]||"—");
+function slaRows(D){
+  return (Array.isArray(D.sla_monthly)?D.sla_monthly:[]).filter(r=>r&&isNum(r.sl_pct)).map(r=>{
+    const need=isNum(r.offered)&&isNum(r.within_sla)?Math.max(0,Math.ceil(r.offered*SLA_TARGET/100-r.within_sla)):null;
+    return {label:L(r,"month"),sl:r.sl_pct,gap:r.sl_pct-SLA_TARGET,met:r.sl_pct>=SLA_TARGET,need,offered:r.offered,within:r.within_sla};
+  });
 }
-const statusChip=s=>({good:`<span class="chip good"><span class="dot"></span>ضمن الهدف</span>`,warn:`<span class="chip warn"><span class="dot"></span>قريب</span>`,bad:`<span class="chip bad"><span class="dot"></span>خارج الهدف</span>`}[s]||`<span class="chip">—</span>`);
-function kpiVal(k){if(!isNum(k.value))return"—";if(k.unit==="%")return fmtPct(k.value);if(k.unit==="sec")return fmtSec(k.value);return fmtN(k.value)}
+function slaDaily(D){
+  const S=D.sla_daily;if(!S||!Array.isArray(S.labels)||!Array.isArray(S.values))return null;
+  const vals=S.values.filter(isNum);if(!vals.length)return null;
+  return {label:L(S,"month"),labels:S.labels,values:S.values,met:vals.filter(v=>v>=SLA_TARGET).length,total:vals.length};
+}
+function mvmRows(D){
+  const M=D.months;if(!M||!Array.isArray(M.series))return[];
+  return M.series.map(s=>{
+    const v=s.values||[],a=v[1],b=v[2];if(!isNum(a)&&!isNum(b))return null;
+    const d=isNum(a)&&isNum(b)?b-a:null,pc=isNum(d)&&a?d/Math.abs(a)*100:null;
+    const better=d==null||Math.abs(d)<1e-9?null:(s.lower_is_better?d<0:d>0);
+    return {name:L(s,"name"),unit:s.unit,prev:a,cur:b,d,pc,better};
+  }).filter(Boolean);
+}
+const fmtDiff=(d,u)=>!isNum(d)?"—":u==="sec"?`<bdi dir="ltr" class="dnum">${d>0?"+":"-"}${fmtSec(Math.abs(d))}</bdi>`:u==="%"?`<bdi dir="ltr" class="dnum">${d>0?"+":""}${Math.round(d*10)/10}</bdi> ${T("نقطة","pts")}`:`<bdi dir="ltr" class="dnum">${d>0?"+":""}${fmtN(d)}</bdi>`;
+const gapTxt=g=>(g>=0?T("أعلى من الهدف بـ ","Above target by "):T("أقل من الهدف بـ ","Below target by "))+(Math.round(Math.abs(g)*10)/10)+" "+T("نقطة","pts");
 
 /* month-over-month (MPR) blocks, shared by dashboard and PDF */
-const mLabels=D=>(D.months&&Array.isArray(D.months.labels)&&D.months.labels.length===3)?D.months.labels:["قبل شهرين","الشهر الماضي","الشهر الحالي"];
 const hasMonths=m=>m.some(x=>x.m0!=null||x.m1!=null||x.m2!=null);
 function mprTableHtml(D,pdf){
-  const m=D.mpr||[],L=mLabels(D),mo=hasMonths(m);
-  const arrow=x=>{if(!x.change)return"—";const good=x.better===true,bad=x.better===false;const c=pdf?(good?"var(--rp-good)":bad?"var(--rp-bad)":"var(--rp-muted)"):(good?"var(--good)":bad?"var(--bad)":"var(--muted)");return `<span style="color:${c};font-weight:700">${x.trend==="up"?"▲":x.trend==="down"?"▼":"■"} ${esc(x.change)}</span>`};
+  const m=D.mpr||[],Lb=mLabels(D),mo=hasMonths(m);
+  const arrow=x=>{const ch=L(x,"change");if(!ch)return"—";const c=pdf?(x.better===true?"var(--rp-good)":x.better===false?"var(--rp-bad)":"var(--rp-muted)"):(x.better===true?"var(--good)":x.better===false?"var(--bad)":"var(--muted)");return `<span style="color:${c};font-weight:700">${x.trend==="up"?"▲":x.trend==="down"?"▼":"■"} <bdi>${esc(ch)}</bdi></span>`};
   const ach=x=>pdf?(isNum(x.achievement_pct)?Math.round(x.achievement_pct)+"%":"—"):`<div class="bar"><i class="${esc(x.status)}" style="width:${isNum(x.achievement_pct)?Math.min(100,Math.max(4,x.achievement_pct*.6)):0}px"></i><span class="num">${isNum(x.achievement_pct)?Math.round(x.achievement_pct)+"%":"—"}</span></div>`;
-  return `<table><thead><tr><th>المؤشر</th><th>الهدف</th>${mo?`<th>${esc(L[0])}</th><th>${esc(L[1])}</th><th>${esc(L[2])}</th><th>التغير عن الشهر الماضي</th>`:`<th>الفعلي</th>`}<th>نسبة التحقيق</th>${pdf?"<th>الحالة</th>":""}</tr></thead><tbody>${m.map(x=>`<tr><td>${esc(x.metric)}</td><td class="n">${esc(x.target)}</td>${mo?`<td class="n">${esc(x.m2??"—")}</td><td class="n">${esc(x.m1??"—")}</td><td class="n"><b>${esc(x.m0??x.actual??"—")}</b></td><td>${arrow(x)}</td>`:`<td class="n"><b>${esc(x.actual)}</b></td>`}<td${pdf?' class="n"':""}>${ach(x)}</td>${pdf?`<td><span class="st ${esc(x.status||"na")}">${stTxt[x.status]||"—"}</span></td>`:""}</tr>`).join("")}</tbody></table>`;
+  return `<table><thead><tr><th>${T("المؤشر","Metric")}</th><th>${T("الهدف","Target")}</th>${mo?`<th>${esc(Lb[0])}</th><th>${esc(Lb[1])}</th><th>${esc(Lb[2])}</th><th>${T("التغير عن الشهر الماضي","Change vs last month")}</th>`:`<th>${T("الفعلي","Actual")}</th>`}<th>${T("نسبة التحقيق","Achievement")}</th>${pdf?`<th>${T("الحالة","Status")}</th>`:""}</tr></thead><tbody>${m.map(x=>`<tr><td>${esc(L(x,"metric"))}</td><td class="n">${esc(x.target)}</td>${mo?`<td class="n">${esc(x.m2??"—")}</td><td class="n">${esc(x.m1??"—")}</td><td class="n"><b>${esc(x.m0??x.actual??"—")}</b></td><td>${arrow(x)}</td>`:`<td class="n"><b>${esc(x.actual)}</b></td>`}<td${pdf?' class="n"':""}>${ach(x)}</td>${pdf?`<td><span class="st ${esc(x.status||"na")}">${stTxt(x.status)}</span></td>`:""}</tr>`).join("")}</tbody></table>`;
 }
-function fmtU(v,u){return u==="%"?fmtPct(v):u==="sec"?fmtSec(v):fmtN(v)}
-function monthTilesHtml(D,pdf){
+function monthTilesHtml(D){
   const M=D.months;if(!M||!Array.isArray(M.series)||!M.series.length)return"";
-  const L=mLabels(D);
+  const Lb=mLabels(D);
   return `<div class="mtiles">${M.series.slice(0,8).map(s=>{
     const v=(s.values||[]).slice(0,3),nums=v.filter(isNum),mx=Math.max(1e-9,...nums,isNum(s.target)?s.target:0);
     const a=v[1],b=v[2];let ch="";
-    if(isNum(a)&&isNum(b)){const dlt=b-a,better=s.lower_is_better?dlt<0:dlt>0,flat=Math.abs(dlt)<1e-9;ch=`<span class="mch ${flat?"":better?"up":"down"}">${flat?"■":dlt>0?"▲":"▼"} ${s.unit==="sec"?"<bdi dir=\"ltr\">"+(dlt>0?"+":"-")+fmtSec(Math.abs(dlt))+"</bdi>":s.unit==="%"?"<bdi dir=\"ltr\">"+(dlt>0?"+":"")+(Math.round(dlt*10)/10)+"</bdi> نقطة":"<bdi dir=\"ltr\">"+(dlt>0?"+":"")+fmtN(a?dlt/a*100:0)+"%</bdi>"}</span>`}
-    return `<div class="mt"><div class="mt-h"><b>${esc(s.name)}</b>${ch}</div><div class="mbars">${v.map((x,i)=>`<div class="mb ${i===2?"cur":""}"><span class="mv">${fmtU(x,s.unit)}</span><i style="height:${isNum(x)?Math.max(4,x/mx*100):0}%"></i><span class="ml">${esc(String(L[i]||"").replace(/\s*\d{4}$/,""))}</span></div>`).join("")}</div>${isNum(s.target)?`<div class="mtg">الهدف: ${fmtU(s.target,s.unit)}</div>`:""}</div>`}).join("")}</div>`;
+    if(isNum(a)&&isNum(b)){const dlt=b-a,better=s.lower_is_better?dlt<0:dlt>0,flat=Math.abs(dlt)<1e-9;ch=`<span class="mch ${flat?"":better?"up":"down"}">${flat?"■":dlt>0?"▲":"▼"} <bdi dir="ltr">${s.unit==="%"?(dlt>0?"+":"")+(Math.round(dlt*10)/10):s.unit==="sec"?(dlt>0?"+":"-")+fmtSec(Math.abs(dlt)):(dlt>0?"+":"")+fmtN(a?dlt/a*100:0)+"%"}</bdi>${s.unit==="%"?" "+T("نقطة","pts"):""}</span>`}
+    return `<div class="mt"><div class="mt-h"><b>${esc(L(s,"name"))}</b>${ch}</div><div class="mbars">${v.map((x,i)=>`<div class="mb ${i===2?"cur":""}"><span class="mv">${fmtU(x,s.unit)}</span><i style="height:${isNum(x)?Math.max(4,x/mx*100):0}%"></i><span class="ml">${esc(String(Lb[i]||"").replace(/\s*\d{4}$/,""))}</span></div>`).join("")}</div>${isNum(s.target)?`<div class="mtg">${T("الهدف:","Target:")} ${fmtU(s.target,s.unit)}</div>`:""}</div>`}).join("")}</div>`;
 }
+function mvmTableHtml(D,pdf){
+  const rows=mvmRows(D);if(!rows.length)return"";
+  const Lb=mLabels(D),mx=Math.max(1,...rows.map(r=>isNum(r.pc)?Math.abs(r.pc):0));
+  const col=b=>pdf?(b===true?"var(--rp-good)":b===false?"var(--rp-bad)":"var(--rp-muted)"):(b===true?"var(--good)":b===false?"var(--bad)":"var(--muted)");
+  const vd=b=>b===true?T("تحسّن","Improved"):b===false?T("تراجع","Declined"):T("ثابت","Flat");
+  return `<table><thead><tr><th>${T("المؤشر","Metric")}</th><th>${esc(Lb[1])}</th><th>${esc(Lb[2])}</th><th>${T("الفرق","Difference")}</th><th>${T("التغير %","Change %")}</th><th>${T("النتيجة","Result")}</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td class="n">${fmtU(r.prev,r.unit)}</td><td class="n"><b>${fmtU(r.cur,r.unit)}</b></td><td style="color:${col(r.better)};white-space:nowrap">${fmtDiff(r.d,r.unit)}</td><td>${pdf?`<span class="num">${isNum(r.pc)?(r.pc>0?"+":"")+(Math.round(r.pc*10)/10)+"%":"—"}</span>`:`<div class="pcbar"><i style="width:${isNum(r.pc)?Math.max(3,Math.abs(r.pc)/mx*60):0}px;background:${col(r.better)}"></i><span class="num">${isNum(r.pc)?(r.pc>0?"+":"")+(Math.round(r.pc*10)/10)+"%":"—"}</span></div>`}</td><td><span class="verdict" style="color:${col(r.better)}">${r.better===true?"▲ ":r.better===false?"▼ ":"■ "}${vd(r.better)}</span></td></tr>`).join("")}</tbody></table>`;
+}
+function slaMonthsHtml(rows){
+  return `<div class="sla-months">${rows.slice(-6).map(r=>`<div class="sla-m ${r.met?"met":"miss"}"><b>${esc(r.label)}</b><span class="big" style="color:var(${r.met?"--good":"--bad"})">${fmtPct(r.sl)}</span><small>${r.met?"✓ "+T("حقق الهدف","Target met"):"✗ "+T("لم يحقق الهدف","Target missed")} · ${gapTxt(r.gap)}${!r.met&&isNum(r.need)?" · "+T(`كان يحتاج ${fmtN(r.need)} مكالمة إضافية ضمن SLA`,`needed ${fmtN(r.need)} more calls within SLA`):""}</small></div>`).join("")}</div>`;
+}
+
+/* ---------- dashboard ---------- */
+const charts=[];
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function killCharts(){while(charts.length)charts.pop().destroy()}
+function chartBase(){if(!window.Chart)return false;Chart.defaults.font.family=css("--f-body")||"sans-serif";Chart.defaults.color=css("--muted");Chart.defaults.borderColor=css("--line");return true}
+const statusChip=s=>({good:`<span class="chip good"><span class="dot"></span>${T("ضمن الهدف","On target")}</span>`,warn:`<span class="chip warn"><span class="dot"></span>${T("قريب","Close")}</span>`,bad:`<span class="chip bad"><span class="dot"></span>${T("خارج الهدف","Off target")}</span>`}[s]||"");
+function kpiVal(k){if(!isNum(k.value))return"—";if(k.unit==="%")return fmtPct(k.value);if(k.unit==="sec")return fmtSec(k.value);return fmtN(k.value)}
+
 function renderDash(){
   killCharts();
   const el=$("#dash");
   if(busy&&analyzeCtl){
-    el.innerHTML=`<div class="panel analyzing"><div class="spin"></div><h2>جاري تحليل ${entries.length} تقرير</h2><p>Claude يحسب مؤشرات الأداء ويقارنها بالأهداف ويكتب التوصيات. قد يستغرق دقيقة إلى دقيقتين.</p><p class="num" id="an-prog">${analyzeChars?"جاري كتابة الداش بورد… "+analyzeChars+" حرف":"يفكر…"}</p><button class="btn" id="an-stop">إيقاف</button></div>`;
+    el.innerHTML=`<div class="panel analyzing"><div class="spin"></div><h2>${T(`جاري تحليل ${entries.length} تقرير`,`Analyzing ${entries.length} reports`)}</h2><p>${T("Claude يحسب المؤشرات ويقارن الأشهر وهدف 80% ويكتب التوصيات بالعربي والإنجليزي. قد يستغرق دقيقة إلى دقيقتين.","Claude is computing KPIs, comparing months against the 80% target and writing recommendations in Arabic and English. This can take one to two minutes.")}</p><p class="num" id="an-prog">${analyzeChars?T("جاري كتابة الداش بورد… ","Writing the dashboard… ")+analyzeChars:T("يفكر…","Thinking…")}</p><button class="btn" id="an-stop">${T("إيقاف","Stop")}</button></div>`;
     $("#an-stop").onclick=()=>analyzeCtl&&analyzeCtl.abort();
     return;
   }
@@ -705,13 +786,24 @@ function renderDash(){
   const hsCol=hs==null?"--line":hs>=80?"--good":hs>=60?"--warn":"--bad";
   const C=2*Math.PI*48;
   const top=`${analyzeErr?`<div class="notice err">${esc(analyzeErr)}</div>`:""}
-  ${D.example?`<div class="example"><span>هذا داش بورد مثال بأرقام توضيحية. أرفق تقاريرك واضغط بدء التحليل لتظهر أرقامك.</span><button class="btn sm signal" id="go-collect">ابدأ بإرفاق التقارير</button></div>`:`<div class="example" style="background:var(--accent-soft);color:var(--accent)"><span>مبني من ${D.reportCount||entries.length} ملف تقرير · ${D.generatedAt?new Date(D.generatedAt).toLocaleString("ar-SA-u-nu-latn",{dateStyle:"medium",timeStyle:"short"}):""}</span><button class="btn sm" id="re-analyze" ${!sample||!entries.length?"disabled":""}>إعادة التحليل</button></div>`}
+  ${D.example?`<div class="example"><span>${T("هذا داش بورد مثال بأرقام توضيحية. أرفق تقاريرك واضغط بدء التحليل لتظهر أرقامك.","This is an example dashboard with illustrative numbers. Attach your reports and start the analysis to see yours.")}</span><button class="btn sm signal" id="go-collect">${T("ابدأ بإرفاق التقارير","Start attaching reports")}</button></div>`:`<div class="example" style="background:var(--accent-soft);color:var(--accent)"><span>${T(`مبني من ${D.reportCount||entries.length} ملف تقرير`,`Built from ${D.reportCount||entries.length} report files`)} · ${D.generatedAt?new Date(D.generatedAt).toLocaleString(lang==="en"?"en-GB":"ar-SA-u-nu-latn",{dateStyle:"medium",timeStyle:"short"}):""}</span><button class="btn sm" id="re-analyze" ${!sample||!entries.length?"disabled":""}>${T("إعادة التحليل","Re-run analysis")}</button></div>`}
   <div class="panel hero">
-    <div class="ring" role="img" aria-label="مؤشر الصحة ${hs==null?"غير متاح":hs+" من 100"}"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="55" cy="55" r="48" fill="none" stroke="var(${hsCol})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-to="${hs==null?C:C*(1-hs/100)}"/></svg><div class="val"><div><b id="hs-num">${hs==null?"—":Math.round(hs)}</b><small>مؤشر الأداء</small></div></div></div>
-    <div><div class="label">${esc(D.title_period||"")}</div><h2>${esc(D.headline||"")}</h2><p>${esc(D.summary||"")}</p></div>
-    <div class="meta">${D.volume?`<span class="chip acc">واردة <b class="num">${fmtN(D.volume.offered)}</b></span><span class="chip good">رُدّ <b class="num">${fmtN(D.volume.answered)}</b></span><span class="chip bad">مغلقة <b class="num">${fmtN(D.volume.abandoned)}</b></span>`:""}</div>
+    <div class="ring" role="img" aria-label="${T("مؤشر الأداء","Performance score")} ${hs==null?"—":hs}"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="55" cy="55" r="48" fill="none" stroke="var(${hsCol})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-to="${hs==null?C:C*(1-hs/100)}"/></svg><div class="val"><div><b id="hs-num">${hs==null?"—":Math.round(hs)}</b><small>${T("مؤشر الأداء","Score")}</small></div></div></div>
+    <div><div class="label">${esc(L(D,"title_period"))}</div><h2>${esc(L(D,"headline"))}</h2><p>${esc(L(D,"summary"))}</p></div>
+    <div class="meta">${D.volume?`<span class="chip acc">${T("واردة","Offered")} <b class="num">${fmtN(D.volume.offered)}</b></span><span class="chip good">${T("مجابة","Answered")} <b class="num">${fmtN(D.volume.answered)}</b></span><span class="chip bad">${T("مغلقة","Abandoned")} <b class="num">${fmtN(D.volume.abandoned)}</b></span>`:""}</div>
   </div>`;
-  const kpiHtml=k.length?`<div class="kpis">${k.map((x,i)=>`<div class="panel kpi ${esc(x.status)}"><div class="k-top"><span class="label">${esc(x.label)}</span>${x.status&&x.status!=="na"?statusChip(x.status):""}</div><div class="v" data-i="${i}">${kpiVal(x)}</div><div class="tg">الهدف: ${esc(x.target||"—")}${x.delta?` · <span class="num">${esc(x.delta)}</span>`:""}</div>${x.source?`<div class="src">${esc(x.source)}</div>`:""}</div>`).join("")}</div>`:"";
+  const exportHtml=`<div class="panel card exportp"><div class="card-h"><h3>${T("تصدير للإدارة","Export for management")}</h3><span class="label">${D.example?T("البيانات الحالية مثال توضيحي","Current data is an example"):T("من آخر تحليل","From the latest analysis")} · ${T("اللغة: العربية","Language: English")}</span></div>
+    <div class="req-actions"><button class="btn primary" id="ex-pdf">${T("تقرير PDF احترافي","Professional PDF report")}</button><button class="btn" id="ex-xlsx">${T("Excel جاهز لـ Power BI","Power BI-ready Excel")}</button></div>
+    <p class="ex-note" id="ex-status">${downloads?T("الملفات تطلع باللغة المختارة. غيّر اللغة من الزر أعلى الصفحة للنسخة الإنجليزية.","Files are produced in the selected language. Use the button at the top to switch to Arabic."):T("التصدير متاح عند فتح الصفحة داخل claude.ai.","Export is available when the page is opened inside claude.ai.")}</p></div>`;
+  const kpiHtml=k.length?`<div class="kpis">${k.map((x,i)=>`<div class="panel kpi ${esc(x.status)}"><div class="k-top"><span class="label">${esc(L(x,"label"))}</span>${x.status&&x.status!=="na"?statusChip(x.status):""}</div><div class="v" data-i="${i}">${kpiVal(x)}</div><div class="tg">${T("الهدف:","Target:")} ${esc(x.target||"—")}${x.delta?` · <span class="num">${esc(x.delta)}</span>`:""}</div>${x.source?`<div class="src">${esc(x.source)}</div>`:""}</div>`).join("")}</div>`:"";
+  const sla=slaRows(D),sd=slaDaily(D),mvm=mvmRows(D),Lb=mLabels(D);
+  const metN=sla.filter(r=>r.met).length;
+  const slaHtml=sla.length||sd?`<div class="panel card"><div class="card-h"><h3>${T("هدف SLA ‏80% لكل شهر","SLA 80% target by month")}</h3><div class="sla-sum">${sla.length?`<span class="chip ${metN===sla.length?"good":metN?"warn":"bad"}">${T(`تحقق في ${metN} من ${sla.length} أشهر`,`Met in ${metN} of ${sla.length} months`)}</span>`:""}${sd?`<span class="chip ${sd.met/sd.total>=.8?"good":sd.met/sd.total>=.5?"warn":"bad"}">${esc(sd.label)}: ${T(`${sd.met} من ${sd.total} يوم فوق 80%`,`${sd.met} of ${sd.total} days at 80%+`)}</span>`:""}</div></div>
+    <div class="sla-grid"><div style="display:grid;gap:14px;min-width:0">${sla.length?`<div class="chart-box sm"><canvas id="ch-sla"></canvas></div>`:""}${sd?`<div class="chart-box sm"><canvas id="ch-sladay"></canvas></div>`:""}</div>${sla.length?slaMonthsHtml(sla):""}</div></div>`:"";
+  const better=mvm.filter(r=>r.better===true).length,worse=mvm.filter(r=>r.better===false).length;
+  const mvmHtml=mvm.length?`<div class="panel card"><div class="card-h"><h3>${T("مقارنة الشهرين","Month vs month")}</h3><div class="sla-sum"><span class="chip good">▲ ${T(`تحسّن ${better}`,`${better} improved`)}</span><span class="chip bad">▼ ${T(`تراجع ${worse}`,`${worse} declined`)}</span></div></div>
+    <div class="mvm-head"><div class="mo"><span>${T("الشهر الماضي","Last month")}</span><b>${esc(Lb[1])}</b></div><div class="vs">VS</div><div class="mo cur"><span>${T("الشهر الحالي","Current month")}</span><b>${esc(Lb[2])}</b></div></div>
+    <div class="tbl">${mvmTableHtml(D)}</div></div>`:"";
   const hasTrend=D.trend&&Array.isArray(D.trend.labels)&&D.trend.labels.length&&Array.isArray(D.trend.series);
   const hasInt=D.intervals&&Array.isArray(D.intervals.labels)&&D.intervals.labels.length;
   const hasVol=D.volume&&isNum(D.volume.answered);
@@ -721,49 +813,87 @@ function renderDash(){
   const mpr=Array.isArray(D.mpr)?D.mpr:[];
   const ins=Array.isArray(D.insights)?D.insights:[];
   const rec=Array.isArray(D.recommendations)?D.recommendations:[];
-  const gaps=Array.isArray(D.data_gaps)?D.data_gaps:[];
+  const gaps=(lang==="en"&&Array.isArray(D.data_gaps_en)&&D.data_gaps_en.length?D.data_gaps_en:D.data_gaps)||[];
   const maxCalls=Math.max(1,...ag.map(a=>a.calls||0));
-  const prio={high:`<span class="chip bad">عاجل</span>`,medium:`<span class="chip warn">متوسط</span>`,low:`<span class="chip">منخفض</span>`};
+  const prio={high:`<span class="chip bad">${T("عاجل","High")}</span>`,medium:`<span class="chip warn">${T("متوسط","Medium")}</span>`,low:`<span class="chip">${T("منخفض","Low")}</span>`};
   const icon={strength:"↑",risk:"!",opportunity:"◆"};
-  const flag={top:`<span class="chip good">متميز</span>`,coach:`<span class="chip bad">يحتاج تدريب</span>`,ok:`<span class="chip">جيد</span>`};
+  const flag={top:`<span class="chip good">${T("متميز","Top")}</span>`,coach:`<span class="chip bad">${T("يحتاج تدريب","Needs coaching")}</span>`,ok:`<span class="chip">${T("جيد","Good")}</span>`};
   const lvl=(v,good,bad,low)=>!isNum(v)?"":low?(v<=good?"good":v>=bad?"bad":"warn"):(v>=good?"good":v<=bad?"bad":"warn");
 
-  const exportHtml=`<div class="panel card exportp"><div class="card-h"><h3>تصدير للإدارة</h3><span class="label">${D.example?"البيانات الحالية مثال توضيحي":"من آخر تحليل"}</span></div>
-    <div class="req-actions"><button class="btn primary" id="ex-pdf">تقرير PDF احترافي</button><button class="btn" id="ex-xlsx">Excel جاهز لـ Power BI</button></div>
-    <p class="ex-note" id="ex-status">${downloads?"PDF: غلاف وملخص تنفيذي ورسوم ومؤشرات MPR والموظفين والتوصيات. Excel: جدول منظم لكل نوع بيانات، يفتح مباشرة في Power BI.":"التصدير متاح عند فتح الصفحة داخل claude.ai."}</p></div>`;
-  el.innerHTML=top+exportHtml+kpiHtml+`
+  el.innerHTML=top+exportHtml+kpiHtml+slaHtml+mvmHtml+`
+  ${mpr.length||D.months?`<div class="panel card"><div class="card-h"><h3>${T("MPR · مقارنة 3 أشهر","MPR · 3-month comparison")}</h3><span class="label">${esc(Lb.join(lang==="en"?" → ":" ← "))}</span></div>${monthTilesHtml(D)}${mpr.length?`<div class="tbl">${mprTableHtml(D)}</div>`:""}</div>`:""}
   ${hasTrend||hasVol?`<div class="grid2">
-    ${hasTrend?`<div class="panel card"><div class="card-h"><h3>${esc(D.trend.title||"الاتجاه")}</h3></div><div class="chart-box"><canvas id="ch-trend" aria-label="${esc(D.trend.title||"")}"></canvas></div></div>`:`<div class="panel card"><div class="card-h"><h3>الاتجاه</h3></div><p class="label">لا توجد بيانات يومية أو شهرية. أرفق تقرير Daily أو Monthly.</p></div>`}
-    ${hasVol?`<div class="panel card"><div class="card-h"><h3>مصير المكالمات</h3><span class="label">من إجمالي الواردة</span></div><div class="chart-box sm"><canvas id="ch-vol"></canvas></div></div>`:""}
+    ${hasTrend?`<div class="panel card"><div class="card-h"><h3>${esc(L(D.trend,"title")||T("الاتجاه","Trend"))}</h3></div><div class="chart-box"><canvas id="ch-trend"></canvas></div></div>`:`<div class="panel card"><div class="card-h"><h3>${T("الاتجاه","Trend")}</h3></div><p class="label">${T("لا توجد بيانات يومية. أرفق تقرير Daily.","No daily data. Attach a Daily report.")}</p></div>`}
+    ${hasVol?`<div class="panel card"><div class="card-h"><h3>${T("مصير المكالمات","Call outcome")}</h3><span class="label">${T("من إجمالي الواردة","Share of offered")}</span></div><div class="chart-box sm"><canvas id="ch-vol"></canvas></div></div>`:""}
   </div>`:""}
-  ${hasInt?`<div class="panel card"><div class="card-h"><h3>الحمل ومستوى الخدمة حسب الساعة</h3><span class="label">الأعمدة: المكالمات · الخط: SL%</span></div><div class="chart-box"><canvas id="ch-int"></canvas></div></div>`:""}
-  ${sk.length?`<div class="panel card"><div class="card-h"><h3>أداء المهارات / الطوابير</h3><span class="label">${sk.length} مهارة</span></div><div class="tbl"><table><thead><tr><th>المهارة</th><th>واردة</th><th>رُدّ</th><th>مستوى الخدمة</th><th>الإغلاق</th><th>ASA</th><th>AHT</th></tr></thead><tbody>${sk.map(s=>`<tr><td>${esc(s.name)}</td><td class="n">${fmtN(s.offered)}</td><td class="n">${fmtN(s.answered)}</td><td><div class="bar"><i class="${lvl(s.sl_pct,80,70)}" style="width:${isNum(s.sl_pct)?Math.max(4,s.sl_pct*.8):0}px"></i><span class="num">${fmtPct(s.sl_pct)}</span></div></td><td class="n" style="color:var(--${lvl(s.abandon_pct,5,8,true)||"ink"})">${fmtPct(s.abandon_pct)}</td><td class="n">${fmtSec(s.asa_sec)}</td><td class="n">${fmtSec(s.aht_sec)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
-  ${ag.length?`<div class="panel card"><div class="card-h"><h3>ترتيب الموظفين</h3><span class="label">مرتب حسب التقييم</span></div><div class="tbl"><table><thead><tr><th>#</th><th>الموظف</th><th>المكالمات</th><th>AHT</th><th>ACW</th><th>AUX</th><th>الإشغال</th><th>FCR</th><th>التقييم</th><th></th></tr></thead><tbody>${ag.map((a,i)=>`<tr><td class="n">${i+1}</td><td>${esc(a.name)}</td><td><div class="bar"><i style="width:${Math.max(4,(a.calls||0)/maxCalls*90)}px"></i><span class="num">${fmtN(a.calls)}</span></div></td><td class="n">${fmtSec(a.aht_sec)}</td><td class="n">${fmtSec(a.acw_sec)}</td><td class="n" style="color:var(--${lvl(a.aux_pct,12,16,true)||"ink"})">${fmtPct(a.aux_pct)}</td><td class="n">${fmtPct(a.occupancy_pct)}</td><td class="n">${fmtPct(a.fcr_pct)}</td><td class="n"><b>${fmtN(a.score)}</b></td><td>${flag[a.flag]||""}</td></tr>`).join("")}</tbody></table></div></div>`:""}
-  ${mpr.length||D.months?`<div class="panel card"><div class="card-h"><h3>MPR · مقارنة الأشهر</h3><span class="label">${esc(mLabels(D).join(" ← "))}</span></div>${monthTilesHtml(D)}${mpr.length?`<div class="tbl">${mprTableHtml(D)}</div>`:""}</div>`:""}
-  ${aux.length?`<div>
-    ${aux.length?`<div class="panel card"><div class="card-h"><h3>توزيع وقت AUX</h3><span class="label">% من وقت الدوام</span></div><div class="chart-box sm"><canvas id="ch-aux"></canvas></div></div>`:""}
-  </div>`:""}
+  ${hasInt?`<div class="panel card"><div class="card-h"><h3>${T("الحمل ومستوى الخدمة حسب الساعة","Load and service level by hour")}</h3><span class="label">${T("الأعمدة: المكالمات · الخط: SLA%","Bars: calls · Line: SLA%")}</span></div><div class="chart-box"><canvas id="ch-int"></canvas></div></div>`:""}
+  ${sk.length?`<div class="panel card"><div class="card-h"><h3>${T("أداء المهارات / الطوابير","Skill / queue performance")}</h3><span class="label">${sk.length} ${T("مهارة","skills")}</span></div><div class="tbl"><table><thead><tr><th>${T("المهارة","Skill")}</th><th>${T("واردة","Offered")}</th><th>${T("مجابة","Answered")}</th><th>SLA</th><th>${T("الإغلاق","Abandon")}</th><th>ASA</th><th>AHT</th></tr></thead><tbody>${sk.map(s=>`<tr><td>${esc(s.name)}</td><td class="n">${fmtN(s.offered)}</td><td class="n">${fmtN(s.answered)}</td><td><div class="bar"><i class="${lvl(s.sl_pct,80,70)}" style="width:${isNum(s.sl_pct)?Math.max(4,s.sl_pct*.8):0}px"></i><span class="num">${fmtPct(s.sl_pct)}</span></div></td><td class="n" style="color:var(--${lvl(s.abandon_pct,5,8,true)||"ink"})">${fmtPct(s.abandon_pct)}</td><td class="n">${fmtSec(s.asa_sec)}</td><td class="n">${fmtSec(s.aht_sec)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
+  ${ag.length?`<div class="panel card"><div class="card-h"><h3>${T("ترتيب الموظفين","Agent ranking")}</h3><span class="label">${T("مرتب حسب التقييم","Sorted by score")}</span></div><div class="tbl"><table><thead><tr><th>#</th><th>${T("الموظف","Agent")}</th><th>${T("المكالمات","Calls")}</th><th>AHT</th><th>ACW</th><th>AUX</th><th>${T("الإشغال","Occupancy")}</th><th>FCR</th><th>${T("التقييم","Score")}</th><th></th></tr></thead><tbody>${ag.map((a,i)=>`<tr><td class="n">${i+1}</td><td>${esc(a.name)}</td><td><div class="bar"><i style="width:${Math.max(4,(a.calls||0)/maxCalls*90)}px"></i><span class="num">${fmtN(a.calls)}</span></div></td><td class="n">${fmtSec(a.aht_sec)}</td><td class="n">${fmtSec(a.acw_sec)}</td><td class="n" style="color:var(--${lvl(a.aux_pct,12,16,true)||"ink"})">${fmtPct(a.aux_pct)}</td><td class="n">${fmtPct(a.occupancy_pct)}</td><td class="n">${fmtPct(a.fcr_pct)}</td><td class="n"><b>${fmtN(a.score)}</b></td><td>${flag[a.flag]||""}</td></tr>`).join("")}</tbody></table></div></div>`:""}
+  ${aux.length?`<div class="panel card"><div class="card-h"><h3>${T("توزيع وقت AUX","AUX time breakdown")}</h3><span class="label">${T("% من وقت الدوام","% of staffed time")}</span></div><div class="chart-box sm"><canvas id="ch-aux"></canvas></div></div>`:""}
   <div class="grid2b">
-    <div class="panel card"><div class="card-h"><h3>أبرز الملاحظات</h3></div><div class="ins">${ins.map(i=>`<div class="ins-item ${esc(i.type)}"><span class="ic">${icon[i.type]||"•"}</span><div><b>${esc(i.title)}</b><p>${esc(i.detail)}</p></div></div>`).join("")||`<p class="label">لا توجد ملاحظات.</p>`}</div></div>
-    <div class="panel card"><div class="card-h"><h3>خطة العمل والتوصيات</h3></div><div class="rec">${rec.map(r=>`<div class="rec-item">${prio[r.priority]||prio.low}<div><b>${esc(r.action)}</b><p>${esc(r.impact)}${r.owner?" · المسؤول: "+esc(r.owner):""}</p></div></div>`).join("")||`<p class="label">لا توجد توصيات.</p>`}</div></div>
+    <div class="panel card"><div class="card-h"><h3>${T("أبرز الملاحظات","Key insights")}</h3></div><div class="ins">${ins.map(i=>`<div class="ins-item ${esc(i.type)}"><span class="ic">${icon[i.type]||"•"}</span><div><b>${esc(L(i,"title"))}</b><p>${esc(L(i,"detail"))}</p></div></div>`).join("")||`<p class="label">—</p>`}</div></div>
+    <div class="panel card"><div class="card-h"><h3>${T("خطة العمل والتوصيات","Action plan")}</h3></div><div class="rec">${rec.map(r=>`<div class="rec-item">${prio[r.priority]||prio.low}<div><b>${esc(L(r,"action"))}</b><p>${esc(L(r,"impact"))}${L(r,"owner")?" · "+T("المسؤول: ","Owner: ")+esc(L(r,"owner")):""}</p></div></div>`).join("")||`<p class="label">—</p>`}</div></div>
   </div>
-  ${gaps.length?`<div class="panel card"><div class="card-h"><h3>بيانات ناقصة</h3><span class="label">أرفق هذه التقارير لتحليل أكمل</span></div><div class="gaps">${gaps.map(g=>`<span class="chip warn">${esc(g)}</span>`).join("")}</div></div>`:""}
-  <div class="panel card ask"><div class="card-h"><h3>اسأل عن أدائك</h3><span class="label">Claude يجاوب من بيانات الداش بورد</span></div>
-    <div class="sugs">${["وش أكبر مشكلة لازم أحلها هذا الأسبوع؟","كم موظف أحتاج أضيف للذروة؟","اكتب لي ملخص للإدارة","مين الموظفين اللي يحتاجون تدريب وليش؟"].map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join("")}</div>
-    <div class="ask-row"><input id="q" placeholder="اكتب سؤالك…" autocomplete="off"><button class="btn primary" id="ask-btn">اسأل</button></div>
+  ${gaps.length?`<div class="panel card"><div class="card-h"><h3>${T("بيانات ناقصة","Missing data")}</h3><span class="label">${T("أرفق هذه التقارير لتحليل أكمل","Attach these reports for a fuller analysis")}</span></div><div class="gaps">${gaps.map(g=>`<span class="chip warn">${esc(g)}</span>`).join("")}</div></div>`:""}
+  <div class="panel card ask"><div class="card-h"><h3>${T("اسأل عن أدائك","Ask about your performance")}</h3><span class="label">${T("Claude يجاوب من بيانات الداش بورد","Claude answers from the dashboard data")}</span></div>
+    <div class="sugs">${(lang==="en"?["How far are we from the 80% SLA target?","What changed versus last month?","Write a summary for management","Which agents need coaching and why?"]:["كم باقي عشان نوصل هدف 80% SLA؟","وش تغيّر عن الشهر الماضي؟","اكتب لي ملخص للإدارة","مين الموظفين اللي يحتاجون تدريب وليش؟"]).map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+    <div class="ask-row"><input id="q" placeholder="${T("اكتب سؤالك…","Type your question…")}" autocomplete="off"><button class="btn primary" id="ask-btn">${T("اسأل","Ask")}</button></div>
     <div class="answer" id="answer" hidden></div>
   </div>`;
 
   const gc=$("#go-collect");if(gc)gc.onclick=()=>showTab("collect");
+  const ra=$("#re-analyze");if(ra)ra.onclick=analyze;
   $("#ex-pdf").disabled=!downloads;$("#ex-xlsx").disabled=!downloads;
   $("#ex-pdf").onclick=()=>exportPdf(D);$("#ex-xlsx").onclick=()=>exportXlsx(D);
-  const ra=$("#re-analyze");if(ra)ra.onclick=analyze;
   el.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{$("#q").value=b.dataset.q;ask()});
   $("#ask-btn").onclick=ask;
   $("#q").onkeydown=e=>{if(e.key==="Enter")ask()};
-  if(!sample){$("#ask-btn").disabled=true}
-  drawCharts(D,{hasTrend,hasInt,hasVol,aux});
+  if(!sample)$("#ask-btn").disabled=true;
+  drawCharts(D,{hasTrend,hasInt,hasVol,aux,sla,sd});
   animateIn(k,hs);
+}
+
+/* chart builders shared by screen (dark) and PDF (light) */
+function slaChartCfg(rows,P,opts){
+  const minV=Math.min(SLA_TARGET,...rows.map(r=>r.sl));
+  return {data:{labels:rows.map(r=>r.label),datasets:[
+    {type:"bar",label:"SLA %",data:rows.map(r=>r.sl),backgroundColor:rows.map(r=>r.met?P.good:P.bad),borderRadius:5,maxBarThickness:46,order:2},
+    {type:"line",label:T("الهدف 80%","Target 80%"),data:rows.map(()=>SLA_TARGET),borderColor:P.target,borderDash:[6,5],borderWidth:2,pointRadius:0,order:1}]},
+    options:{...opts,scales:{x:{grid:{display:false},ticks:{color:P.muted}},y:{min:Math.max(0,Math.floor((minV-8)/5)*5),max:100,grid:{color:P.grid},ticks:{color:P.muted,callback:v=>v+"%"}}}}};
+}
+function slaDayCfg(sd,P,opts){
+  return {type:"line",data:{labels:sd.labels,datasets:[
+    {label:"SLA % · "+sd.label,data:sd.values,borderColor:P.line,backgroundColor:P.line+"22",fill:true,tension:.3,borderWidth:2,pointRadius:2.5,pointBackgroundColor:sd.values.map(v=>isNum(v)&&v>=SLA_TARGET?P.good:P.bad)},
+    {label:T("الهدف 80%","Target 80%"),data:sd.labels.map(()=>SLA_TARGET),borderColor:P.target,borderDash:[6,5],borderWidth:2,pointRadius:0,fill:false}]},
+    options:{...opts,scales:{x:{grid:{display:false},ticks:{color:P.muted}},y:{suggestedMin:60,suggestedMax:100,grid:{color:P.grid},ticks:{color:P.muted,callback:v=>v+"%"}}}}};
+}
+function drawCharts(D,f){
+  if(!chartBase())return;
+  const col=["--c1","--c2","--c3","--c4","--c5"].map(css);
+  const grid={color:css("--line")};
+  const rtl=lang!=="en";
+  const common={responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{position:"bottom",rtl,labels:{usePointStyle:true,boxWidth:8}},tooltip:{rtl}}};
+  const P={good:css("--good"),bad:css("--bad"),target:css("--warn"),muted:css("--muted"),grid:css("--line"),line:css("--c1")};
+  if(f.sla.length&&$("#ch-sla"))charts.push(new Chart($("#ch-sla"),slaChartCfg(f.sla.slice(-12),P,common)));
+  if(f.sd&&$("#ch-sladay"))charts.push(new Chart($("#ch-sladay"),slaDayCfg(f.sd,P,common)));
+  if(f.hasTrend){
+    const series=D.trend.series.slice(0,4),units=[...new Set(series.map(s=>s.unit||""))];
+    charts.push(new Chart($("#ch-trend"),{type:"line",data:{labels:D.trend.labels,datasets:series.map((s,i)=>({label:L(s,"name"),data:s.values,borderColor:col[i],backgroundColor:col[i]+"22",fill:i===0,tension:.35,pointRadius:2,borderWidth:2,yAxisID:units.length>1&&s.unit!==units[0]?"y1":"y"}))},options:{...common,scales:{x:{grid:{display:false}},y:{grid,beginAtZero:false},...(units.length>1?{y1:{position:"right",grid:{display:false}}}:{})}}}));
+  }
+  if(f.hasVol){
+    const v=D.volume;
+    charts.push(new Chart($("#ch-vol"),{type:"doughnut",data:{labels:[T("مجابة","Answered"),T("مغلقة","Abandoned")],datasets:[{data:[v.answered||0,v.abandoned||0],backgroundColor:[css("--good"),css("--bad")],borderColor:css("--bg"),borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{position:"bottom",rtl,labels:{usePointStyle:true,boxWidth:8}},tooltip:{rtl}}}}));
+  }
+  if(f.hasInt){
+    const I=D.intervals,ds=[];
+    if(Array.isArray(I.offered))ds.push({type:"bar",label:T("واردة","Offered"),data:I.offered,backgroundColor:css("--c5")+"66",borderRadius:4,yAxisID:"y"});
+    if(Array.isArray(I.answered))ds.push({type:"bar",label:T("مجابة","Answered"),data:I.answered,backgroundColor:css("--c1"),borderRadius:4,yAxisID:"y"});
+    if(Array.isArray(I.sl))ds.push({type:"line",label:"SLA %",data:I.sl,borderColor:css("--c2"),backgroundColor:css("--c2"),tension:.35,pointRadius:3,borderWidth:2.5,yAxisID:"y1"});
+    charts.push(new Chart($("#ch-int"),{data:{labels:I.labels,datasets:ds},options:{...common,scales:{x:{grid:{display:false}},y:{grid,beginAtZero:true},y1:{position:"right",min:0,max:100,grid:{display:false},ticks:{callback:v=>v+"%"}}}}}));
+  }
+  if(f.aux.length){
+    charts.push(new Chart($("#ch-aux"),{type:"bar",data:{labels:f.aux.map(a=>L(a,"reason")),datasets:[{label:"%",data:f.aux.map(a=>a.pct),backgroundColor:css("--c2"),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{rtl}},scales:{x:{grid,beginAtZero:true,ticks:{callback:v=>v+"%"}},y:{grid:{display:false},position:rtl?"right":"left"}}}}));
+  }
 }
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function animateIn(k,hs){
@@ -771,8 +901,7 @@ function animateIn(k,hs){
   if(ring)requestAnimationFrame(()=>requestAnimationFrame(()=>ring.setAttribute("stroke-dashoffset",ring.dataset.to)));
   if(reduce)return;
   const targets=[...document.querySelectorAll(".kpi .v[data-i]")].map(el=>({el,x:k[+el.dataset.i]})).filter(t=>t.x&&isNum(t.x.value));
-  const hsEl=$("#hs-num");
-  const t0=performance.now(),dur=1100;
+  const hsEl=$("#hs-num"),t0=performance.now(),dur=1100;
   (function step(now){
     const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);
     targets.forEach(t=>{t.el.textContent=kpiVal({...t.x,value:t.x.value*e})});
@@ -781,45 +910,16 @@ function animateIn(k,hs){
   })(t0);
 }
 
-function drawCharts(D,f){
-  if(!chartBase())return;
-  const col=["--c1","--c2","--c3","--c4","--c5"].map(css);
-  const grid={color:css("--line")};
-  const common={responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{position:"bottom",rtl:true,labels:{usePointStyle:true,boxWidth:8}},tooltip:{rtl:true}}};
-  if(f.hasTrend){
-    const series=D.trend.series.slice(0,4);
-    const units=[...new Set(series.map(s=>s.unit||""))];
-    charts.push(new Chart($("#ch-trend"),{type:"line",data:{labels:D.trend.labels,datasets:series.map((s,i)=>({label:s.name,data:s.values,borderColor:col[i],backgroundColor:col[i]+"22",fill:i===0,tension:.35,pointRadius:2,borderWidth:2,yAxisID:units.length>1&&s.unit!==units[0]?"y1":"y"}))},options:{...common,scales:{x:{grid:{display:false}},y:{grid,beginAtZero:false},...(units.length>1?{y1:{position:"right",grid:{display:false}}}:{})}}}));
-  }
-  if(f.hasVol){
-    const v=D.volume;const other=isNum(v.offered)&&isNum(v.answered)?Math.max(0,v.offered-v.answered-(v.abandoned||0)):0;
-    const data=[v.answered||0,v.abandoned||0].concat(other?[other]:[]);
-    charts.push(new Chart($("#ch-vol"),{type:"doughnut",data:{labels:["رُدّ عليها","مغلقة"].concat(other?["أخرى"]:[]),datasets:[{data,backgroundColor:[css("--good"),css("--bad"),css("--c5")],borderColor:css("--surface"),borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{position:"bottom",rtl:true,labels:{usePointStyle:true,boxWidth:8}},tooltip:{rtl:true}}}}));
-  }
-  if(f.hasInt){
-    const I=D.intervals;
-    const ds=[];
-    if(Array.isArray(I.offered))ds.push({type:"bar",label:"واردة",data:I.offered,backgroundColor:css("--c5")+"66",borderRadius:4,yAxisID:"y"});
-    if(Array.isArray(I.answered))ds.push({type:"bar",label:"رُدّ",data:I.answered,backgroundColor:css("--c1"),borderRadius:4,yAxisID:"y"});
-    if(Array.isArray(I.sl))ds.push({type:"line",label:"مستوى الخدمة %",data:I.sl,borderColor:css("--c2"),backgroundColor:css("--c2"),tension:.35,pointRadius:3,borderWidth:2.5,yAxisID:"y1"});
-    charts.push(new Chart($("#ch-int"),{data:{labels:I.labels,datasets:ds},options:{...common,scales:{x:{grid:{display:false}},y:{grid,beginAtZero:true},y1:{position:"right",min:0,max:100,grid:{display:false},ticks:{callback:v=>v+"%"}}}}}));
-  }
-  if(f.aux.length){
-    charts.push(new Chart($("#ch-aux"),{type:"bar",data:{labels:f.aux.map(a=>a.reason),datasets:[{label:"%",data:f.aux.map(a=>a.pct),backgroundColor:css("--c2"),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{rtl:true}},scales:{x:{grid,beginAtZero:true,ticks:{callback:v=>v+"%"}},y:{grid:{display:false},position:"right"}}}}));
-  }
-}
-
 let askCtl=null;
 async function ask(){
   const q=$("#q").value.trim();if(!q||!sample)return;
-  const out=$("#answer");out.hidden=false;out.textContent="يفكر…";
+  const out=$("#answer");out.hidden=false;out.textContent=T("يفكر…","Thinking…");
   if(askCtl)askCtl.abort();askCtl=new AbortController();
   const D=dashboard||DEMO;
   try{
-    await sample(`أنت محلل أداء مراكز اتصال خبير في Avaya. أجب بالعربية باختصار ووضوح وبنقاط عملية، معتمداً فقط على البيانات التالية${D.example?" (ملاحظة: هذه بيانات مثال توضيحية)":""}.\n\nالبيانات:\n${JSON.stringify(D).slice(0,60000)}\n\nالسؤال: ${q}`,{signal:askCtl.signal,cache:false,onText:({text})=>{out.textContent=text}});
+    await sample(`You are an expert contact-center performance analyst (Avaya). The SLA target is 80% every month. Answer ${lang==="en"?"in English":"in Arabic (Gulf-friendly, clear)"}, concise, practical bullet points, using ONLY this data${D.example?" (note: this is illustrative example data)":""}.\n\nDATA:\n${JSON.stringify(D).slice(0,60000)}\n\nQUESTION: ${q}`,{signal:askCtl.signal,cache:false,onText:({text})=>{out.textContent=text}});
   }catch(e){if(e&&e.code!=="cancelled")out.textContent=(e.text?e.text+"\n\n":"")+errCopy(e.code)}
 }
-
 
 /* ---------- export: PDF report + Power BI-ready Excel ---------- */
 const H2C="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -827,80 +927,90 @@ const JSPDF="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js
 function loadScript(src){return new Promise((res,rej)=>{const ex=document.querySelector('script[src="'+src+'"]');if(ex&&ex.dataset.ok){res();return}const sc=ex||document.createElement("script");sc.addEventListener("load",()=>{sc.dataset.ok="1";res()});sc.addEventListener("error",()=>rej(new Error("load")));if(!ex){sc.src=src;document.head.appendChild(sc)}})}
 const exStatus=(t,err)=>{const e=$("#ex-status");if(e){e.textContent=t;e.style.color=err?"var(--bad)":""}};
 const safeName=t=>String(t||"report").replace(/[\\/:*?"<>|]+/g,"").replace(/\s+/g,"_").slice(0,60);
-const stTxt={good:"ضمن الهدف",warn:"قريب",bad:"خارج الهدف",na:"—"};
 async function saveFile(filename,data){
-  try{await downloads.save({filename,data});exStatus("تم تجهيز الملف: "+filename)}
-  catch(e){exStatus(e&&e.code==="cancelled"||e&&e.code==="declined"?"تم إلغاء الحفظ.":"تعذّر حفظ الملف. أعد المحاولة.",!(e&&(e.code==="cancelled"||e.code==="declined")))}
+  try{await downloads.save({filename,data});exStatus(T("تم تجهيز الملف: ","File ready: ")+filename)}
+  catch(e){const c=e&&e.code;const cancel=c==="cancelled"||c==="declined";exStatus(cancel?T("تم إلغاء الحفظ.","Save cancelled."):T("تعذّر حفظ الملف. أعد المحاولة.","Couldn't save the file. Try again."),!cancel)}
 }
 
 function reportHtml(D){
   const k=(D.kpis||[]).slice(0,8),sk=(D.skills||[]).slice(0,14),ag=(D.agents||[]).slice().sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,22);
-  const mpr=D.mpr||[],aux=(D.aux||[]).slice(0,8),ins=(D.insights||[]).slice(0,7),rec=(D.recommendations||[]).slice(0,7),gaps=D.data_gaps||[];
-  const today=new Date().toLocaleDateString("en-GB");
+  const mpr=D.mpr||[],aux=(D.aux||[]).slice(0,8),ins=(D.insights||[]).slice(0,7),rec=(D.recommendations||[]).slice(0,7);
+  const gaps=(lang==="en"&&Array.isArray(D.data_gaps_en)&&D.data_gaps_en.length?D.data_gaps_en:D.data_gaps)||[];
+  const today=new Date().toLocaleDateString("en-GB"),TP=L(D,"title_period");
   const hs=isNum(D.health_score)?Math.round(D.health_score):null;
   const hsC=hs==null?"var(--rp-line)":hs>=80?"var(--rp-good)":hs>=60?"var(--rp-warn)":"var(--rp-bad)";
-  const wm=D.example?'<div class="wm">بيانات مثال</div>':"";
-  const band=(t,sm)=>`<div class="band${sm?" sm":""}"><div><div class="sub">Avaya CMS · Contact Center Performance</div><h1>${esc(t)}</h1></div><div class="meta"><span dir="rtl" style="unicode-bidi:isolate">${esc(D.title_period||"")}</span><br>Issued ${today}</div></div>`;
-  const foot=n=>`<div class="foot"><span>تقرير أداء مركز الاتصال · ${esc(D.title_period||"")}</span><span>سري · للاستخدام الداخلي</span><span>صفحة ${n}</span></div>`;
+  const wm=D.example?`<div class="wm">${T("بيانات مثال","EXAMPLE DATA")}</div>`:"";
+  const band=(t,sm)=>`<div class="band${sm?" sm":""}"><div><div class="sub">Avaya CMS · Contact Center Performance</div><h1>${esc(t)}</h1></div><div class="meta"><span dir="auto" style="unicode-bidi:isolate">${esc(TP)}</span><br>Issued ${today}</div></div>`;
+  let n=0;
+  const foot=()=>`<div class="foot"><span>${T("تقرير أداء مركز الاتصال","Contact center performance report")} · ${esc(TP)}</span><span>${T("سري · للاستخدام الداخلي","Confidential · internal use")}</span><span>${T("صفحة","Page")} ${++n}</span></div>`;
   const maxAux=Math.max(1,...aux.map(a=>a.pct||0));
   const hasTrend=D.trend&&Array.isArray(D.trend.labels)&&D.trend.labels.length;
   const hasInt=D.intervals&&Array.isArray(D.intervals.labels)&&D.intervals.labels.length;
-  const srcs=entries.length?entries.map(e=>`${esc(e.name)}${e.period?" ("+esc(e.period)+")":""}`).join(" · "):"بيانات مثال توضيحية";
-  let n=0;
-  const p1=`<div class="pg">${wm}${band("تقرير أداء مركز الاتصال الشهري (MPR)")}<div class="in">
-    <div class="exec"><div class="score" style="border-color:${hsC}"><div><b style="color:${hsC}">${hs==null?"—":hs}</b><small>مؤشر الأداء من 100</small></div></div><div><h3>${esc(D.headline||"")}</h3><p>${esc(D.summary||"")}</p></div></div>
-    ${D.volume?`<div class="vol"><div><span class="small">المكالمات الواردة</span><b>${fmtN(D.volume.offered)}</b></div><div><span class="small">المكالمات المجابة</span><b style="color:var(--rp-good)">${fmtN(D.volume.answered)}</b></div><div><span class="small">المكالمات المغلقة</span><b style="color:var(--rp-bad)">${fmtN(D.volume.abandoned)}</b></div><div><span class="small">نسبة الرد</span><b>${isNum(D.volume.offered)&&D.volume.offered?fmtPct(D.volume.answered/D.volume.offered*100):"—"}</b></div></div>`:""}
-    <h2>مؤشرات الأداء الرئيسية</h2>
-    <div class="kg">${k.map(x=>`<div class="k ${esc(x.status)}"><div class="l">${esc(x.label)}</div><div class="v">${kpiVal(x)}</div><div class="t">الهدف: ${esc(x.target||"—")} · <span class="st ${esc(x.status||"na")}">${stTxt[x.status]||"—"}</span></div></div>`).join("")}</div>
-  </div>${foot(++n)}</div>`;
-  const pM=(mpr.length||D.months)?`<div class="pg">${wm}${band("MPR · مقارنة الأداء الشهري",1)}<div class="in">
-    <p class="small" style="margin:0">مقارنة ${esc(mLabels(D).join(" ثم "))}. الشهر الحالي محسوب من أول الشهر حتى تاريخ التقرير.</p>
-    ${monthTilesHtml(D,true)}
-    ${mpr.length?`<h2>بطاقة الأداء الشهري</h2>${mprTableHtml(D,true)}`:""}
-  </div>${foot(++n)}</div>`:"";
-  const p2=(hasTrend||hasInt||sk.length||D.volume)?`<div class="pg">${wm}${band("الاتجاهات والحمل وأداء المهارات",1)}<div class="in">
-    ${hasTrend?`<div class="cbox"><div class="ct">${esc(D.trend.title||"الاتجاه")}</div><canvas data-ch="trend" width="690" height="230"></canvas></div>`:""}
-    ${hasInt?`<div class="cbox"><div class="ct">الحمل ومستوى الخدمة حسب الساعة</div><canvas data-ch="int" width="690" height="230"></canvas></div>`:""}
-    ${sk.length?`<h2>أداء المهارات / الطوابير</h2><table><thead><tr><th>المهارة</th><th>واردة</th><th>مجابة</th><th>مستوى الخدمة</th><th>الإغلاق</th><th>ASA</th><th>AHT</th></tr></thead><tbody>${sk.map(x=>`<tr><td>${esc(x.name)}</td><td class="n">${fmtN(x.offered)}</td><td class="n">${fmtN(x.answered)}</td><td class="n">${fmtPct(x.sl_pct)}</td><td class="n">${fmtPct(x.abandon_pct)}</td><td class="n">${fmtSec(x.asa_sec)}</td><td class="n">${fmtSec(x.aht_sec)}</td></tr>`).join("")}</tbody></table>`:""}
-  </div>${foot(++n)}</div>`:"";
-  const p3=(ag.length||aux.length)?`<div class="pg">${wm}${band("أداء الموظفين ووقت AUX",1)}<div class="in">
-    ${ag.length?`<h2>ترتيب الموظفين</h2><table><thead><tr><th>#</th><th>الموظف</th><th>المكالمات</th><th>AHT</th><th>ACW</th><th>AUX</th><th>الإشغال</th><th>FCR</th><th>التقييم</th><th>التصنيف</th></tr></thead><tbody>${ag.map((a,i)=>`<tr><td class="n">${i+1}</td><td>${esc(a.name)}</td><td class="n">${fmtN(a.calls)}</td><td class="n">${fmtSec(a.aht_sec)}</td><td class="n">${fmtSec(a.acw_sec)}</td><td class="n">${fmtPct(a.aux_pct)}</td><td class="n">${fmtPct(a.occupancy_pct)}</td><td class="n">${fmtPct(a.fcr_pct)}</td><td class="n"><b>${fmtN(a.score)}</b></td><td><span class="st ${a.flag==="top"?"good":a.flag==="coach"?"bad":"na"}">${a.flag==="top"?"متميز":a.flag==="coach"?"يحتاج تدريب":"جيد"}</span></td></tr>`).join("")}</tbody></table>`:""}
-    ${aux.length?`<div class="two"><div class="cbox"><div class="ct">توزيع وقت AUX (% من وقت الدوام)</div>${aux.map(a=>`<div class="hb"><span>${esc(a.reason)}</span><i style="width:${(a.pct||0)/maxAux*100}%"></i><span>${fmtPct(a.pct)}</span></div>`).join("")}</div>${D.volume?`<div class="cbox"><div class="ct">مصير المكالمات</div><canvas data-ch="vol" width="320" height="200"></canvas></div>`:""}</div>`:""}
-  </div>${foot(++n)}</div>`:"";
-  const p4=`<div class="pg">${wm}${band("الملاحظات وخطة العمل",1)}<div class="in">
-    ${ins.length?`<h2>أبرز الملاحظات</h2><div class="ins">${ins.map(i=>`<div class="${esc(i.type)}"><b>${esc(i.title)}</b><p>${esc(i.detail)}</p></div>`).join("")}</div>`:""}
-    ${rec.length?`<h2>خطة العمل المقترحة</h2><table><thead><tr><th>الأولوية</th><th>الإجراء</th><th>الأثر المتوقع</th><th>المسؤول</th></tr></thead><tbody>${rec.map(x=>`<tr><td><span class="st ${x.priority==="high"?"bad":x.priority==="medium"?"warn":"na"}">${x.priority==="high"?"عاجل":x.priority==="medium"?"متوسط":"منخفض"}</span></td><td style="white-space:normal">${esc(x.action)}</td><td style="white-space:normal">${esc(x.impact)}</td><td>${esc(x.owner||"")}</td></tr>`).join("")}</tbody></table>`:""}
-    ${gaps.length?`<h2>بيانات ناقصة</h2><ul class="small" style="margin:0">${gaps.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>`:""}
-    <h2>المصادر والمنهجية</h2><p class="small" style="margin:0">المصادر: ${srcs}.<br>الأهداف المرجعية ما لم تحدد التقارير غيرها: مستوى الخدمة 80% خلال 20 ثانية، الإغلاق ≤ 5%، FCR ≥ 70%، الإشغال 75–85%، AUX ≤ 12%. نسبة FCR المحسوبة من أرقام المتصلين تقديرية. التحليل مُعدّ بمساعدة الذكاء الاصطناعي ويُنصح بمراجعة الأرقام الحرجة.</p>
-  </div>${foot(++n)}</div>`;
-  return p1+pM+p2+p3+p4;
+  const sla=slaRows(D),sd=slaDaily(D),mvm=mvmRows(D),Lb=mLabels(D),metN=sla.filter(r=>r.met).length;
+  const srcs=entries.length?entries.map(e=>`${esc(e.name)}${e.period?" ("+esc(e.period)+")":""}`).join(" · "):T("بيانات مثال توضيحية","Illustrative example data");
+  const p1=`<div class="pg">${wm}${band(T("تقرير أداء مركز الاتصال الشهري (MPR)","Monthly Contact Center Performance Report (MPR)"))}<div class="in">
+    <div class="exec"><div class="score" style="border-color:${hsC}"><div><b style="color:${hsC}">${hs==null?"—":hs}</b><small>${T("مؤشر الأداء من 100","Performance score / 100")}</small></div></div><div><h3>${esc(L(D,"headline"))}</h3><p>${esc(L(D,"summary"))}</p></div></div>
+    ${D.volume?`<div class="vol"><div><span class="small">${T("المكالمات الواردة","Calls offered")}</span><b>${fmtN(D.volume.offered)}</b></div><div><span class="small">${T("المكالمات المجابة","Calls answered")}</span><b style="color:var(--rp-good)">${fmtN(D.volume.answered)}</b></div><div><span class="small">${T("المكالمات المغلقة","Calls abandoned")}</span><b style="color:var(--rp-bad)">${fmtN(D.volume.abandoned)}</b></div><div><span class="small">${T("نسبة الرد","Answer rate")}</span><b>${isNum(D.volume.offered)&&D.volume.offered?fmtPct(D.volume.answered/D.volume.offered*100):"—"}</b></div></div>`:""}
+    <h2>${T("مؤشرات الأداء الرئيسية","Key performance indicators")}</h2>
+    <div class="kg">${k.map(x=>`<div class="k ${esc(x.status)}"><div class="l">${esc(L(x,"label"))}</div><div class="v">${kpiVal(x)}</div><div class="t">${T("الهدف:","Target:")} ${esc(x.target||"—")} · <span class="st ${esc(x.status||"na")}">${stTxt(x.status)}</span></div></div>`).join("")}</div>
+    ${sla.length?`<h2>${T("هدف SLA ‏80% لكل شهر","SLA 80% target by month")} · ${T(`تحقق في ${metN} من ${sla.length} أشهر`,`met in ${metN} of ${sla.length} months`)}</h2><div class="cbox"><canvas data-ch="sla" width="690" height="190"></canvas></div>`:""}
+  </div>${foot()}</div>`;
+  const pS=(sla.length||sd||mvm.length)?`<div class="pg">${wm}${band(T("هدف SLA ‏80% ومقارنة الشهرين","SLA 80% target & month vs month"),1)}<div class="in">
+    ${sla.length?`<h2>${T("تحقيق هدف 80% شهرياً","80% target achievement by month")}</h2>${slaMonthsHtml(sla)}`:""}
+    ${sd?`<div class="cbox"><div class="ct">${esc(sd.label)} · ${T(`${sd.met} من ${sd.total} يوم فوق 80%`,`${sd.met} of ${sd.total} days at 80%+`)}</div><canvas data-ch="sladay" width="690" height="200"></canvas></div>`:""}
+    ${mvm.length?`<h2>${T("مقارنة الشهرين","Month vs month")}: ${esc(Lb[1])} ${lang==="en"?"→":"←"} ${esc(Lb[2])} · ▲ ${mvm.filter(r=>r.better===true).length} ▼ ${mvm.filter(r=>r.better===false).length}</h2>${mvmTableHtml(D,true)}`:""}
+  </div>${foot()}</div>`:"";
+  const pM=(mpr.length||D.months)?`<div class="pg">${wm}${band(T("MPR · مقارنة 3 أشهر","MPR · 3-month comparison"),1)}<div class="in">
+    <p class="small" style="margin:0">${T(`مقارنة ${Lb.join(" ثم ")}. الشهر الحالي محسوب من أول الشهر حتى تاريخ التقرير.`,`Comparing ${Lb.join(", ")}. The current month runs from the 1st to the report date.`)}</p>
+    ${monthTilesHtml(D)}
+    ${mpr.length?`<h2>${T("بطاقة الأداء الشهري","Monthly scorecard")}</h2>${mprTableHtml(D,true)}`:""}
+  </div>${foot()}</div>`:"";
+  const p2=(hasTrend||hasInt||sk.length)?`<div class="pg">${wm}${band(T("الاتجاهات والحمل وأداء المهارات","Trends, load and skill performance"),1)}<div class="in">
+    ${hasTrend?`<div class="cbox"><div class="ct">${esc(L(D.trend,"title"))}</div><canvas data-ch="trend" width="690" height="220"></canvas></div>`:""}
+    ${hasInt?`<div class="cbox"><div class="ct">${T("الحمل ومستوى الخدمة حسب الساعة","Load and service level by hour")}</div><canvas data-ch="int" width="690" height="220"></canvas></div>`:""}
+    ${sk.length?`<h2>${T("أداء المهارات / الطوابير","Skill / queue performance")}</h2><table><thead><tr><th>${T("المهارة","Skill")}</th><th>${T("واردة","Offered")}</th><th>${T("مجابة","Answered")}</th><th>SLA</th><th>${T("الإغلاق","Abandon")}</th><th>ASA</th><th>AHT</th></tr></thead><tbody>${sk.map(x=>`<tr><td>${esc(x.name)}</td><td class="n">${fmtN(x.offered)}</td><td class="n">${fmtN(x.answered)}</td><td class="n" style="color:${isNum(x.sl_pct)?(x.sl_pct>=SLA_TARGET?"var(--rp-good)":"var(--rp-bad)"):""}">${fmtPct(x.sl_pct)}</td><td class="n">${fmtPct(x.abandon_pct)}</td><td class="n">${fmtSec(x.asa_sec)}</td><td class="n">${fmtSec(x.aht_sec)}</td></tr>`).join("")}</tbody></table>`:""}
+  </div>${foot()}</div>`:"";
+  const p3=(ag.length||aux.length)?`<div class="pg">${wm}${band(T("أداء الموظفين ووقت AUX","Agent performance and AUX time"),1)}<div class="in">
+    ${ag.length?`<h2>${T("ترتيب الموظفين","Agent ranking")}</h2><table><thead><tr><th>#</th><th>${T("الموظف","Agent")}</th><th>${T("المكالمات","Calls")}</th><th>AHT</th><th>ACW</th><th>AUX</th><th>${T("الإشغال","Occ.")}</th><th>FCR</th><th>${T("التقييم","Score")}</th><th>${T("التصنيف","Rating")}</th></tr></thead><tbody>${ag.map((a,i)=>`<tr><td class="n">${i+1}</td><td>${esc(a.name)}</td><td class="n">${fmtN(a.calls)}</td><td class="n">${fmtSec(a.aht_sec)}</td><td class="n">${fmtSec(a.acw_sec)}</td><td class="n">${fmtPct(a.aux_pct)}</td><td class="n">${fmtPct(a.occupancy_pct)}</td><td class="n">${fmtPct(a.fcr_pct)}</td><td class="n"><b>${fmtN(a.score)}</b></td><td><span class="st ${a.flag==="top"?"good":a.flag==="coach"?"bad":"na"}">${a.flag==="top"?T("متميز","Top"):a.flag==="coach"?T("يحتاج تدريب","Coach"):T("جيد","Good")}</span></td></tr>`).join("")}</tbody></table>`:""}
+    ${aux.length?`<div class="two"><div class="cbox"><div class="ct">${T("توزيع وقت AUX (% من وقت الدوام)","AUX breakdown (% of staffed time)")}</div>${aux.map(a=>`<div class="hb"><span>${esc(L(a,"reason"))}</span><i style="width:${(a.pct||0)/maxAux*100}%"></i><span>${fmtPct(a.pct)}</span></div>`).join("")}</div>${D.volume?`<div class="cbox"><div class="ct">${T("مصير المكالمات","Call outcome")}</div><canvas data-ch="vol" width="320" height="200"></canvas></div>`:""}</div>`:""}
+  </div>${foot()}</div>`:"";
+  const p4=`<div class="pg">${wm}${band(T("الملاحظات وخطة العمل","Insights and action plan"),1)}<div class="in">
+    ${ins.length?`<h2>${T("أبرز الملاحظات","Key insights")}</h2><div class="ins">${ins.map(i=>`<div class="${esc(i.type)}"><b>${esc(L(i,"title"))}</b><p>${esc(L(i,"detail"))}</p></div>`).join("")}</div>`:""}
+    ${rec.length?`<h2>${T("خطة العمل المقترحة","Recommended actions")}</h2><table><thead><tr><th>${T("الأولوية","Priority")}</th><th>${T("الإجراء","Action")}</th><th>${T("الأثر المتوقع","Expected impact")}</th><th>${T("المسؤول","Owner")}</th></tr></thead><tbody>${rec.map(x=>`<tr><td><span class="st ${x.priority==="high"?"bad":x.priority==="medium"?"warn":"na"}">${x.priority==="high"?T("عاجل","High"):x.priority==="medium"?T("متوسط","Medium"):T("منخفض","Low")}</span></td><td style="white-space:normal">${esc(L(x,"action"))}</td><td style="white-space:normal">${esc(L(x,"impact"))}</td><td>${esc(L(x,"owner"))}</td></tr>`).join("")}</tbody></table>`:""}
+    ${gaps.length?`<h2>${T("بيانات ناقصة","Missing data")}</h2><ul class="small" style="margin:0">${gaps.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>`:""}
+    <h2>${T("المصادر والمنهجية","Sources and method")}</h2><p class="small" style="margin:0">${T("المصادر:","Sources:")} ${srcs}.<br>${T("الأهداف: مستوى الخدمة 80% كل شهر، الإغلاق ≤ 5%، FCR ≥ 70%، الإشغال 75–85%، AUX ≤ 12%. نسبة FCR المحسوبة من أرقام المتصلين تقديرية. التحليل مُعدّ بمساعدة الذكاء الاصطناعي ويُنصح بمراجعة الأرقام الحرجة.","Targets: service level 80% every month, abandons ≤ 5%, FCR ≥ 70%, occupancy 75–85%, AUX ≤ 12%. FCR derived from caller numbers is an estimate. Prepared with AI assistance; please verify critical figures.")}</p>
+  </div>${foot()}</div>`;
+  return p1+pS+pM+p2+p3+p4;
 }
 function drawReportCharts(host,D){
   const out=[];if(!window.Chart)return out;
   const RC={ink:"#13203A",muted:"#5D6C82",line:"#E3E9F0",c:["#0891B2","#7C3AED","#2563EB","#B91C1C"],good:"#15803D",bad:"#B91C1C",gray:"#94A3B8"};
-  const base={responsive:false,animation:false,devicePixelRatio:2,plugins:{legend:{position:"bottom",rtl:true,labels:{color:RC.ink,usePointStyle:true,boxWidth:8,font:{family:css("--f-body"),size:11}}}}};
+  const rtl=lang!=="en";
+  const base={responsive:false,animation:false,devicePixelRatio:2,plugins:{legend:{position:"bottom",rtl,labels:{color:RC.ink,usePointStyle:true,boxWidth:8,font:{family:css("--f-body"),size:11}}}}};
+  const P={good:RC.good,bad:RC.bad,target:"#B45309",muted:RC.muted,grid:RC.line,line:RC.c[0]};
   const sc=ex=>({x:{grid:{display:false},ticks:{color:RC.muted}},y:{grid:{color:RC.line},ticks:{color:RC.muted}},...ex});
-  const t=host.querySelector('[data-ch="trend"]');
-  if(t){const series=D.trend.series.slice(0,4);const units=[...new Set(series.map(s=>s.unit||""))];
-    out.push(new Chart(t,{type:"line",data:{labels:D.trend.labels,datasets:series.map((s,i)=>({label:s.name,data:s.values,borderColor:RC.c[i],backgroundColor:RC.c[i]+"22",fill:i===0,tension:.35,pointRadius:2,borderWidth:2,yAxisID:units.length>1&&s.unit!==units[0]?"y1":"y"}))},options:{...base,scales:sc(units.length>1?{y1:{position:"right",grid:{display:false},ticks:{color:RC.muted}}}:{})}}))}
-  const it=host.querySelector('[data-ch="int"]');
-  if(it){const I=D.intervals,ds=[];
-    if(Array.isArray(I.offered))ds.push({type:"bar",label:"واردة",data:I.offered,backgroundColor:RC.gray+"88",yAxisID:"y"});
-    if(Array.isArray(I.answered))ds.push({type:"bar",label:"مجابة",data:I.answered,backgroundColor:RC.c[0],yAxisID:"y"});
-    if(Array.isArray(I.sl))ds.push({type:"line",label:"مستوى الخدمة %",data:I.sl,borderColor:RC.c[1],backgroundColor:RC.c[1],tension:.35,borderWidth:2.5,yAxisID:"y1"});
-    out.push(new Chart(it,{data:{labels:I.labels,datasets:ds},options:{...base,scales:sc({y1:{position:"right",min:0,max:100,grid:{display:false},ticks:{color:RC.muted,callback:v=>v+"%"}}})}}))}
-  const v=host.querySelector('[data-ch="vol"]');
-  if(v&&D.volume){out.push(new Chart(v,{type:"doughnut",data:{labels:["مجابة","مغلقة"],datasets:[{data:[D.volume.answered||0,D.volume.abandoned||0],backgroundColor:[RC.good,RC.bad],borderColor:"#fff",borderWidth:3}]},options:{...base,cutout:"65%"}}))}
+  const q=s=>host.querySelector('[data-ch="'+s+'"]');
+  const sla=slaRows(D),sd=slaDaily(D);
+  if(q("sla")&&sla.length)out.push(new Chart(q("sla"),slaChartCfg(sla.slice(-12),P,base)));
+  if(q("sladay")&&sd)out.push(new Chart(q("sladay"),slaDayCfg(sd,P,base)));
+  if(q("trend")){const series=D.trend.series.slice(0,4),units=[...new Set(series.map(s=>s.unit||""))];
+    out.push(new Chart(q("trend"),{type:"line",data:{labels:D.trend.labels,datasets:series.map((s,i)=>({label:L(s,"name"),data:s.values,borderColor:RC.c[i],backgroundColor:RC.c[i]+"22",fill:i===0,tension:.35,pointRadius:2,borderWidth:2,yAxisID:units.length>1&&s.unit!==units[0]?"y1":"y"}))},options:{...base,scales:sc(units.length>1?{y1:{position:"right",grid:{display:false},ticks:{color:RC.muted}}}:{})}}))}
+  if(q("int")){const I=D.intervals,ds=[];
+    if(Array.isArray(I.offered))ds.push({type:"bar",label:T("واردة","Offered"),data:I.offered,backgroundColor:RC.gray+"88",yAxisID:"y"});
+    if(Array.isArray(I.answered))ds.push({type:"bar",label:T("مجابة","Answered"),data:I.answered,backgroundColor:RC.c[0],yAxisID:"y"});
+    if(Array.isArray(I.sl))ds.push({type:"line",label:"SLA %",data:I.sl,borderColor:RC.c[1],backgroundColor:RC.c[1],tension:.35,borderWidth:2.5,yAxisID:"y1"});
+    out.push(new Chart(q("int"),{data:{labels:I.labels,datasets:ds},options:{...base,scales:sc({y1:{position:"right",min:0,max:100,grid:{display:false},ticks:{color:RC.muted,callback:v=>v+"%"}}})}}))}
+  if(q("vol")&&D.volume)out.push(new Chart(q("vol"),{type:"doughnut",data:{labels:[T("مجابة","Answered"),T("مغلقة","Abandoned")],datasets:[{data:[D.volume.answered||0,D.volume.abandoned||0],backgroundColor:[RC.good,RC.bad],borderColor:"#fff",borderWidth:3}]},options:{...base,cutout:"65%"}}));
   return out;
 }
 let exporting=false;
 async function exportPdf(D){
-  if(!downloads||exporting)return;exporting=true;exStatus("جاري تجهيز تقرير PDF… (10 إلى 20 ثانية)");
+  if(!downloads||exporting)return;exporting=true;exStatus(T("جاري تجهيز تقرير PDF… (10 إلى 20 ثانية)","Building the PDF report… (10 to 20 seconds)"));
   let host,rc=[];
   try{
     await Promise.all([loadScript(H2C),loadScript(JSPDF)]);
     try{await document.fonts.ready}catch(e){}
-    host=document.createElement("div");host.className="rpt";host.setAttribute("dir","rtl");host.setAttribute("lang","ar");host.innerHTML=reportHtml(D);document.body.appendChild(host);
+    host=document.createElement("div");host.className="rpt";host.setAttribute("dir",lang==="en"?"ltr":"rtl");host.setAttribute("lang",lang);host.innerHTML=reportHtml(D);document.body.appendChild(host);
     rc=drawReportCharts(host,D);
     await new Promise(r=>setTimeout(r,150));
     const pdf=new window.jspdf.jsPDF({unit:"pt",format:"a4",compress:true});
@@ -917,40 +1027,42 @@ async function exportPdf(D){
       }
     }
     pdf.setProperties({title:"Contact Center Performance Report",subject:"Avaya CMS MPR",creator:"Avaya Reports Center"});
-    await saveFile("Avaya_Performance_Report_"+safeName(D.title_period)+".pdf",pdf.output("blob"));
-  }catch(e){exStatus("تعذّر إنشاء PDF. تأكد من الاتصال بالإنترنت ثم أعد المحاولة.",true)}
+    await saveFile((lang==="en"?"Avaya_Performance_Report_EN_":"Avaya_Performance_Report_AR_")+safeName(L(D,"title_period"))+".pdf",pdf.output("blob"));
+  }catch(e){exStatus(T("تعذّر إنشاء PDF. تأكد من الاتصال بالإنترنت ثم أعد المحاولة.","Couldn't build the PDF. Check your connection and try again."),true)}
   finally{rc.forEach(c=>c.destroy());if(host)host.remove();exporting=false}
 }
 function exportXlsx(D){
   if(!downloads)return;
-  if(!window.XLSX){exStatus("مكتبة Excel لم تُحمّل. أعد تحميل الصفحة.",true);return}
-  const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};
+  if(!window.XLSX){exStatus(T("مكتبة Excel لم تُحمّل. أعد تحميل الصفحة.","The Excel library didn't load. Reload the page."),true);return}
+  const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:lang!=="en"}]};
   const add=(name,rows,widths)=>{if(!rows||rows.length<2)return;const ws=XLSX.utils.aoa_to_sheet(rows);if(widths)ws["!cols"]=widths.map(w=>({wch:w}));ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:0,c:rows[0].length-1}})};XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31))};
-  const N=v=>isNum(v)?v:null, P=D.title_period||"";
-  // cover/summary (Arabic, for reading)
-  const sum=[["تقرير أداء مركز الاتصال (Avaya CMS)",""],["الفترة",P],["تاريخ الإصدار",new Date().toLocaleDateString("en-GB")],["مؤشر الأداء (من 100)",N(D.health_score)],["العنوان",D.headline||""],["الملخص التنفيذي",D.summary||""],["عدد التقارير المصدر",entries.length],["ملاحظة",D.example?"بيانات مثال توضيحية":"مُعدّ بمساعدة الذكاء الاصطناعي من تقارير Avaya"]];
-  const ws0=XLSX.utils.aoa_to_sheet(sum);ws0["!cols"]=[{wch:26},{wch:110}];XLSX.utils.book_append_sheet(wb,ws0,"Summary");
-  // Power BI-ready flat tables (English headers, one row per record)
-  add("KPIs",[["Period","KPI_ID","KPI","Value","Unit","Target","Status","Change","Source"],...(D.kpis||[]).map(k=>[P,k.id,k.label,N(k.value),k.unit,k.target,k.status,k.delta||"",k.source||""])],[16,12,26,10,8,16,8,18,26]);
-  const ML=mLabels(D);
-  add("MPR",[["Metric","Target",ML[0],ML[1],ML[2]+" (Current)","Change_vs_last","Achievement_pct","Status"],...(D.mpr||[]).map(m=>[m.metric,m.target,m.m2??"",m.m1??"",m.m0??m.actual??"",m.change||"",N(m.achievement_pct),m.status])],[24,14,16,16,20,18,16,10]);
-  if(D.months&&Array.isArray(D.months.series)){const rows=[["Month","Month_Order","KPI","Unit","Value","Target","Lower_is_better"]];D.months.series.forEach(sr=>(sr.values||[]).slice(0,3).forEach((v,i)=>rows.push([ML[i],i+1,sr.name,sr.unit||"",N(v),N(sr.target),sr.lower_is_better?1:0])));add("MPR_Months",rows,[16,12,22,8,10,10,14])}
+  const N=v=>isNum(v)?v:null,P=L(D,"title_period");
+  const sum=[[T("تقرير أداء مركز الاتصال (Avaya CMS)","Contact Center Performance Report (Avaya CMS)"),""],[T("الفترة","Period"),P],[T("تاريخ الإصدار","Issued"),new Date().toLocaleDateString("en-GB")],[T("مؤشر الأداء (من 100)","Performance score (/100)"),N(D.health_score)],[T("هدف SLA الشهري","Monthly SLA target"),SLA_TARGET+"%"],[T("العنوان","Headline"),L(D,"headline")],[T("الملخص التنفيذي","Executive summary"),L(D,"summary")],[T("عدد التقارير المصدر","Source reports"),entries.length],[T("ملاحظة","Note"),D.example?T("بيانات مثال توضيحية","Illustrative example data"):T("مُعدّ بمساعدة الذكاء الاصطناعي من تقارير Avaya","Prepared with AI assistance from Avaya reports")]];
+  const ws0=XLSX.utils.aoa_to_sheet(sum);ws0["!cols"]=[{wch:28},{wch:110}];XLSX.utils.book_append_sheet(wb,ws0,"Summary");
+  add("KPIs",[["Period","KPI_ID","KPI_AR","KPI_EN","Value","Unit","Target","Status","Change","Source"],...(D.kpis||[]).map(k=>[P,k.id,k.label,k.label_en||"",N(k.value),k.unit,k.target,k.status,k.delta||"",k.source||""])],[16,10,24,24,10,8,14,8,12,24]);
+  const sla=slaRows(D);
+  add("SLA_Monthly",[["Month","Month_Order","SL_pct","Target_pct","Gap_pts","Target_Met","Offered","Within_SLA","Calls_needed_for_80"],...sla.map((r,i)=>[r.label,i+1,N(r.sl),SLA_TARGET,Math.round(r.gap*10)/10,r.met?"Yes":"No",N(r.offered),N(r.within),N(r.need)])],[14,12,9,11,9,11,10,11,18]);
+  const sd=slaDaily(D);
+  if(sd)add("SLA_Daily",[["Month","Day","SL_pct","Target_pct","Target_Met"],...sd.labels.map((l,i)=>[sd.label,l,N(sd.values[i]),SLA_TARGET,isNum(sd.values[i])?(sd.values[i]>=SLA_TARGET?"Yes":"No"):""])],[14,8,9,11,11]);
+  const ML=mLabels(D),mvm=mvmRows(D);
+  add("Month_vs_Month",[["Metric",ML[1]+" (Last)",ML[2]+" (Current)","Difference","Change_pct","Result"],...mvm.map(r=>[r.name,N(r.prev),N(r.cur),isNum(r.d)?Math.round(r.d*100)/100:null,isNum(r.pc)?Math.round(r.pc*10)/10:null,r.better===true?"Improved":r.better===false?"Declined":"Flat"])],[24,16,18,12,12,10]);
+  add("MPR",[["Metric_AR","Metric_EN","Target",ML[0],ML[1],ML[2]+" (Current)","Change","Achievement_pct","Status"],...(D.mpr||[]).map(m=>[m.metric,m.metric_en||"",m.target,m.m2??"",m.m1??"",m.m0??m.actual??"",L(m,"change"),N(m.achievement_pct),m.status])],[22,22,12,14,14,18,14,15,9]);
+  if(D.months&&Array.isArray(D.months.series)){const rows=[["Month","Month_Order","KPI","Unit","Value","Target","Lower_is_better"]];D.months.series.forEach(sr=>(sr.values||[]).slice(0,3).forEach((v,i)=>rows.push([ML[i],i+1,L(sr,"name"),sr.unit||"",N(v),N(sr.target),sr.lower_is_better?1:0])));add("MPR_Months",rows,[14,12,22,8,10,10,14])}
   add("Volume",D.volume?[["Period","Offered","Answered","Abandoned","Answer_rate_pct"],[P,N(D.volume.offered),N(D.volume.answered),N(D.volume.abandoned),isNum(D.volume.offered)&&D.volume.offered?Math.round(D.volume.answered/D.volume.offered*1000)/10:null]]:null,[16,12,12,12,16]);
-  add("Skills",[["Period","Skill","Offered","Answered","SL_pct","Abandon_pct","ASA_sec","AHT_sec"],...(D.skills||[]).map(x=>[P,x.name,N(x.offered),N(x.answered),N(x.sl_pct),N(x.abandon_pct),N(x.asa_sec),N(x.aht_sec)])],[16,26,10,10,9,11,9,9]);
-  add("Agents",[["Period","Rank","Agent","Calls","AHT_sec","ACW_sec","AUX_pct","Occupancy_pct","FCR_pct","Score","Flag"],...(D.agents||[]).slice().sort((a,b)=>(b.score||0)-(a.score||0)).map((a,i)=>[P,i+1,a.name,N(a.calls),N(a.aht_sec),N(a.acw_sec),N(a.aux_pct),N(a.occupancy_pct),N(a.fcr_pct),N(a.score),a.flag])],[16,6,24,8,9,9,9,13,9,7,8]);
-  add("AUX",[["Period","Reason","Pct"],...(D.aux||[]).map(a=>[P,a.reason,N(a.pct)])],[16,24,8]);
-  if(D.trend&&Array.isArray(D.trend.labels)){const rows=[["Period","Label","Series","Unit","Value"]];(D.trend.series||[]).forEach(s=>D.trend.labels.forEach((l,i)=>rows.push([P,l,s.name,s.unit||"",N((s.values||[])[i])])));add("Trend",rows,[16,12,22,8,10])}
+  add("Skills",[["Period","Skill","Offered","Answered","SL_pct","SLA_Target_Met","Abandon_pct","ASA_sec","AHT_sec"],...(D.skills||[]).map(x=>[P,x.name,N(x.offered),N(x.answered),N(x.sl_pct),isNum(x.sl_pct)?(x.sl_pct>=SLA_TARGET?"Yes":"No"):"",N(x.abandon_pct),N(x.asa_sec),N(x.aht_sec)])],[16,24,10,10,9,14,11,9,9]);
+  add("Agents",[["Period","Rank","Agent","Calls","AHT_sec","ACW_sec","AUX_pct","Occupancy_pct","FCR_pct","Score","Flag"],...(D.agents||[]).slice().sort((a,b)=>(b.score||0)-(a.score||0)).map((a,i)=>[P,i+1,a.name,N(a.calls),N(a.aht_sec),N(a.acw_sec),N(a.aux_pct),N(a.occupancy_pct),N(a.fcr_pct),N(a.score),a.flag])],[16,6,22,8,9,9,9,13,9,7,8]);
+  add("AUX",[["Period","Reason_AR","Reason_EN","Pct"],...(D.aux||[]).map(a=>[P,a.reason,a.reason_en||"",N(a.pct)])],[16,20,20,8]);
+  if(D.trend&&Array.isArray(D.trend.labels)){const rows=[["Period","Label","Series","Unit","Value"]];(D.trend.series||[]).forEach(s=>D.trend.labels.forEach((l,i)=>rows.push([P,l,L(s,"name"),s.unit||"",N((s.values||[])[i])])));add("Trend",rows,[16,10,22,8,10])}
   if(D.intervals&&Array.isArray(D.intervals.labels)){const I=D.intervals;add("Intervals",[["Period","Interval","Offered","Answered","SL_pct"],...I.labels.map((l,i)=>[P,l,N((I.offered||[])[i]),N((I.answered||[])[i]),N((I.sl||[])[i])])],[16,10,10,10,9])}
-  add("Insights",[["Type","Title","Detail"],...(D.insights||[]).map(i=>[i.type,i.title,i.detail])],[12,34,90]);
-  add("Actions",[["Priority","Action","Impact","Owner"],...(D.recommendations||[]).map(r=>[r.priority,r.action,r.impact,r.owner||""])],[10,60,46,20]);
-  // raw extracted report data, long format
-  const raw=[["Report","Type","Period","Metric","Value"]];
-  entries.forEach(e=>Object.entries(e.metrics||{}).forEach(([m,v])=>raw.push([e.name,e.typeId,e.period,m,isNum(v)?v:String(v)])));
-  add("Source_Metrics",raw,[40,22,22,22,12]);
+  add("Insights",[["Type","Title_AR","Detail_AR","Title_EN","Detail_EN"],...(D.insights||[]).map(i=>[i.type,i.title,i.detail,i.title_en||"",i.detail_en||""])],[12,30,70,30,70]);
+  add("Actions",[["Priority","Action_AR","Impact_AR","Owner_AR","Action_EN","Impact_EN","Owner_EN"],...(D.recommendations||[]).map(r=>[r.priority,r.action,r.impact,r.owner||"",r.action_en||"",r.impact_en||"",r.owner_en||""])],[10,50,36,16,50,36,16]);
+  const raw=[["Report","Type","Month_Slot","Period","Metric","Value"]];
+  entries.forEach(e=>{const t=typeOf(e.typeId);Object.entries(e.metrics||{}).forEach(([m,v])=>raw.push([e.name,baseOf(e.typeId),t.month?SLOT_EN[t.slot]+" ("+t.month.en+")":"",e.period,m,isNum(v)?v:String(v)]))});
+  add("Source_Metrics",raw,[40,22,26,22,22,12]);
   let ti=0;
   entries.forEach(e=>((e.data&&e.data.tables)||[]).forEach(t=>{if(ti>=20||!Array.isArray(t.columns)||!Array.isArray(t.rows))return;ti++;add("Src"+ti+"_"+safeName(e.name).replace(/^CrysKSA_/,"").slice(0,22),[t.columns,...t.rows],t.columns.map(()=>14))}));
   const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
-  saveFile("Avaya_PowerBI_"+safeName(P)+".xlsx",new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  saveFile((lang==="en"?"Avaya_PowerBI_EN_":"Avaya_PowerBI_AR_")+safeName(P)+".xlsx",new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
 }
 
 /* ---------- tabs ---------- */
@@ -964,11 +1076,6 @@ function showTab(name){
 }
 $("#tab-collect").onclick=()=>showTab("collect");
 $("#tab-dash").onclick=()=>showTab("dash");
-
-/* re-theme charts when the viewer theme changes */
-const rerender=()=>{if(!$("#view-dash").hidden&&!busy)renderDash()};
-try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",rerender)}catch(e){}
-new MutationObserver(rerender).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 
 /* ---------- animated network background ---------- */
 (function(){
@@ -991,7 +1098,7 @@ new MutationObserver(rerender).observe(document.documentElement,{attributes:true
 })();
 
 /* ---------- boot ---------- */
-const migrate=()=>entries.forEach(e=>{if(!TYPES.some(t=>t.id===e.typeId)&&TYPES.some(t=>t.base===e.typeId))e.typeId=e.typeId+"@m0"});
+applyStatic();
 lsLoad();migrate();
 currentId=(nextType()||{}).id||null;
 renderCollect();renderDash();
@@ -1001,7 +1108,7 @@ try{if(localStorage.getItem(LS+"-tab")==="dash")showTab("dash")}catch(e){}
   if(!window.claude||!claude.use)return;
   const [s,d,u,dl]=await Promise.all([claude.use("sample"),claude.use("db"),claude.use("user"),claude.use("downloads")]);
   sample=s;db=d;downloads=dl;
-  if(sample){const lv=$("#live");lv.classList.remove("off");lv.lastChild.textContent="AI ONLINE"}
+  if(sample){$("#live").classList.remove("off");$("#live-t").textContent="AI ONLINE"}
   if(u&&db){try{uid=await u.id()}catch(e){uid=null}}
   await loadDb();migrate();
   currentId=(nextType()||{}).id||null;
