@@ -230,6 +230,58 @@ body::before{background:rgba(5,10,21,.9)}
 .export code{font-family:var(--f-data);font-size:12px;background:var(--surface-2);padding:1px 6px;border-radius:5px;color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.gridbg{animation:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- export + printable report (light A4 document, rendered off-screen) ---- */
+:root{--rp-bg:#FFFFFF;--rp-ink:#13203A;--rp-muted:#5D6C82;--rp-line:#DCE3EC;--rp-soft:#F3F6FA;--rp-navy:#0A1630;--rp-accent:#0891B2;--rp-violet:#7C3AED;--rp-good:#15803D;--rp-warn:#B45309;--rp-bad:#B91C1C}
+.exportp .req-actions{gap:10px}
+.exportp .ex-note{font-size:13px;color:var(--muted);margin:0}
+.rpt{position:fixed;left:-12000px;top:0;width:794px;background:var(--rp-bg);color:var(--rp-ink);font-family:var(--f-body);font-size:12.5px;line-height:1.6}
+.rpt .pg{width:794px;min-height:1123px;padding:0 0 30px;background:var(--rp-bg);position:relative;display:flex;flex-direction:column}
+.rpt .in{padding:28px 46px 0;display:grid;gap:18px;flex:1;align-content:start}
+.rpt .band{background:linear-gradient(120deg,var(--rp-navy),#0F2A4F 70%,#123C63);color:#fff;padding:26px 46px 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:4px solid var(--rp-accent)}
+.rpt .band.sm{padding:16px 46px 14px}
+.rpt .band h1{font-family:var(--f-display);font-size:26px;margin:0;line-height:1.3}
+.rpt .band.sm h1{font-size:18px}
+.rpt .band .sub{font-size:12px;color:#9FD8E8}
+.rpt .band .meta{text-align:left;font-size:11.5px;color:#C9D6E8;direction:ltr;font-family:var(--f-data)}
+.rpt h2{font-family:var(--f-display);font-size:16px;margin:0;color:var(--rp-navy);display:flex;align-items:center;gap:8px}
+.rpt h2::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--rp-accent)}
+.rpt .exec{display:grid;grid-template-columns:150px 1fr;gap:22px;align-items:center;background:var(--rp-soft);border:1px solid var(--rp-line);border-radius:10px;padding:18px}
+.rpt .score{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;text-align:center;border:10px solid var(--rp-line)}
+.rpt .score b{font-family:var(--f-data);font-size:40px;line-height:1;display:block}
+.rpt .score small{font-size:11px;color:var(--rp-muted)}
+.rpt .exec h3{font-family:var(--f-display);font-size:17px;margin:0 0 6px;line-height:1.45}
+.rpt .exec p{margin:0;color:var(--rp-muted)}
+.rpt .kg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rpt .k{border:1px solid var(--rp-line);border-radius:8px;padding:10px 12px;border-inline-start:4px solid var(--rp-line)}
+.rpt .k.good{border-inline-start-color:var(--rp-good)}.rpt .k.warn{border-inline-start-color:var(--rp-warn)}.rpt .k.bad{border-inline-start-color:var(--rp-bad)}
+.rpt .k .l{font-size:11px;color:var(--rp-muted);font-weight:600}
+.rpt .k .v{font-family:var(--f-data);font-size:21px;font-weight:700;direction:ltr;text-align:right}
+.rpt .k .t{font-size:10.5px;color:var(--rp-muted)}
+.rpt .vol{display:flex;gap:10px}
+.rpt .vol div{flex:1;border-radius:8px;padding:10px 12px;background:var(--rp-soft);border:1px solid var(--rp-line)}
+.rpt .vol b{font-family:var(--f-data);font-size:18px;display:block;direction:ltr;text-align:right}
+.rpt table{width:100%;border-collapse:collapse;font-size:11.5px}
+.rpt th{background:var(--rp-navy);color:#fff;font-weight:600;padding:7px 8px;text-align:right;white-space:nowrap}
+.rpt td{padding:6px 8px;border-bottom:1px solid var(--rp-line);white-space:nowrap}
+.rpt tr:nth-child(even) td{background:var(--rp-soft)}
+.rpt td.n{font-family:var(--f-data);direction:ltr;text-align:right}
+.rpt .st{display:inline-block;padding:1px 8px;border-radius:99px;font-size:10.5px;font-weight:700}
+.rpt .st.good{background:#DCFCE7;color:var(--rp-good)}.rpt .st.warn{background:#FEF3C7;color:var(--rp-warn)}.rpt .st.bad{background:#FEE2E2;color:var(--rp-bad)}.rpt .st.na{background:var(--rp-soft);color:var(--rp-muted)}
+.rpt .cbox{border:1px solid var(--rp-line);border-radius:10px;padding:12px}
+.rpt .cbox .ct{font-weight:700;font-size:12.5px;margin-bottom:6px}
+.rpt .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rpt .hb{display:grid;grid-template-columns:120px 1fr 52px;gap:8px;align-items:center;font-size:11.5px;margin-bottom:6px}
+.rpt .hb i{display:block;height:9px;border-radius:5px;background:var(--rp-violet)}
+.rpt .hb span:last-child{font-family:var(--f-data);direction:ltr;text-align:right}
+.rpt .ins{display:grid;gap:8px}
+.rpt .ins div{border:1px solid var(--rp-line);border-radius:8px;padding:9px 12px;border-inline-start:4px solid var(--rp-accent)}
+.rpt .ins div.risk{border-inline-start-color:var(--rp-bad)}.rpt .ins div.strength{border-inline-start-color:var(--rp-good)}.rpt .ins div.opportunity{border-inline-start-color:var(--rp-violet)}
+.rpt .ins b{display:block}
+.rpt .ins p{margin:0;color:var(--rp-muted)}
+.rpt .foot{position:absolute;bottom:12px;left:46px;right:46px;display:flex;justify-content:space-between;font-size:10px;color:var(--rp-muted);border-top:1px solid var(--rp-line);padding-top:6px}
+.rpt .wm{position:absolute;top:420px;left:0;right:0;text-align:center;font-family:var(--f-display);font-size:90px;color:rgba(185,28,28,.07);transform:rotate(-18deg);pointer-events:none}
+.rpt .small{font-size:11px;color:var(--rp-muted)}
 </style>
 
 <canvas id="bg" aria-hidden="true"></canvas><div class="gridbg" aria-hidden="true"></div>
@@ -314,7 +366,7 @@ let skipped=new Set();
 let currentId=null;   // type being requested
 let dashboard=null;   // real result
 let busy=false;
-let sample=null,db=null,uid=null;
+let sample=null,db=null,uid=null,downloads=null;
 
 /* ---------- persistence: private per-viewer db, else browser storage ---------- */
 const LS="avaya-dash-v1";
@@ -617,7 +669,10 @@ function renderDash(){
   const flag={top:`<span class="chip good">متميز</span>`,coach:`<span class="chip bad">يحتاج تدريب</span>`,ok:`<span class="chip">جيد</span>`};
   const lvl=(v,good,bad,low)=>!isNum(v)?"":low?(v<=good?"good":v>=bad?"bad":"warn"):(v>=good?"good":v<=bad?"bad":"warn");
 
-  el.innerHTML=top+kpiHtml+`
+  const exportHtml=`<div class="panel card exportp"><div class="card-h"><h3>تصدير للإدارة</h3><span class="label">${D.example?"البيانات الحالية مثال توضيحي":"من آخر تحليل"}</span></div>
+    <div class="req-actions"><button class="btn primary" id="ex-pdf">تقرير PDF احترافي</button><button class="btn" id="ex-xlsx">Excel جاهز لـ Power BI</button></div>
+    <p class="ex-note" id="ex-status">${downloads?"PDF: غلاف وملخص تنفيذي ورسوم ومؤشرات MPR والموظفين والتوصيات. Excel: جدول منظم لكل نوع بيانات، يفتح مباشرة في Power BI.":"التصدير متاح عند فتح الصفحة داخل claude.ai."}</p></div>`;
+  el.innerHTML=top+exportHtml+kpiHtml+`
   ${hasTrend||hasVol?`<div class="grid2">
     ${hasTrend?`<div class="panel card"><div class="card-h"><h3>${esc(D.trend.title||"الاتجاه")}</h3></div><div class="chart-box"><canvas id="ch-trend" aria-label="${esc(D.trend.title||"")}"></canvas></div></div>`:`<div class="panel card"><div class="card-h"><h3>الاتجاه</h3></div><p class="label">لا توجد بيانات يومية أو شهرية. أرفق تقرير Daily أو Monthly.</p></div>`}
     ${hasVol?`<div class="panel card"><div class="card-h"><h3>مصير المكالمات</h3><span class="label">من إجمالي الواردة</span></div><div class="chart-box sm"><canvas id="ch-vol"></canvas></div></div>`:""}
@@ -641,6 +696,8 @@ function renderDash(){
   </div>`;
 
   const gc=$("#go-collect");if(gc)gc.onclick=()=>showTab("collect");
+  $("#ex-pdf").disabled=!downloads;$("#ex-xlsx").disabled=!downloads;
+  $("#ex-pdf").onclick=()=>exportPdf(D);$("#ex-xlsx").onclick=()=>exportXlsx(D);
   const ra=$("#re-analyze");if(ra)ra.onclick=analyze;
   el.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{$("#q").value=b.dataset.q;ask()});
   $("#ask-btn").onclick=ask;
@@ -704,6 +761,133 @@ async function ask(){
   }catch(e){if(e&&e.code!=="cancelled")out.textContent=(e.text?e.text+"\n\n":"")+errCopy(e.code)}
 }
 
+
+/* ---------- export: PDF report + Power BI-ready Excel ---------- */
+const H2C="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+const JSPDF="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+function loadScript(src){return new Promise((res,rej)=>{const ex=document.querySelector('script[src="'+src+'"]');if(ex&&ex.dataset.ok){res();return}const sc=ex||document.createElement("script");sc.addEventListener("load",()=>{sc.dataset.ok="1";res()});sc.addEventListener("error",()=>rej(new Error("load")));if(!ex){sc.src=src;document.head.appendChild(sc)}})}
+const exStatus=(t,err)=>{const e=$("#ex-status");if(e){e.textContent=t;e.style.color=err?"var(--bad)":""}};
+const safeName=t=>String(t||"report").replace(/[\\/:*?"<>|]+/g,"").replace(/\s+/g,"_").slice(0,60);
+const stTxt={good:"ضمن الهدف",warn:"قريب",bad:"خارج الهدف",na:"—"};
+async function saveFile(filename,data){
+  try{await downloads.save({filename,data});exStatus("تم تجهيز الملف: "+filename)}
+  catch(e){exStatus(e&&e.code==="cancelled"||e&&e.code==="declined"?"تم إلغاء الحفظ.":"تعذّر حفظ الملف. أعد المحاولة.",!(e&&(e.code==="cancelled"||e.code==="declined")))}
+}
+
+function reportHtml(D){
+  const k=(D.kpis||[]).slice(0,8),sk=(D.skills||[]).slice(0,14),ag=(D.agents||[]).slice().sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,22);
+  const mpr=D.mpr||[],aux=(D.aux||[]).slice(0,8),ins=(D.insights||[]).slice(0,7),rec=(D.recommendations||[]).slice(0,7),gaps=D.data_gaps||[];
+  const today=new Date().toLocaleDateString("en-GB");
+  const hs=isNum(D.health_score)?Math.round(D.health_score):null;
+  const hsC=hs==null?"var(--rp-line)":hs>=80?"var(--rp-good)":hs>=60?"var(--rp-warn)":"var(--rp-bad)";
+  const wm=D.example?'<div class="wm">بيانات مثال</div>':"";
+  const band=(t,sm)=>`<div class="band${sm?" sm":""}"><div><div class="sub">Avaya CMS · Contact Center Performance</div><h1>${esc(t)}</h1></div><div class="meta"><span dir="rtl" style="unicode-bidi:isolate">${esc(D.title_period||"")}</span><br>Issued ${today}</div></div>`;
+  const foot=n=>`<div class="foot"><span>تقرير أداء مركز الاتصال · ${esc(D.title_period||"")}</span><span>سري · للاستخدام الداخلي</span><span>صفحة ${n}</span></div>`;
+  const maxAux=Math.max(1,...aux.map(a=>a.pct||0));
+  const hasTrend=D.trend&&Array.isArray(D.trend.labels)&&D.trend.labels.length;
+  const hasInt=D.intervals&&Array.isArray(D.intervals.labels)&&D.intervals.labels.length;
+  const srcs=entries.length?entries.map(e=>`${esc(e.name)}${e.period?" ("+esc(e.period)+")":""}`).join(" · "):"بيانات مثال توضيحية";
+  let n=0;
+  const p1=`<div class="pg">${wm}${band("تقرير أداء مركز الاتصال الشهري (MPR)")}<div class="in">
+    <div class="exec"><div class="score" style="border-color:${hsC}"><div><b style="color:${hsC}">${hs==null?"—":hs}</b><small>مؤشر الأداء من 100</small></div></div><div><h3>${esc(D.headline||"")}</h3><p>${esc(D.summary||"")}</p></div></div>
+    ${D.volume?`<div class="vol"><div><span class="small">المكالمات الواردة</span><b>${fmtN(D.volume.offered)}</b></div><div><span class="small">المكالمات المجابة</span><b style="color:var(--rp-good)">${fmtN(D.volume.answered)}</b></div><div><span class="small">المكالمات المغلقة</span><b style="color:var(--rp-bad)">${fmtN(D.volume.abandoned)}</b></div><div><span class="small">نسبة الرد</span><b>${isNum(D.volume.offered)&&D.volume.offered?fmtPct(D.volume.answered/D.volume.offered*100):"—"}</b></div></div>`:""}
+    <h2>مؤشرات الأداء الرئيسية</h2>
+    <div class="kg">${k.map(x=>`<div class="k ${esc(x.status)}"><div class="l">${esc(x.label)}</div><div class="v">${kpiVal(x)}</div><div class="t">الهدف: ${esc(x.target||"—")} · <span class="st ${esc(x.status||"na")}">${stTxt[x.status]||"—"}</span></div></div>`).join("")}</div>
+    ${mpr.length?`<h2>بطاقة الأداء الشهري MPR</h2><table><thead><tr><th>المؤشر</th><th>الهدف</th><th>الفعلي</th><th>نسبة التحقيق</th><th>الحالة</th></tr></thead><tbody>${mpr.map(m=>`<tr><td>${esc(m.metric)}</td><td class="n">${esc(m.target)}</td><td class="n"><b>${esc(m.actual)}</b></td><td class="n">${isNum(m.achievement_pct)?Math.round(m.achievement_pct)+"%":"—"}</td><td><span class="st ${esc(m.status||"na")}">${stTxt[m.status]||"—"}</span></td></tr>`).join("")}</tbody></table>`:""}
+  </div>${foot(++n)}</div>`;
+  const p2=(hasTrend||hasInt||sk.length||D.volume)?`<div class="pg">${wm}${band("الاتجاهات والحمل وأداء المهارات",1)}<div class="in">
+    ${hasTrend?`<div class="cbox"><div class="ct">${esc(D.trend.title||"الاتجاه")}</div><canvas data-ch="trend" width="690" height="230"></canvas></div>`:""}
+    ${hasInt?`<div class="cbox"><div class="ct">الحمل ومستوى الخدمة حسب الساعة</div><canvas data-ch="int" width="690" height="230"></canvas></div>`:""}
+    ${sk.length?`<h2>أداء المهارات / الطوابير</h2><table><thead><tr><th>المهارة</th><th>واردة</th><th>مجابة</th><th>مستوى الخدمة</th><th>الإغلاق</th><th>ASA</th><th>AHT</th></tr></thead><tbody>${sk.map(x=>`<tr><td>${esc(x.name)}</td><td class="n">${fmtN(x.offered)}</td><td class="n">${fmtN(x.answered)}</td><td class="n">${fmtPct(x.sl_pct)}</td><td class="n">${fmtPct(x.abandon_pct)}</td><td class="n">${fmtSec(x.asa_sec)}</td><td class="n">${fmtSec(x.aht_sec)}</td></tr>`).join("")}</tbody></table>`:""}
+  </div>${foot(++n)}</div>`:"";
+  const p3=(ag.length||aux.length)?`<div class="pg">${wm}${band("أداء الموظفين ووقت AUX",1)}<div class="in">
+    ${ag.length?`<h2>ترتيب الموظفين</h2><table><thead><tr><th>#</th><th>الموظف</th><th>المكالمات</th><th>AHT</th><th>ACW</th><th>AUX</th><th>الإشغال</th><th>FCR</th><th>التقييم</th><th>التصنيف</th></tr></thead><tbody>${ag.map((a,i)=>`<tr><td class="n">${i+1}</td><td>${esc(a.name)}</td><td class="n">${fmtN(a.calls)}</td><td class="n">${fmtSec(a.aht_sec)}</td><td class="n">${fmtSec(a.acw_sec)}</td><td class="n">${fmtPct(a.aux_pct)}</td><td class="n">${fmtPct(a.occupancy_pct)}</td><td class="n">${fmtPct(a.fcr_pct)}</td><td class="n"><b>${fmtN(a.score)}</b></td><td><span class="st ${a.flag==="top"?"good":a.flag==="coach"?"bad":"na"}">${a.flag==="top"?"متميز":a.flag==="coach"?"يحتاج تدريب":"جيد"}</span></td></tr>`).join("")}</tbody></table>`:""}
+    ${aux.length?`<div class="two"><div class="cbox"><div class="ct">توزيع وقت AUX (% من وقت الدوام)</div>${aux.map(a=>`<div class="hb"><span>${esc(a.reason)}</span><i style="width:${(a.pct||0)/maxAux*100}%"></i><span>${fmtPct(a.pct)}</span></div>`).join("")}</div>${D.volume?`<div class="cbox"><div class="ct">مصير المكالمات</div><canvas data-ch="vol" width="320" height="200"></canvas></div>`:""}</div>`:""}
+  </div>${foot(++n)}</div>`:"";
+  const p4=`<div class="pg">${wm}${band("الملاحظات وخطة العمل",1)}<div class="in">
+    ${ins.length?`<h2>أبرز الملاحظات</h2><div class="ins">${ins.map(i=>`<div class="${esc(i.type)}"><b>${esc(i.title)}</b><p>${esc(i.detail)}</p></div>`).join("")}</div>`:""}
+    ${rec.length?`<h2>خطة العمل المقترحة</h2><table><thead><tr><th>الأولوية</th><th>الإجراء</th><th>الأثر المتوقع</th><th>المسؤول</th></tr></thead><tbody>${rec.map(x=>`<tr><td><span class="st ${x.priority==="high"?"bad":x.priority==="medium"?"warn":"na"}">${x.priority==="high"?"عاجل":x.priority==="medium"?"متوسط":"منخفض"}</span></td><td style="white-space:normal">${esc(x.action)}</td><td style="white-space:normal">${esc(x.impact)}</td><td>${esc(x.owner||"")}</td></tr>`).join("")}</tbody></table>`:""}
+    ${gaps.length?`<h2>بيانات ناقصة</h2><ul class="small" style="margin:0">${gaps.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>`:""}
+    <h2>المصادر والمنهجية</h2><p class="small" style="margin:0">المصادر: ${srcs}.<br>الأهداف المرجعية ما لم تحدد التقارير غيرها: مستوى الخدمة 80% خلال 20 ثانية، الإغلاق ≤ 5%، FCR ≥ 70%، الإشغال 75–85%، AUX ≤ 12%. نسبة FCR المحسوبة من أرقام المتصلين تقديرية. التحليل مُعدّ بمساعدة الذكاء الاصطناعي ويُنصح بمراجعة الأرقام الحرجة.</p>
+  </div>${foot(++n)}</div>`;
+  return p1+p2+p3+p4;
+}
+function drawReportCharts(host,D){
+  const out=[];if(!window.Chart)return out;
+  const RC={ink:"#13203A",muted:"#5D6C82",line:"#E3E9F0",c:["#0891B2","#7C3AED","#2563EB","#B91C1C"],good:"#15803D",bad:"#B91C1C",gray:"#94A3B8"};
+  const base={responsive:false,animation:false,devicePixelRatio:2,plugins:{legend:{position:"bottom",rtl:true,labels:{color:RC.ink,usePointStyle:true,boxWidth:8,font:{family:css("--f-body"),size:11}}}}};
+  const sc=ex=>({x:{grid:{display:false},ticks:{color:RC.muted}},y:{grid:{color:RC.line},ticks:{color:RC.muted}},...ex});
+  const t=host.querySelector('[data-ch="trend"]');
+  if(t){const series=D.trend.series.slice(0,4);const units=[...new Set(series.map(s=>s.unit||""))];
+    out.push(new Chart(t,{type:"line",data:{labels:D.trend.labels,datasets:series.map((s,i)=>({label:s.name,data:s.values,borderColor:RC.c[i],backgroundColor:RC.c[i]+"22",fill:i===0,tension:.35,pointRadius:2,borderWidth:2,yAxisID:units.length>1&&s.unit!==units[0]?"y1":"y"}))},options:{...base,scales:sc(units.length>1?{y1:{position:"right",grid:{display:false},ticks:{color:RC.muted}}}:{})}}))}
+  const it=host.querySelector('[data-ch="int"]');
+  if(it){const I=D.intervals,ds=[];
+    if(Array.isArray(I.offered))ds.push({type:"bar",label:"واردة",data:I.offered,backgroundColor:RC.gray+"88",yAxisID:"y"});
+    if(Array.isArray(I.answered))ds.push({type:"bar",label:"مجابة",data:I.answered,backgroundColor:RC.c[0],yAxisID:"y"});
+    if(Array.isArray(I.sl))ds.push({type:"line",label:"مستوى الخدمة %",data:I.sl,borderColor:RC.c[1],backgroundColor:RC.c[1],tension:.35,borderWidth:2.5,yAxisID:"y1"});
+    out.push(new Chart(it,{data:{labels:I.labels,datasets:ds},options:{...base,scales:sc({y1:{position:"right",min:0,max:100,grid:{display:false},ticks:{color:RC.muted,callback:v=>v+"%"}}})}}))}
+  const v=host.querySelector('[data-ch="vol"]');
+  if(v&&D.volume){out.push(new Chart(v,{type:"doughnut",data:{labels:["مجابة","مغلقة"],datasets:[{data:[D.volume.answered||0,D.volume.abandoned||0],backgroundColor:[RC.good,RC.bad],borderColor:"#fff",borderWidth:3}]},options:{...base,cutout:"65%"}}))}
+  return out;
+}
+let exporting=false;
+async function exportPdf(D){
+  if(!downloads||exporting)return;exporting=true;exStatus("جاري تجهيز تقرير PDF… (10 إلى 20 ثانية)");
+  let host,rc=[];
+  try{
+    await Promise.all([loadScript(H2C),loadScript(JSPDF)]);
+    try{await document.fonts.ready}catch(e){}
+    host=document.createElement("div");host.className="rpt";host.setAttribute("dir","rtl");host.setAttribute("lang","ar");host.innerHTML=reportHtml(D);document.body.appendChild(host);
+    rc=drawReportCharts(host,D);
+    await new Promise(r=>setTimeout(r,150));
+    const pdf=new window.jspdf.jsPDF({unit:"pt",format:"a4",compress:true});
+    const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
+    let first=true;
+    for(const pg of host.querySelectorAll(".pg")){
+      const c=await html2canvas(pg,{scale:2,backgroundColor:"#ffffff",logging:false,windowWidth:900});
+      const per=Math.floor(c.width*H/W);
+      for(let y=0;y<c.height;y+=per){
+        const h=Math.min(per,c.height-y);if(h<60&&!first)break;
+        const sl=document.createElement("canvas");sl.width=c.width;sl.height=h;sl.getContext("2d").drawImage(c,0,y,c.width,h,0,0,c.width,h);
+        if(!first)pdf.addPage();first=false;
+        pdf.addImage(sl.toDataURL("image/jpeg",0.93),"JPEG",0,0,W,h*W/c.width);
+      }
+    }
+    pdf.setProperties({title:"Contact Center Performance Report",subject:"Avaya CMS MPR",creator:"Avaya Reports Center"});
+    await saveFile("Avaya_Performance_Report_"+safeName(D.title_period)+".pdf",pdf.output("blob"));
+  }catch(e){exStatus("تعذّر إنشاء PDF. تأكد من الاتصال بالإنترنت ثم أعد المحاولة.",true)}
+  finally{rc.forEach(c=>c.destroy());if(host)host.remove();exporting=false}
+}
+function exportXlsx(D){
+  if(!downloads)return;
+  if(!window.XLSX){exStatus("مكتبة Excel لم تُحمّل. أعد تحميل الصفحة.",true);return}
+  const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};
+  const add=(name,rows,widths)=>{if(!rows||rows.length<2)return;const ws=XLSX.utils.aoa_to_sheet(rows);if(widths)ws["!cols"]=widths.map(w=>({wch:w}));ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:0,c:rows[0].length-1}})};XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31))};
+  const N=v=>isNum(v)?v:null, P=D.title_period||"";
+  // cover/summary (Arabic, for reading)
+  const sum=[["تقرير أداء مركز الاتصال (Avaya CMS)",""],["الفترة",P],["تاريخ الإصدار",new Date().toLocaleDateString("en-GB")],["مؤشر الأداء (من 100)",N(D.health_score)],["العنوان",D.headline||""],["الملخص التنفيذي",D.summary||""],["عدد التقارير المصدر",entries.length],["ملاحظة",D.example?"بيانات مثال توضيحية":"مُعدّ بمساعدة الذكاء الاصطناعي من تقارير Avaya"]];
+  const ws0=XLSX.utils.aoa_to_sheet(sum);ws0["!cols"]=[{wch:26},{wch:110}];XLSX.utils.book_append_sheet(wb,ws0,"Summary");
+  // Power BI-ready flat tables (English headers, one row per record)
+  add("KPIs",[["Period","KPI_ID","KPI","Value","Unit","Target","Status","Change","Source"],...(D.kpis||[]).map(k=>[P,k.id,k.label,N(k.value),k.unit,k.target,k.status,k.delta||"",k.source||""])],[16,12,26,10,8,16,8,18,26]);
+  add("MPR",[["Period","Metric","Target","Actual","Achievement_pct","Status"],...(D.mpr||[]).map(m=>[P,m.metric,m.target,m.actual,N(m.achievement_pct),m.status])],[16,24,14,14,16,10]);
+  add("Volume",D.volume?[["Period","Offered","Answered","Abandoned","Answer_rate_pct"],[P,N(D.volume.offered),N(D.volume.answered),N(D.volume.abandoned),isNum(D.volume.offered)&&D.volume.offered?Math.round(D.volume.answered/D.volume.offered*1000)/10:null]]:null,[16,12,12,12,16]);
+  add("Skills",[["Period","Skill","Offered","Answered","SL_pct","Abandon_pct","ASA_sec","AHT_sec"],...(D.skills||[]).map(x=>[P,x.name,N(x.offered),N(x.answered),N(x.sl_pct),N(x.abandon_pct),N(x.asa_sec),N(x.aht_sec)])],[16,26,10,10,9,11,9,9]);
+  add("Agents",[["Period","Rank","Agent","Calls","AHT_sec","ACW_sec","AUX_pct","Occupancy_pct","FCR_pct","Score","Flag"],...(D.agents||[]).slice().sort((a,b)=>(b.score||0)-(a.score||0)).map((a,i)=>[P,i+1,a.name,N(a.calls),N(a.aht_sec),N(a.acw_sec),N(a.aux_pct),N(a.occupancy_pct),N(a.fcr_pct),N(a.score),a.flag])],[16,6,24,8,9,9,9,13,9,7,8]);
+  add("AUX",[["Period","Reason","Pct"],...(D.aux||[]).map(a=>[P,a.reason,N(a.pct)])],[16,24,8]);
+  if(D.trend&&Array.isArray(D.trend.labels)){const rows=[["Period","Label","Series","Unit","Value"]];(D.trend.series||[]).forEach(s=>D.trend.labels.forEach((l,i)=>rows.push([P,l,s.name,s.unit||"",N((s.values||[])[i])])));add("Trend",rows,[16,12,22,8,10])}
+  if(D.intervals&&Array.isArray(D.intervals.labels)){const I=D.intervals;add("Intervals",[["Period","Interval","Offered","Answered","SL_pct"],...I.labels.map((l,i)=>[P,l,N((I.offered||[])[i]),N((I.answered||[])[i]),N((I.sl||[])[i])])],[16,10,10,10,9])}
+  add("Insights",[["Type","Title","Detail"],...(D.insights||[]).map(i=>[i.type,i.title,i.detail])],[12,34,90]);
+  add("Actions",[["Priority","Action","Impact","Owner"],...(D.recommendations||[]).map(r=>[r.priority,r.action,r.impact,r.owner||""])],[10,60,46,20]);
+  // raw extracted report data, long format
+  const raw=[["Report","Type","Period","Metric","Value"]];
+  entries.forEach(e=>Object.entries(e.metrics||{}).forEach(([m,v])=>raw.push([e.name,e.typeId,e.period,m,isNum(v)?v:String(v)])));
+  add("Source_Metrics",raw,[40,22,22,22,12]);
+  let ti=0;
+  entries.forEach(e=>((e.data&&e.data.tables)||[]).forEach(t=>{if(ti>=20||!Array.isArray(t.columns)||!Array.isArray(t.rows))return;ti++;add("Src"+ti+"_"+safeName(e.name).replace(/^CrysKSA_/,"").slice(0,22),[t.columns,...t.rows],t.columns.map(()=>14))}));
+  const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+  saveFile("Avaya_PowerBI_"+safeName(P)+".xlsx",new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+}
+
 /* ---------- tabs ---------- */
 function showTab(name){
   const c=name==="collect";
@@ -749,8 +933,8 @@ try{if(localStorage.getItem(LS+"-tab")==="dash")showTab("dash")}catch(e){}
 
 (async()=>{
   if(!window.claude||!claude.use)return;
-  const [s,d,u]=await Promise.all([claude.use("sample"),claude.use("db"),claude.use("user")]);
-  sample=s;db=d;
+  const [s,d,u,dl]=await Promise.all([claude.use("sample"),claude.use("db"),claude.use("user"),claude.use("downloads")]);
+  sample=s;db=d;downloads=dl;
   if(sample){const lv=$("#live");lv.classList.remove("off");lv.lastChild.textContent="AI ONLINE"}
   if(u&&db){try{uid=await u.id()}catch(e){uid=null}}
   await loadDb();
