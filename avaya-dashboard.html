@@ -231,6 +231,25 @@ body::before{background:rgba(5,10,21,.9)}
 @media (prefers-reduced-motion:reduce){.gridbg{animation:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+
+.mtiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.mtiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mt{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface-2);display:grid;gap:6px}
+.mt-h{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:13px}
+.mch{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.mch bdi{font-family:var(--f-data)}
+.mch.up{color:var(--good)}.mch.down{color:var(--bad)}
+.mbars{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;height:120px;align-items:end}
+.mb{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;min-width:0}
+.mb i{display:block;width:70%;border-radius:5px 5px 2px 2px;background:var(--c5);opacity:.7}
+.mb.cur i{background:linear-gradient(180deg,var(--accent),var(--signal));opacity:1;box-shadow:0 0 12px rgba(34,211,238,.35)}
+.mv{font-family:var(--f-data);font-size:11.5px;font-weight:700;direction:ltr}
+.ml{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mtg{font-size:11px;color:var(--muted)}
+.rpt .mtiles{grid-template-columns:repeat(3,1fr)}
+.rpt .mt{background:var(--rp-soft);border-color:var(--rp-line)}
+.rpt .mb i{background:#CBD5E1;opacity:1}.rpt .mb.cur i{background:var(--rp-accent);box-shadow:none}
+.rpt .ml,.rpt .mtg{color:var(--rp-muted)}.rpt .mch{color:var(--rp-muted)}.rpt .mch.up{color:var(--rp-good)}.rpt .mch.down{color:var(--rp-bad)}
 /* ---- export + printable report (light A4 document, rendered off-screen) ---- */
 :root{--rp-bg:#FFFFFF;--rp-ink:#13203A;--rp-muted:#5D6C82;--rp-line:#DCE3EC;--rp-soft:#F3F6FA;--rp-navy:#0A1630;--rp-accent:#0891B2;--rp-violet:#7C3AED;--rp-good:#15803D;--rp-warn:#B45309;--rp-bad:#B91C1C}
 .exportp .req-actions{gap:10px}
@@ -342,12 +361,12 @@ const fmtSec=s=>{if(!isNum(s))return"—";s=Math.round(s);const m=Math.floor(s/6
 const fmtPct=v=>isNum(v)?(Math.round(v*10)/10)+"%":"—";
 
 /* Avaya CMS report checklist, in the order we ask for them */
-const TYPES=[
- {id:"skill_monthly_bymonth",ar:"أداء المهارات الشهري (MPR)",en:"CrysKSA_Skill_Monthly_ByMonth_Less X sec",tip:"اختر آخر 3 إلى 6 أشهر لنقارن الشهر بما قبله",why:"أساس تقرير MPR الشهري: المكالمات، مستوى الخدمة SLA، الإغلاق، ASA و AHT لكل شهر.",req:true},
- {id:"skill_monthly_byskill",ar:"الشهر حسب كل مهارة",en:"CrysKSA_Skill_Monthly_BySkill_Less X sec",tip:"الشهر الحالي أو الشهر الماضي كاملاً",why:"يقارن المهارات (الطوابير) ببعض خلال الشهر ويكشف أضعفها.",req:true},
+const BASE_TYPES=[
+ {id:"skill_monthly_bymonth",months:3,ar:"أداء المهارات الشهري (MPR)",en:"CrysKSA_Skill_Monthly_ByMonth_Less X sec",tip:"اختر آخر 3 إلى 6 أشهر لنقارن الشهر بما قبله",why:"أساس تقرير MPR الشهري: المكالمات، مستوى الخدمة SLA، الإغلاق، ASA و AHT لكل شهر.",req:true},
+ {id:"skill_monthly_byskill",months:2,ar:"الشهر حسب كل مهارة",en:"CrysKSA_Skill_Monthly_BySkill_Less X sec",tip:"الشهر الحالي أو الشهر الماضي كاملاً",why:"يقارن المهارات (الطوابير) ببعض خلال الشهر ويكشف أضعفها.",req:true},
  {id:"skill_daily_byday",ar:"الأداء اليومي",en:"CrysKSA_Skill_Daily_ByDay_Less X sec",tip:"كل أيام الشهر من 1 إلى آخر يوم",why:"اتجاه مستوى الخدمة والإغلاق يوماً بيوم، والأيام السيئة.",req:true},
  {id:"skill_interval",ar:"الأداء حسب الساعة",en:"CrysKSA_Skill_Interval_Less X sec",tip:"يوم واحد مزدحم أو أسبوع",why:"يحدد ساعات الذروة وأين ينهار مستوى الخدمة لتعديل الجدولة.",req:true},
- {id:"agtgrp_monthly_occ",ar:"الموظفون: الإشغال الشهري",en:"CrysKSA_AgtGrp_Monthly_Occupancy",tip:"نفس شهر تقرير MPR",why:"أداء كل موظف خلال الشهر: الإشغال Occupancy، وقت المكالمات، ACW، وقت الدخول.",req:true},
+ {id:"agtgrp_monthly_occ",months:2,ar:"الموظفون: الإشغال الشهري",en:"CrysKSA_AgtGrp_Monthly_Occupancy",tip:"نفس شهر تقرير MPR",why:"أداء كل موظف خلال الشهر: الإشغال Occupancy، وقت المكالمات، ACW، وقت الدخول.",req:true},
  {id:"agtgrp_daily_ans",ar:"الموظفون: المكالمات المجابة",en:"CrysKSA_AgtGrp_Daily_AnsCalls",tip:"الشهر كاملاً",why:"عدد المكالمات التي رد عليها كل موظف وزمن المعالجة AHT، لترتيب الموظفين.",req:true},
  {id:"agent_aux",ar:"أكواد الراحة AUX",en:"CrysKSA_Agent AUX Interval",tip:"الشهر أو الأسبوع",why:"وقت الراحات والاجتماعات وأسباب AUX لكل موظف، وكم يأخذ من وقت الإنتاج.",req:true},
  {id:"calling_party",ar:"أرقام المتصلين (لحساب FCR)",en:"CrysKSA_CallingParty_1.1",tip:"أسبوع أو شهر",why:"المتصلون المتكررون من نفس الرقم. منه نحسب تقريباً نسبة الحل من أول اتصال FCR.",req:true},
@@ -358,6 +377,21 @@ const TYPES=[
  {id:"attendance",ar:"الحضور والالتزام",en:"CrysKSA_Attendance_Daily_Agent Based",tip:"الشهر كاملاً",why:"التأخير والغياب والالتزام بالجدول Adherence.",req:false},
  {id:"login_logout",ar:"الدخول والخروج",en:"Login/Logout (Skill)",tip:"أسبوع",why:"أوقات تسجيل الدخول والخروج الفعلية.",req:false}
 ];
+const AR_M=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const EN_M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const SLOT_NAMES=["الشهر الحالي","الشهر الماضي","قبل شهرين"];
+function monthAt(off){
+  const now=new Date(),d=new Date(now.getFullYear(),now.getMonth()-off,1);
+  const last=off===0?now:new Date(d.getFullYear(),d.getMonth()+1,0);
+  const f=x=>String(x.getDate()).padStart(2,"0")+"/"+String(x.getMonth()+1).padStart(2,"0")+"/"+x.getFullYear();
+  return {ar:AR_M[d.getMonth()]+" "+d.getFullYear(),en:EN_M[d.getMonth()]+" "+d.getFullYear(),range:f(d)+" – "+f(last)};
+}
+const TYPES=[];
+BASE_TYPES.forEach(b=>{
+  if(b.months){for(let i=0;i<b.months;i++){const m=monthAt(i);TYPES.push({...b,id:b.id+"@m"+i,base:b.id,slot:i,month:m,ar:b.ar+" · "+SLOT_NAMES[i]+" ("+m.ar+")",tip:m.range+(i===0?" (من أول الشهر حتى اليوم)":"")})}}
+  else TYPES.push({...b,base:b.id});
+});
+const baseOf=id=>String(id||"").split("@")[0];
 const OTHER={id:"other",ar:"تقرير آخر",en:"Other report"};
 const typeOf=id=>TYPES.find(t=>t.id===id)||OTHER;
 
@@ -504,9 +538,9 @@ async function readSheetFile(f){
   return {name:f.name,rows,text:out};
 }
 
-const EXTRACT_PROMPT=(asked,data)=>`You are reading an Excel/CSV/text export of a contact-center report from Avaya (usually a custom CrysKSA_* report in CMS Supervisor, Avaya Analytics, Call Center Elite, IP Office or similar). The user expects: "${asked?typeOf(asked).en:"unknown"}", but identify what it really is.
+const EXTRACT_PROMPT=(asked,data)=>`You are reading an Excel/CSV/text export of a contact-center report from Avaya (usually a custom CrysKSA_* report in CMS Supervisor, Avaya Analytics, Call Center Elite, IP Office or similar). The user expects: "${asked?typeOf(asked).en:"unknown"}"${asked&&typeOf(asked).month?" for the month "+typeOf(asked).month.en:""}, but identify what it really is.
 Known report types (type_id: name):
-${TYPES.map(t=>`- ${t.id}: ${t.en}`).join("\n")}
+${BASE_TYPES.map(t=>`- ${t.id}: ${t.en}`).join("\n")}
 - other: anything else
 
 Rules:
@@ -540,7 +574,10 @@ async function handleFiles(files){
   reading={state:"busy",files:parsed,asked};renderCollect();
   try{
     const r=await sample.json(EXTRACT_PROMPT(asked,parsed.map(p=>p.text).join("\n\n").slice(0,180000)),{modelTier:"default"});
-    const tid=TYPES.some(t=>t.id===r.type_id)?r.type_id:(r.type_id==="other"?"other":(asked||"other"));
+    const rb=String(r.type_id||"");const d0=doneTypes();
+    const tid=asked&&baseOf(asked)===rb?asked
+      :(TYPES.find(t=>t.base===rb&&!d0.has(t.id))||TYPES.find(t=>t.base===rb)||{}).id
+      ||(rb==="other"?"other":(asked||"other"));
     const e={id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),typeId:tid,name:String(r.report_name||typeOf(tid).en),nameAr:String(r.report_name_ar||typeOf(tid).ar),period:r.period?String(r.period):"",metrics:r.metrics&&typeof r.metrics==="object"?r.metrics:{},data:{granularity:r.granularity,scope:r.scope,tables:Array.isArray(r.tables)?r.tables.slice(0,8):[],files:parsed.map(p=>p.name),notes:r.notes_ar},readability:r.readability||"good",at:Date.now()};
     entries.push(e);skipped.delete(tid);
     await saveEntry(e);
@@ -569,6 +606,7 @@ Rules:
 - All text in Arabic (report names / skill / agent names stay as written).
 - Agents score 0-100 from calls handled, AHT vs team, ACW, AUX, occupancy, FCR when available. flag: "top" (best ~20%), "coach" (needs coaching), else "ok".
 - trend: use daily/interval/monthly series if any exist, else null. intervals: only if interval data exists, else null.
+- MPR = month comparison: use reports tagged month_slot (current month, last month, month before). Current month may be partial (month-to-date): compare rates/averages directly and for volumes note it is partial. Fill m2/m1/m0 for every MPR metric where data exists (null where missing). "months.series": 4-7 key KPIs (SL %, Abandon %, ASA sec, AHT sec, Offered calls, Occupancy %, FCR %) with 3 values each in the same order as labels. Mention month-over-month movement in insights.
 - 4-7 insights, 4-6 concrete recommendations tied to the numbers (e.g., add 2 agents 10:00-13:00).
 
 Reply with ONLY this JSON:
@@ -580,13 +618,14 @@ Reply with ONLY this JSON:
 "skills":[{"name":"...","offered":n,"answered":n,"abandon_pct":n,"sl_pct":n,"asa_sec":n,"aht_sec":n}],
 "agents":[{"name":"...","calls":n,"aht_sec":n,"acw_sec":n,"aux_pct":n,"occupancy_pct":n,"fcr_pct":n,"score":n,"flag":"top|ok|coach"}],
 "aux":[{"reason":"...","pct":n}],
-"mpr":[{"metric":"...","target":"...","actual":"...","achievement_pct":n,"status":"good|warn|bad|na"}],
+"mpr":[{"metric":"...","target":"...","m2":"month before last value","m1":"last month value","m0":"current month value","actual":"same as m0","change":"current vs last month, e.g. +2.1 نقطة","trend":"up|down|flat","better":true|false,"achievement_pct":n,"status":"good|warn|bad|na"}],
+"months":{"labels":["month before last","last month","current month"],"series":[{"name":"مستوى الخدمة %","unit":"%|sec|count","lower_is_better":false,"target":n|null,"values":[n,n,n]}]} or null,
 "insights":[{"type":"strength|risk|opportunity","title":"...","detail":"..."}],
 "recommendations":[{"priority":"high|medium|low","action":"...","impact":"...","owner":"..."}],
 "data_gaps":["..."]}
 
 DATA:
-${JSON.stringify(entries.map(e=>({report:e.name,type:e.typeId,period:e.period,metrics:e.metrics,granularity:e.data&&e.data.granularity,scope:e.data&&e.data.scope,tables:e.data&&e.data.tables}))).slice(0,200000)}`;
+${JSON.stringify(entries.map(e=>({report:e.name,type:baseOf(e.typeId),month_slot:typeOf(e.typeId).month?SLOT_NAMES[typeOf(e.typeId).slot]+" = "+typeOf(e.typeId).month.en:undefined,period:e.period,metrics:e.metrics,granularity:e.data&&e.data.granularity,scope:e.data&&e.data.scope,tables:e.data&&e.data.tables}))).slice(0,200000)}`;
 
 let analyzeCtl=null,analyzeChars=0,analyzeErr="";
 async function analyze(){
@@ -614,7 +653,8 @@ intervals:{labels:["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:0
 skills:[{name:"Customer Service",offered:26300,answered:24850,abandon_pct:5.5,sl_pct:80.2,asa_sec:21,aht_sec:238},{name:"Billing",offered:12100,answered:11220,abandon_pct:7.3,sl_pct:74.1,asa_sec:31,aht_sec:284},{name:"Technical Support",offered:7400,answered:6950,abandon_pct:6.1,sl_pct:76.9,asa_sec:26,aht_sec:301},{name:"VIP",offered:2410,answered:2300,abandon_pct:4.6,sl_pct:86.5,asa_sec:14,aht_sec:219}],
 agents:[{name:"موظف 1",calls:1420,aht_sec:221,acw_sec:24,aux_pct:9.1,occupancy_pct:86,fcr_pct:78,score:92,flag:"top"},{name:"موظف 2",calls:1365,aht_sec:236,acw_sec:28,aux_pct:10.4,occupancy_pct:84,fcr_pct:76,score:88,flag:"top"},{name:"موظف 3",calls:1290,aht_sec:248,acw_sec:31,aux_pct:12.2,occupancy_pct:82,fcr_pct:73,score:79,flag:"ok"},{name:"موظف 4",calls:1210,aht_sec:259,acw_sec:35,aux_pct:13.8,occupancy_pct:80,fcr_pct:71,score:72,flag:"ok"},{name:"موظف 5",calls:1105,aht_sec:287,acw_sec:44,aux_pct:17.5,occupancy_pct:76,fcr_pct:66,score:58,flag:"coach"},{name:"موظف 6",calls:980,aht_sec:312,acw_sec:52,aux_pct:19.9,occupancy_pct:72,fcr_pct:63,score:49,flag:"coach"}],
 aux:[{reason:"راحة",pct:5.8},{reason:"غداء",pct:4.1},{reason:"اجتماع",pct:2.3},{reason:"تدريب",pct:1.6},{reason:"مهام إدارية",pct:1.4}],
-mpr:[{metric:"مستوى الخدمة",target:"80%",actual:"78.4%",achievement_pct:98,status:"warn"},{metric:"نسبة الإغلاق",target:"≤ 5%",actual:"6.0%",achievement_pct:83,status:"bad"},{metric:"AHT",target:"≤ 4:30",actual:"4:12",achievement_pct:107,status:"good"},{metric:"FCR",target:"70%",actual:"72.5%",achievement_pct:104,status:"good"},{metric:"AUX",target:"≤ 12%",actual:"15.2%",achievement_pct:79,status:"bad"}],
+mpr:[{metric:"مستوى الخدمة",target:"80%",m2:"74.9%",m1:"76.3%",m0:"78.4%",actual:"78.4%",change:"+2.1 نقطة",trend:"up",better:true,achievement_pct:98,status:"warn"},{metric:"نسبة الإغلاق",target:"≤ 5%",m2:"5.2%",m1:"5.6%",m0:"6.0%",actual:"6.0%",change:"+0.4 نقطة",trend:"up",better:false,achievement_pct:83,status:"bad"},{metric:"AHT",target:"≤ 4:30",m2:"4:21",m1:"4:15",m0:"4:12",actual:"4:12",change:"-3 ث",trend:"down",better:true,achievement_pct:107,status:"good"},{metric:"FCR",target:"70%",m2:"69.8%",m1:"70.7%",m0:"72.5%",actual:"72.5%",change:"+1.8 نقطة",trend:"up",better:true,achievement_pct:104,status:"good"},{metric:"AUX",target:"≤ 12%",m2:"13.6%",m1:"14.1%",m0:"15.2%",actual:"15.2%",change:"+1.1 نقطة",trend:"up",better:false,achievement_pct:79,status:"bad"}],
+months:{labels:["أغسطس 2026","سبتمبر 2026","أكتوبر 2026"],series:[{name:"مستوى الخدمة %",unit:"%",target:80,values:[74.9,76.3,78.4]},{name:"نسبة الإغلاق %",unit:"%",lower_is_better:true,target:5,values:[5.2,5.6,6.0]},{name:"ASA",unit:"sec",lower_is_better:true,target:20,values:[31,27,24]},{name:"AHT",unit:"sec",lower_is_better:true,target:270,values:[261,255,252]},{name:"المكالمات الواردة",unit:"count",values:[43900,45650,48210]},{name:"FCR %",unit:"%",target:70,values:[69.8,70.7,72.5]}]},
 insights:[{type:"risk",title:"انهيار الخدمة في ذروة الظهر",detail:"بين 11:00 و13:00 ينخفض مستوى الخدمة إلى 66–68% ويحدث 41% من حالات الإغلاق."},{type:"risk",title:"Billing الأضعف",detail:"أعلى نسبة إغلاق 7.3% وأطول ASA بـ31 ثانية."},{type:"strength",title:"FCR فوق الهدف",detail:"72.5% مع تحسن 1.8 نقطة، ويقوده موظف 1 وموظف 2."},{type:"opportunity",title:"وقت AUX قابل للاسترداد",detail:"خفض AUX إلى 12% يعادل تقريباً 2.4 موظف إضافي في كل وردية."}],
 recommendations:[{priority:"high",action:"نقل فترات الغداء خارج 11:00–13:00 وإضافة موظفين اثنين للذروة",impact:"رفع SL في الذروة إلى نحو 78%",owner:"مسؤول الجدولة"},{priority:"high",action:"تدريب مركّز لموظف 5 وموظف 6 على تقليل ACW",impact:"خفض AHT للفريق نحو 9 ثوان",owner:"قائد الفريق"},{priority:"medium",action:"تفعيل Overflow من Billing إلى Customer Service عند تجاوز الانتظار 30 ث",impact:"خفض إغلاق Billing إلى أقل من 6%",owner:"مدير النظام"},{priority:"low",action:"مراجعة أكواد AUX الإدارية أسبوعياً",impact:"استرداد 1–2% من وقت الإنتاج",owner:"المشرف"}],
 data_gaps:["تقرير Trunk Group غير مرفق: لا يمكن قياس انشغال الخطوط"]};
@@ -632,6 +672,25 @@ function chartBase(){
 const statusChip=s=>({good:`<span class="chip good"><span class="dot"></span>ضمن الهدف</span>`,warn:`<span class="chip warn"><span class="dot"></span>قريب</span>`,bad:`<span class="chip bad"><span class="dot"></span>خارج الهدف</span>`}[s]||`<span class="chip">—</span>`);
 function kpiVal(k){if(!isNum(k.value))return"—";if(k.unit==="%")return fmtPct(k.value);if(k.unit==="sec")return fmtSec(k.value);return fmtN(k.value)}
 
+/* month-over-month (MPR) blocks, shared by dashboard and PDF */
+const mLabels=D=>(D.months&&Array.isArray(D.months.labels)&&D.months.labels.length===3)?D.months.labels:["قبل شهرين","الشهر الماضي","الشهر الحالي"];
+const hasMonths=m=>m.some(x=>x.m0!=null||x.m1!=null||x.m2!=null);
+function mprTableHtml(D,pdf){
+  const m=D.mpr||[],L=mLabels(D),mo=hasMonths(m);
+  const arrow=x=>{if(!x.change)return"—";const good=x.better===true,bad=x.better===false;const c=pdf?(good?"var(--rp-good)":bad?"var(--rp-bad)":"var(--rp-muted)"):(good?"var(--good)":bad?"var(--bad)":"var(--muted)");return `<span style="color:${c};font-weight:700">${x.trend==="up"?"▲":x.trend==="down"?"▼":"■"} ${esc(x.change)}</span>`};
+  const ach=x=>pdf?(isNum(x.achievement_pct)?Math.round(x.achievement_pct)+"%":"—"):`<div class="bar"><i class="${esc(x.status)}" style="width:${isNum(x.achievement_pct)?Math.min(100,Math.max(4,x.achievement_pct*.6)):0}px"></i><span class="num">${isNum(x.achievement_pct)?Math.round(x.achievement_pct)+"%":"—"}</span></div>`;
+  return `<table><thead><tr><th>المؤشر</th><th>الهدف</th>${mo?`<th>${esc(L[0])}</th><th>${esc(L[1])}</th><th>${esc(L[2])}</th><th>التغير عن الشهر الماضي</th>`:`<th>الفعلي</th>`}<th>نسبة التحقيق</th>${pdf?"<th>الحالة</th>":""}</tr></thead><tbody>${m.map(x=>`<tr><td>${esc(x.metric)}</td><td class="n">${esc(x.target)}</td>${mo?`<td class="n">${esc(x.m2??"—")}</td><td class="n">${esc(x.m1??"—")}</td><td class="n"><b>${esc(x.m0??x.actual??"—")}</b></td><td>${arrow(x)}</td>`:`<td class="n"><b>${esc(x.actual)}</b></td>`}<td${pdf?' class="n"':""}>${ach(x)}</td>${pdf?`<td><span class="st ${esc(x.status||"na")}">${stTxt[x.status]||"—"}</span></td>`:""}</tr>`).join("")}</tbody></table>`;
+}
+function fmtU(v,u){return u==="%"?fmtPct(v):u==="sec"?fmtSec(v):fmtN(v)}
+function monthTilesHtml(D,pdf){
+  const M=D.months;if(!M||!Array.isArray(M.series)||!M.series.length)return"";
+  const L=mLabels(D);
+  return `<div class="mtiles">${M.series.slice(0,8).map(s=>{
+    const v=(s.values||[]).slice(0,3),nums=v.filter(isNum),mx=Math.max(1e-9,...nums,isNum(s.target)?s.target:0);
+    const a=v[1],b=v[2];let ch="";
+    if(isNum(a)&&isNum(b)){const dlt=b-a,better=s.lower_is_better?dlt<0:dlt>0,flat=Math.abs(dlt)<1e-9;ch=`<span class="mch ${flat?"":better?"up":"down"}">${flat?"■":dlt>0?"▲":"▼"} ${s.unit==="sec"?"<bdi dir=\"ltr\">"+(dlt>0?"+":"-")+fmtSec(Math.abs(dlt))+"</bdi>":s.unit==="%"?"<bdi dir=\"ltr\">"+(dlt>0?"+":"")+(Math.round(dlt*10)/10)+"</bdi> نقطة":"<bdi dir=\"ltr\">"+(dlt>0?"+":"")+fmtN(a?dlt/a*100:0)+"%</bdi>"}</span>`}
+    return `<div class="mt"><div class="mt-h"><b>${esc(s.name)}</b>${ch}</div><div class="mbars">${v.map((x,i)=>`<div class="mb ${i===2?"cur":""}"><span class="mv">${fmtU(x,s.unit)}</span><i style="height:${isNum(x)?Math.max(4,x/mx*100):0}%"></i><span class="ml">${esc(String(L[i]||"").replace(/\s*\d{4}$/,""))}</span></div>`).join("")}</div>${isNum(s.target)?`<div class="mtg">الهدف: ${fmtU(s.target,s.unit)}</div>`:""}</div>`}).join("")}</div>`;
+}
 function renderDash(){
   killCharts();
   const el=$("#dash");
@@ -680,8 +739,8 @@ function renderDash(){
   ${hasInt?`<div class="panel card"><div class="card-h"><h3>الحمل ومستوى الخدمة حسب الساعة</h3><span class="label">الأعمدة: المكالمات · الخط: SL%</span></div><div class="chart-box"><canvas id="ch-int"></canvas></div></div>`:""}
   ${sk.length?`<div class="panel card"><div class="card-h"><h3>أداء المهارات / الطوابير</h3><span class="label">${sk.length} مهارة</span></div><div class="tbl"><table><thead><tr><th>المهارة</th><th>واردة</th><th>رُدّ</th><th>مستوى الخدمة</th><th>الإغلاق</th><th>ASA</th><th>AHT</th></tr></thead><tbody>${sk.map(s=>`<tr><td>${esc(s.name)}</td><td class="n">${fmtN(s.offered)}</td><td class="n">${fmtN(s.answered)}</td><td><div class="bar"><i class="${lvl(s.sl_pct,80,70)}" style="width:${isNum(s.sl_pct)?Math.max(4,s.sl_pct*.8):0}px"></i><span class="num">${fmtPct(s.sl_pct)}</span></div></td><td class="n" style="color:var(--${lvl(s.abandon_pct,5,8,true)||"ink"})">${fmtPct(s.abandon_pct)}</td><td class="n">${fmtSec(s.asa_sec)}</td><td class="n">${fmtSec(s.aht_sec)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
   ${ag.length?`<div class="panel card"><div class="card-h"><h3>ترتيب الموظفين</h3><span class="label">مرتب حسب التقييم</span></div><div class="tbl"><table><thead><tr><th>#</th><th>الموظف</th><th>المكالمات</th><th>AHT</th><th>ACW</th><th>AUX</th><th>الإشغال</th><th>FCR</th><th>التقييم</th><th></th></tr></thead><tbody>${ag.map((a,i)=>`<tr><td class="n">${i+1}</td><td>${esc(a.name)}</td><td><div class="bar"><i style="width:${Math.max(4,(a.calls||0)/maxCalls*90)}px"></i><span class="num">${fmtN(a.calls)}</span></div></td><td class="n">${fmtSec(a.aht_sec)}</td><td class="n">${fmtSec(a.acw_sec)}</td><td class="n" style="color:var(--${lvl(a.aux_pct,12,16,true)||"ink"})">${fmtPct(a.aux_pct)}</td><td class="n">${fmtPct(a.occupancy_pct)}</td><td class="n">${fmtPct(a.fcr_pct)}</td><td class="n"><b>${fmtN(a.score)}</b></td><td>${flag[a.flag]||""}</td></tr>`).join("")}</tbody></table></div></div>`:""}
-  ${mpr.length||aux.length?`<div class="grid2b">
-    ${mpr.length?`<div class="panel card"><div class="card-h"><h3>MPR · بطاقة الأداء الشهري</h3><span class="label">الهدف مقابل الفعلي</span></div><div class="tbl"><table><thead><tr><th>المؤشر</th><th>الهدف</th><th>الفعلي</th><th>نسبة التحقيق</th></tr></thead><tbody>${mpr.map(m=>`<tr><td>${esc(m.metric)}</td><td class="n">${esc(m.target)}</td><td class="n"><b>${esc(m.actual)}</b></td><td><div class="bar"><i class="${esc(m.status)}" style="width:${isNum(m.achievement_pct)?Math.min(100,Math.max(4,m.achievement_pct*.8)):0}px"></i><span class="num">${isNum(m.achievement_pct)?Math.round(m.achievement_pct)+"%":"—"}</span></div></td></tr>`).join("")}</tbody></table></div></div>`:""}
+  ${mpr.length||D.months?`<div class="panel card"><div class="card-h"><h3>MPR · مقارنة الأشهر</h3><span class="label">${esc(mLabels(D).join(" ← "))}</span></div>${monthTilesHtml(D)}${mpr.length?`<div class="tbl">${mprTableHtml(D)}</div>`:""}</div>`:""}
+  ${aux.length?`<div>
     ${aux.length?`<div class="panel card"><div class="card-h"><h3>توزيع وقت AUX</h3><span class="label">% من وقت الدوام</span></div><div class="chart-box sm"><canvas id="ch-aux"></canvas></div></div>`:""}
   </div>`:""}
   <div class="grid2b">
@@ -793,8 +852,12 @@ function reportHtml(D){
     ${D.volume?`<div class="vol"><div><span class="small">المكالمات الواردة</span><b>${fmtN(D.volume.offered)}</b></div><div><span class="small">المكالمات المجابة</span><b style="color:var(--rp-good)">${fmtN(D.volume.answered)}</b></div><div><span class="small">المكالمات المغلقة</span><b style="color:var(--rp-bad)">${fmtN(D.volume.abandoned)}</b></div><div><span class="small">نسبة الرد</span><b>${isNum(D.volume.offered)&&D.volume.offered?fmtPct(D.volume.answered/D.volume.offered*100):"—"}</b></div></div>`:""}
     <h2>مؤشرات الأداء الرئيسية</h2>
     <div class="kg">${k.map(x=>`<div class="k ${esc(x.status)}"><div class="l">${esc(x.label)}</div><div class="v">${kpiVal(x)}</div><div class="t">الهدف: ${esc(x.target||"—")} · <span class="st ${esc(x.status||"na")}">${stTxt[x.status]||"—"}</span></div></div>`).join("")}</div>
-    ${mpr.length?`<h2>بطاقة الأداء الشهري MPR</h2><table><thead><tr><th>المؤشر</th><th>الهدف</th><th>الفعلي</th><th>نسبة التحقيق</th><th>الحالة</th></tr></thead><tbody>${mpr.map(m=>`<tr><td>${esc(m.metric)}</td><td class="n">${esc(m.target)}</td><td class="n"><b>${esc(m.actual)}</b></td><td class="n">${isNum(m.achievement_pct)?Math.round(m.achievement_pct)+"%":"—"}</td><td><span class="st ${esc(m.status||"na")}">${stTxt[m.status]||"—"}</span></td></tr>`).join("")}</tbody></table>`:""}
   </div>${foot(++n)}</div>`;
+  const pM=(mpr.length||D.months)?`<div class="pg">${wm}${band("MPR · مقارنة الأداء الشهري",1)}<div class="in">
+    <p class="small" style="margin:0">مقارنة ${esc(mLabels(D).join(" ثم "))}. الشهر الحالي محسوب من أول الشهر حتى تاريخ التقرير.</p>
+    ${monthTilesHtml(D,true)}
+    ${mpr.length?`<h2>بطاقة الأداء الشهري</h2>${mprTableHtml(D,true)}`:""}
+  </div>${foot(++n)}</div>`:"";
   const p2=(hasTrend||hasInt||sk.length||D.volume)?`<div class="pg">${wm}${band("الاتجاهات والحمل وأداء المهارات",1)}<div class="in">
     ${hasTrend?`<div class="cbox"><div class="ct">${esc(D.trend.title||"الاتجاه")}</div><canvas data-ch="trend" width="690" height="230"></canvas></div>`:""}
     ${hasInt?`<div class="cbox"><div class="ct">الحمل ومستوى الخدمة حسب الساعة</div><canvas data-ch="int" width="690" height="230"></canvas></div>`:""}
@@ -810,7 +873,7 @@ function reportHtml(D){
     ${gaps.length?`<h2>بيانات ناقصة</h2><ul class="small" style="margin:0">${gaps.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>`:""}
     <h2>المصادر والمنهجية</h2><p class="small" style="margin:0">المصادر: ${srcs}.<br>الأهداف المرجعية ما لم تحدد التقارير غيرها: مستوى الخدمة 80% خلال 20 ثانية، الإغلاق ≤ 5%، FCR ≥ 70%، الإشغال 75–85%، AUX ≤ 12%. نسبة FCR المحسوبة من أرقام المتصلين تقديرية. التحليل مُعدّ بمساعدة الذكاء الاصطناعي ويُنصح بمراجعة الأرقام الحرجة.</p>
   </div>${foot(++n)}</div>`;
-  return p1+p2+p3+p4;
+  return p1+pM+p2+p3+p4;
 }
 function drawReportCharts(host,D){
   const out=[];if(!window.Chart)return out;
@@ -869,7 +932,9 @@ function exportXlsx(D){
   const ws0=XLSX.utils.aoa_to_sheet(sum);ws0["!cols"]=[{wch:26},{wch:110}];XLSX.utils.book_append_sheet(wb,ws0,"Summary");
   // Power BI-ready flat tables (English headers, one row per record)
   add("KPIs",[["Period","KPI_ID","KPI","Value","Unit","Target","Status","Change","Source"],...(D.kpis||[]).map(k=>[P,k.id,k.label,N(k.value),k.unit,k.target,k.status,k.delta||"",k.source||""])],[16,12,26,10,8,16,8,18,26]);
-  add("MPR",[["Period","Metric","Target","Actual","Achievement_pct","Status"],...(D.mpr||[]).map(m=>[P,m.metric,m.target,m.actual,N(m.achievement_pct),m.status])],[16,24,14,14,16,10]);
+  const ML=mLabels(D);
+  add("MPR",[["Metric","Target",ML[0],ML[1],ML[2]+" (Current)","Change_vs_last","Achievement_pct","Status"],...(D.mpr||[]).map(m=>[m.metric,m.target,m.m2??"",m.m1??"",m.m0??m.actual??"",m.change||"",N(m.achievement_pct),m.status])],[24,14,16,16,20,18,16,10]);
+  if(D.months&&Array.isArray(D.months.series)){const rows=[["Month","Month_Order","KPI","Unit","Value","Target","Lower_is_better"]];D.months.series.forEach(sr=>(sr.values||[]).slice(0,3).forEach((v,i)=>rows.push([ML[i],i+1,sr.name,sr.unit||"",N(v),N(sr.target),sr.lower_is_better?1:0])));add("MPR_Months",rows,[16,12,22,8,10,10,14])}
   add("Volume",D.volume?[["Period","Offered","Answered","Abandoned","Answer_rate_pct"],[P,N(D.volume.offered),N(D.volume.answered),N(D.volume.abandoned),isNum(D.volume.offered)&&D.volume.offered?Math.round(D.volume.answered/D.volume.offered*1000)/10:null]]:null,[16,12,12,12,16]);
   add("Skills",[["Period","Skill","Offered","Answered","SL_pct","Abandon_pct","ASA_sec","AHT_sec"],...(D.skills||[]).map(x=>[P,x.name,N(x.offered),N(x.answered),N(x.sl_pct),N(x.abandon_pct),N(x.asa_sec),N(x.aht_sec)])],[16,26,10,10,9,11,9,9]);
   add("Agents",[["Period","Rank","Agent","Calls","AHT_sec","ACW_sec","AUX_pct","Occupancy_pct","FCR_pct","Score","Flag"],...(D.agents||[]).slice().sort((a,b)=>(b.score||0)-(a.score||0)).map((a,i)=>[P,i+1,a.name,N(a.calls),N(a.aht_sec),N(a.acw_sec),N(a.aux_pct),N(a.occupancy_pct),N(a.fcr_pct),N(a.score),a.flag])],[16,6,24,8,9,9,9,13,9,7,8]);
@@ -926,7 +991,8 @@ new MutationObserver(rerender).observe(document.documentElement,{attributes:true
 })();
 
 /* ---------- boot ---------- */
-lsLoad();
+const migrate=()=>entries.forEach(e=>{if(!TYPES.some(t=>t.id===e.typeId)&&TYPES.some(t=>t.base===e.typeId))e.typeId=e.typeId+"@m0"});
+lsLoad();migrate();
 currentId=(nextType()||{}).id||null;
 renderCollect();renderDash();
 try{if(localStorage.getItem(LS+"-tab")==="dash")showTab("dash")}catch(e){}
@@ -937,7 +1003,7 @@ try{if(localStorage.getItem(LS+"-tab")==="dash")showTab("dash")}catch(e){}
   sample=s;db=d;downloads=dl;
   if(sample){const lv=$("#live");lv.classList.remove("off");lv.lastChild.textContent="AI ONLINE"}
   if(u&&db){try{uid=await u.id()}catch(e){uid=null}}
-  await loadDb();
+  await loadDb();migrate();
   currentId=(nextType()||{}).id||null;
   renderCollect();
   if(!$("#view-dash").hidden&&!busy)renderDash();
