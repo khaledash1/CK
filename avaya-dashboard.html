@@ -1,34 +1,25 @@
 <title>مركز تقارير أفايا</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* Layout: a control-room console. Sticky header + two views (collect reports / dashboard). Collect = active request card beside a checklist; dashboard = summary band, KPI tiles, charts, scorecards. */
 :root{
-  --bg:#EEF2F6; --surface:#FFFFFF; --surface-2:#F6F8FB; --line:#D9E0E8; --ink:#15233B; --muted:#5B6B80;
-  --accent:#0B7A83; --accent-ink:#FFFFFF; --accent-soft:#DDF1F2; --signal:#C9861A; --signal-soft:#FBF0DC;
-  --good:#1E8E52; --good-soft:#DFF3E7; --warn:#B7790A; --warn-soft:#FBF0D6; --bad:#C63E3E; --bad-soft:#F9E1E1;
-  --c1:#0B7A83; --c2:#C9861A; --c3:#5A63C8; --c4:#C63E3E; --c5:#7B8BA0;
-  --shadow:0 1px 2px rgba(21,35,59,.06),0 6px 20px rgba(21,35,59,.06);
+  /* single committed look: dark "network operations center" console */
+  --bg:#050A15; --surface:rgba(13,23,42,.78); --surface-2:rgba(24,40,66,.55); --line:rgba(96,165,250,.16); --ink:#E3EEFF; --muted:#7F95B3;
+  --accent:#22D3EE; --accent-ink:#021219; --accent-soft:rgba(34,211,238,.12); --signal:#A78BFA; --signal-soft:rgba(167,139,250,.14);
+  --good:#34D399; --good-soft:rgba(52,211,153,.14); --warn:#FBBF24; --warn-soft:rgba(251,191,36,.13); --bad:#F87171; --bad-soft:rgba(248,113,113,.14);
+  --c1:#22D3EE; --c2:#A78BFA; --c3:#60A5FA; --c4:#F87171; --c5:#64748B;
+  --glow:0 0 0 1px rgba(34,211,238,.06),0 10px 40px rgba(0,0,0,.45);
+  --shadow:var(--glow);
   --f-display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
   --f-body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
-  --f-data:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
-  --r:12px;
+  --f-data:"JetBrains Mono","IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:14px; color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0C131E; --surface:#131D2C; --surface-2:#182436; --line:#26354B; --ink:#E6EDF6; --muted:#93A3B8;
-  --accent:#2BB3BC; --accent-ink:#06191B; --accent-soft:#123A3F; --signal:#E5A845; --signal-soft:#3A2D14;
-  --good:#45C17E; --good-soft:#123323; --warn:#E3AE3C; --warn-soft:#3A2E12; --bad:#EE6B6B; --bad-soft:#3D1A1C;
-  --c1:#2BB3BC; --c2:#E5A845; --c3:#8F96F0; --c4:#EE6B6B; --c5:#8EA0B8;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0C131E; --surface:#131D2C; --surface-2:#182436; --line:#26354B; --ink:#E6EDF6; --muted:#93A3B8;
-  --accent:#2BB3BC; --accent-ink:#06191B; --accent-soft:#123A3F; --signal:#E5A845; --signal-soft:#3A2D14;
-  --good:#45C17E; --good-soft:#123323; --warn:#E3AE3C; --warn-soft:#3A2E12; --bad:#EE6B6B; --bad-soft:#3D1A1C;
-  --c1:#2BB3BC; --c2:#E5A845; --c3:#8F96F0; --c4:#EE6B6B; --c5:#8EA0B8;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+body{background:var(--bg) radial-gradient(1200px 600px at 85% -10%,rgba(34,211,238,.10),transparent 60%) no-repeat,var(--bg);background-color:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 *{box-sizing:border-box}
 button,input,textarea{font:inherit;color:inherit}
@@ -181,16 +172,60 @@ td.n{font-family:var(--f-data);font-variant-numeric:tabular-nums;direction:ltr;t
 .analyzing{padding:40px 24px;display:grid;gap:14px;justify-items:center;text-align:center}
 .analyzing .spin{width:42px;height:42px;border-width:4px}
 .analyzing p{color:var(--muted);margin:0}
+
+/* ---- tech layer ---- */
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.gridbg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse at 50% 0%,#000 20%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 20%,transparent 75%);opacity:.5;animation:gridmove 18s linear infinite}
+@keyframes gridmove{to{background-position:0 44px,44px 0}}
+.app{position:relative;z-index:1}
+.top{background:rgba(5,10,21,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+body::before{background:rgba(5,10,21,.9)}
+.panel{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);position:relative;transition:border-color .25s,box-shadow .25s}
+.panel:hover{border-color:rgba(34,211,238,.32)}
+.mark{box-shadow:0 0 18px rgba(34,211,238,.55);animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 30px rgba(34,211,238,.85)}}
+.live{display:inline-flex;gap:6px;align-items:center;font-family:var(--f-data);font-size:11px;color:var(--good);letter-spacing:.08em}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);animation:blink 1.4s infinite}
+.live.off{color:var(--muted)} .live.off i{background:var(--muted);box-shadow:none;animation:none}
+@keyframes blink{50%{opacity:.25}}
+.hero h2,.req h2{background:linear-gradient(90deg,var(--ink),var(--accent) 60%,var(--signal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi .v{text-shadow:0 0 18px rgba(34,211,238,.25)}
+.kpi:hover{transform:translateY(-2px)}
+.kpi{transition:transform .2s,border-color .25s}
+.btn.primary{box-shadow:0 0 20px rgba(34,211,238,.35)}
+.btn.primary:hover{box-shadow:0 0 28px rgba(34,211,238,.6)}
+.drop{position:relative;overflow:hidden;border-color:rgba(34,211,238,.3)}
+.drop::after{content:"";position:absolute;inset-inline:0;top:-40%;height:40%;background:linear-gradient(180deg,transparent,rgba(34,211,238,.10),transparent);animation:scan 3.2s linear infinite;pointer-events:none}
+@keyframes scan{to{top:110%}}
+.reading{position:relative;overflow:hidden}
+.reading::after{content:"";position:absolute;inset-block:0;width:30%;background:linear-gradient(90deg,transparent,rgba(34,211,238,.18),transparent);animation:sweep 1.6s linear infinite}
+@keyframes sweep{from{inset-inline-start:-30%}to{inset-inline-start:100%}}
+.files{display:flex;gap:8px;flex-wrap:wrap}
+.files span{font-family:var(--f-data);font-size:12px;padding:4px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);direction:ltr}
+.files span b{color:var(--accent)}
+.dash>*,.collect>*,.analyze-bar{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+.dash>*:nth-child(2){animation-delay:.06s}.dash>*:nth-child(3){animation-delay:.12s}.dash>*:nth-child(4){animation-delay:.18s}.dash>*:nth-child(5){animation-delay:.24s}.dash>*:nth-child(n+6){animation-delay:.3s}
+@keyframes rise{from{opacity:.3;transform:translateY(10px)}}
+.ring circle:last-child{transition:stroke-dashoffset 1.4s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 0 6px currentColor)}
+.bar i{box-shadow:0 0 8px currentColor;transition:width 1s}
+.item.current{box-shadow:inset 0 0 0 1px var(--accent),0 0 18px rgba(34,211,238,.15)}
+.progress i{background:linear-gradient(90deg,var(--accent),var(--signal));box-shadow:0 0 10px var(--accent)}
+.export{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+.export ol{margin:0;padding-inline-start:20px}
+.export code{font-family:var(--f-data);font-size:12px;background:var(--surface-2);padding:1px 6px;border-radius:5px;color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.gridbg{animation:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
+<canvas id="bg" aria-hidden="true"></canvas><div class="gridbg" aria-hidden="true"></div>
 <div class="app" dir="rtl" lang="ar">
 <header class="top">
   <div class="wrap">
     <div class="brand">
       <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round"><path d="M4 18V11"/><path d="M9 18V6"/><path d="M14 18v-9"/><path d="M19 18V4"/></svg></div>
-      <div><h1>مركز تقارير أفايا</h1><small>تحليل تقارير Avaya CMS بالذكاء الاصطناعي</small></div>
+      <div><h1>مركز تقارير أفايا</h1><small>تحليل تقارير Avaya CMS بالذكاء الاصطناعي · ملفات Excel</small></div>
     </div>
+    <span class="live off" id="live"><i></i>OFFLINE</span>
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-collect" aria-selected="true"><span class="step">1</span>جمع التقارير</button>
       <button class="tab" role="tab" id="tab-dash" aria-selected="false"><span class="step">2</span>الداش بورد</button>
@@ -225,7 +260,7 @@ td.n{font-family:var(--f-data);font-variant-numeric:tabular-nums;direction:ltr;t
     <div class="dash" id="dash"></div>
   </section>
 </main>
-<input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+<input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv,.txt,.tsv" multiple hidden>
 <div class="toast" id="toast" hidden></div>
 </div>
 
@@ -264,7 +299,7 @@ let skipped=new Set();
 let currentId=null;   // type being requested
 let dashboard=null;   // real result
 let busy=false;
-let sample=null,db=null,uid=null,canImages=false;
+let sample=null,db=null,uid=null;
 
 /* ---------- persistence: private per-viewer db, else browser storage ---------- */
 const LS="avaya-dash-v1";
@@ -293,7 +328,7 @@ let toastT;
 function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
 const doneTypes=()=>new Set(entries.map(e=>e.typeId));
 function nextType(){const d=doneTypes();return (TYPES.find(t=>!d.has(t.id)&&!skipped.has(t.id))||null)}
-const errCopy=c=>({not_granted:"لم يتم السماح للصفحة باستخدام Claude. فعّل الإذن من قائمة الأذونات ثم أعد المحاولة.",sampling_disabled:"Claude غير متاح لهذا الحساب.",rate_limited:"طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة.",image_rejected:"الصورة غير مقبولة. استخدم PNG أو JPG بحجم أقل من 20MB.",images_unavailable:"قراءة الصور غير متاحة في هذا العرض. افتح الصفحة في claude.ai.",invalid_json:"لم أستطع قراءة الرد بشكل منظم. أعد المحاولة.",refused:"تم رفض الطلب. جرّب صورة أوضح.",session_expired:"انتهت الجلسة. سجّل الدخول من جديد.",prompt_too_large:"البيانات كبيرة جداً. احذف بعض التقارير المكررة ثم أعد التحليل."}[c]||"حدث خطأ مؤقت في الاتصال. أعد المحاولة.");
+const errCopy=c=>({not_granted:"لم يتم السماح للصفحة باستخدام Claude. فعّل الإذن من قائمة الأذونات ثم أعد المحاولة.",sampling_disabled:"Claude غير متاح لهذا الحساب.",rate_limited:"طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة.",invalid_json:"لم أستطع قراءة الرد بشكل منظم. أعد المحاولة.",refused:"تم رفض الطلب. تأكد أن الملف تقرير Avaya صحيح.",session_expired:"انتهت الجلسة. سجّل الدخول من جديد.",prompt_too_large:"البيانات كبيرة جداً. احذف بعض التقارير المكررة ثم أعد التحليل."}[c]||"حدث خطأ مؤقت في الاتصال. أعد المحاولة.");
 
 /* ---------- collect view ---------- */
 let reading=null; // {thumbs,typeId,error,result}
@@ -301,7 +336,7 @@ function renderReq(){
   const t=currentId?typeOf(currentId):null;
   const el=$("#req");
   if(reading&&reading.state==="busy"){
-    el.innerHTML=`<div class="label">جاري القراءة</div><div class="reading"><div class="spin"></div><div><strong>Claude يقرأ التقرير ويتعرف على اسمه وأرقامه…</strong><div class="label">عادة 20 إلى 60 ثانية</div></div></div><div class="thumbs">${reading.thumbs.map(s=>`<img alt="" src="${s}">`).join("")}</div>`;
+    el.innerHTML=`<div class="label">جاري القراءة</div><div class="reading"><div class="spin"></div><div><strong>Claude يقرأ التقرير ويتعرف على اسمه وأرقامه…</strong><div class="label">عادة 15 إلى 45 ثانية</div></div></div><div class="files">${reading.files.map(f=>`<span>${esc(f.name)} · <b>${f.rows}</b> rows</span>`).join("")}</div>`;
     return;
   }
   let res="";
@@ -310,20 +345,21 @@ function renderReq(){
     const mm=[["المكالمات",m.calls_offered,fmtN],["رُدّ",m.calls_answered,fmtN],["SL",m.service_level_pct,fmtPct],["ASA",m.asa_sec,fmtSec],["AHT",m.aht_sec,fmtSec],["Abandon",m.abandon_rate_pct,fmtPct]].filter(x=>isNum(x[1]));
     res=`<div class="result"><div class="label">تم التعرف على التقرير</div><div class="rname">${esc(e.nameAr||e.name)}</div><div class="en">${esc(e.name)}${e.period?" · "+esc(e.period):""}</div>
     <div class="mini-metrics">${mm.map(x=>`<span>${x[0]}: <b class="num">${x[2](x[1])}</b></span>`).join("")}${(e.data&&e.data.tables||[]).length?`<span>${e.data.tables.length} جدول مستخرج</span>`:""}</div>
-    ${e.readability&&e.readability!=="good"?`<div class="notice">الصورة مقروءة جزئياً. لنتيجة أدق أرفق لقطة أوضح أو مكبرة.</div>`:""}
+    ${e.readability&&e.readability!=="good"?`<div class="notice">بعض أعمدة الملف غير واضحة. تأكد أن التصدير يحتوي عناوين الأعمدة.</div>`:""}
     ${e.typeId!==reading.asked&&reading.asked?`<div class="label">صنّفته تحت: ${esc(typeOf(e.typeId).ar)}</div>`:""}</div>`;
   }else if(reading&&reading.state==="error"){
     res=`<div class="notice err">${esc(reading.error)}</div>`;
   }
   if(!t){
     el.innerHTML=`${res}<div class="label">اكتملت القائمة</div><h2>كل التقارير المطلوبة جاهزة</h2><p class="why">تقدر تضيف أي تقرير إضافي، أو اضغط <b>بدء التحليل</b> لبناء الداش بورد.</p>
-    <div class="drop" id="drop" tabindex="0" role="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><strong>أرفق تقرير إضافي</strong><small>Claude سيتعرف على اسم التقرير من الصورة</small></div>`;
+    <div class="drop" id="drop" tabindex="0" role="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><strong>أرفق تقرير إضافي</strong><small>Excel أو CSV · Claude سيتعرف على اسم التقرير من الملف</small></div>`;
   }else{
     const done=entries.filter(e=>e.typeId===t.id);
     el.innerHTML=`${res}<div class="req-head"><div><div class="label">${done.length?"تم إرفاقه · تقدر تضيف صفحة أخرى":"التقرير المطلوب الآن"}</div><h2>${esc(t.ar)}</h2><div class="en">${esc(t.en)}</div></div>${t.req?`<span class="chip acc">أساسي</span>`:`<span class="chip">اختياري</span>`}</div>
     <div><div class="label">افتحه من Avaya CMS Supervisor</div><div class="path"><span>Reports</span><i>›</i><span>Historical</span><i>›</i><span>${esc(t.en)}</span></div><div class="label" style="margin-top:6px">الفترة المقترحة: ${esc(t.tip||"")}</div></div>
     <div class="why"><b>ليش نحتاجه:</b> ${esc(t.why)}</div>
-    <div class="drop" id="drop" tabindex="0" role="button" aria-label="أرفق صورة التقرير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-8 7"/></svg><strong>أرفق صورة التقرير هنا</strong><small>اسحب الصورة أو اضغط للاختيار · تقدر تلصق لقطة الشاشة مباشرة Ctrl+V · حتى عدة صور لنفس التقرير</small></div>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="أرفق ملف Excel للتقرير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="m9 12 4 5M13 12l-4 5"/></svg><strong>أرفق ملف Excel للتقرير</strong><small>اسحب الملف أو اضغط للاختيار · xlsx · xls · csv · تقدر ترفع أكثر من ملف لنفس التقرير</small></div>
+    <details class="export"><summary>كيف أصدّر التقرير من Avaya إلى Excel؟</summary><ol><li>شغّل التقرير في CMS Supervisor بالفترة المطلوبة.</li><li>من نافذة التقرير: <code>Report › Export All Data…</code> (أو <code>Export Chart Data</code>).</li><li>احفظه بصيغة نص <code>.txt</code> أو <code>.csv</code>، أو افتحه في Excel واحفظه <code>.xlsx</code>.</li><li>ارفعه هنا.</li></ol></details>
     <div class="req-actions">${done.length?`<button class="btn primary" id="btn-next">التقرير التالي</button>`:`<button class="btn" id="btn-skip">ما عندي هذا التقرير، تخطَّ</button>`}</div>`;
   }
   const drop=$("#drop");
@@ -340,7 +376,7 @@ function renderList(){
   const rows=TYPES.map(t=>{
     const n=entries.filter(e=>e.typeId===t.id).length;
     const cls=[d.has(t.id)?"done":"",skipped.has(t.id)&&!d.has(t.id)?"skipped":"",t.id===currentId?"current":""].join(" ");
-    return `<button class="item ${cls}" data-id="${t.id}"><span class="st">${d.has(t.id)?"✓":""}</span><span><span class="t">${esc(t.ar)}</span><span class="s">${esc(t.en)}</span></span>${d.has(t.id)?`<span class="chip good">${n} ${n>1?"صور":"صورة"}</span>`:skipped.has(t.id)?`<span class="chip">متخطى</span>`:t.req?`<span class="chip acc">أساسي</span>`:`<span class="chip">اختياري</span>`}</button>`;
+    return `<button class="item ${cls}" data-id="${t.id}"><span class="st">${d.has(t.id)?"✓":""}</span><span><span class="t">${esc(t.ar)}</span><span class="s">${esc(t.en)}</span></span>${d.has(t.id)?`<span class="chip good">${n} ${n>1?"ملفات":"ملف"}</span>`:skipped.has(t.id)?`<span class="chip">متخطى</span>`:t.req?`<span class="chip acc">أساسي</span>`:`<span class="chip">اختياري</span>`}</button>`;
   });
   const others=entries.filter(e=>e.typeId==="other");
   others.forEach(e=>rows.push(`<div class="item done"><span class="st">✓</span><span><span class="t">${esc(e.nameAr||e.name)}</span><span class="s">${esc(e.name)}</span></span><button class="btn sm" data-del="${e.id}">حذف</button></div>`));
@@ -351,14 +387,29 @@ function renderList(){
   const total=TYPES.filter(t=>d.has(t.id)).length;
   $("#count-chip").textContent=`${total} / ${TYPES.length}`;
   $("#prog").style.width=(total/TYPES.length*100)+"%";
-  $("#analyze-text").innerHTML=entries.length?`<strong>${entries.length} ${entries.length>1?"صور تقارير":"صورة تقرير"} جاهزة</strong> · الأساسية ${coreDone} من ${core.length}. ${coreDone<core.length?"تقدر تبدأ الحين، والنتيجة أدق مع التقارير الأساسية كاملة.":"كل التقارير الأساسية موجودة."}`:"أرفق تقريراً واحداً على الأقل لتفعيل التحليل.";
+  $("#analyze-text").innerHTML=entries.length?`<strong>${entries.length} ${entries.length>1?"ملفات تقارير":"ملف تقرير"} جاهزة</strong> · الأساسية ${coreDone} من ${core.length}. ${coreDone<core.length?"تقدر تبدأ الحين، والنتيجة أدق مع التقارير الأساسية كاملة.":"كل التقارير الأساسية موجودة."}`:"أرفق تقريراً واحداً على الأقل لتفعيل التحليل.";
   $("#btn-analyze").disabled=!entries.length||busy||!sample;
 }
 function renderCollect(){renderReq();renderList()}
 
-async function fileToThumb(f){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=()=>r("");fr.readAsDataURL(f)})}
+/* read Excel / CSV / CMS text export into compact CSV text */
+async function readSheetFile(f){
+  const buf=await f.arrayBuffer();
+  let wb;
+  if(window.XLSX){wb=XLSX.read(buf,{type:"array",cellDates:true,raw:false})}
+  else{const txt=new TextDecoder().decode(buf);return {name:f.name,rows:txt.split(/\r?\n/).filter(l=>l.trim()).length,text:"FILE: "+f.name+"\n"+txt}}
+  let out="FILE: "+f.name+"\n",rows=0;
+  for(const sn of wb.SheetNames.slice(0,6)){
+    const csv=XLSX.utils.sheet_to_csv(wb.Sheets[sn],{blankrows:false,strip:true});
+    const lines=csv.split("\n").filter(l=>l.replace(/[,\s]/g,"").length);
+    if(!lines.length)continue;
+    rows+=lines.length;
+    out+="SHEET: "+sn+" ("+lines.length+" rows)\n"+lines.slice(0,400).join("\n")+(lines.length>400?"\n...("+(lines.length-400)+" more rows truncated)":"")+"\n";
+  }
+  return {name:f.name,rows,text:out};
+}
 
-const EXTRACT_PROMPT=asked=>`You are reading screenshot(s) of a contact-center report from Avaya (usually a custom CrysKSA_* report in CMS Supervisor, Avaya Analytics, Call Center Elite, IP Office or similar). The user expects: "${asked?typeOf(asked).en:"unknown"}", but identify what it really is.
+const EXTRACT_PROMPT=(asked,data)=>`You are reading an Excel/CSV/text export of a contact-center report from Avaya (usually a custom CrysKSA_* report in CMS Supervisor, Avaya Analytics, Call Center Elite, IP Office or similar). The user expects: "${asked?typeOf(asked).en:"unknown"}", but identify what it really is.
 Known report types (type_id: name):
 ${TYPES.map(t=>`- ${t.id}: ${t.en}`).join("\n")}
 - other: anything else
@@ -368,28 +419,34 @@ Rules:
 - Convert durations like 0:03:25 or 3:25 to seconds in "metrics". Keep raw text in tables.
 - Percentages as plain numbers (82.4 not "82.4%").
 - If the report shows totals and per-row data, put totals in "metrics" and rows in "tables".
-- Each table max 80 rows. Keep column headers as shown.
+- The file name and sheet names are strong hints for the report name.
+- Each table max 150 rows (keep the Total row). Keep column headers as shown.
 
 Reply with ONLY this JSON:
 {"type_id":"one of the ids","report_name":"exact title as on screen","report_name_ar":"Arabic name","period":"date range or date as shown","granularity":"interval|daily|weekly|monthly|other","scope":"skills / agents / VDNs covered",
 "metrics":{"calls_offered":n,"calls_answered":n,"calls_abandoned":n,"service_level_pct":n,"service_level_target_sec":n,"asa_sec":n,"aht_sec":n,"avg_talk_sec":n,"avg_acw_sec":n,"avg_hold_sec":n,"max_delay_sec":n,"abandon_rate_pct":n,"avg_abandon_time_sec":n,"occupancy_pct":n,"aux_pct":n,"staffed_hours":n,"agents_count":n,"transfers":n,"fcr_pct":n,"repeat_calls":n,"flow_out":n},
 "tables":[{"title":"...","columns":["..."],"rows":[["..."]]}],
-"readability":"good|partial|poor","notes_ar":"one Arabic sentence about what this report shows"}`;
+"readability":"good|partial|poor","notes_ar":"one Arabic sentence about what this report shows"}
+
+REPORT DATA:
+${data}`;
 
 async function handleFiles(files){
-  files=files.filter(f=>/^image\//.test(f.type));
-  if(!files.length){toast("أرفق صورة (PNG أو JPG)");return}
-  if(!sample){toast("قراءة الصور تحتاج فتح الصفحة داخل claude.ai");return}
+  files=files.filter(f=>/\.(xlsx|xls|xlsm|csv|txt|tsv)$/i.test(f.name));
+  if(!files.length){toast("أرفق ملف Excel أو CSV");return}
+  if(!sample){toast("التحليل يحتاج فتح الصفحة داخل claude.ai");return}
   if(busy)return;
-  if(!canImages){reading={state:"error",error:errCopy("images_unavailable")};renderReq();return}
   busy=true;
   const asked=currentId;
-  const thumbs=await Promise.all(files.map(fileToThumb));
-  reading={state:"busy",thumbs,asked};renderCollect();
+  let parsed;
+  try{parsed=await Promise.all(files.slice(0,5).map(readSheetFile))}
+  catch(e){busy=false;reading={state:"error",error:"تعذّر فتح الملف. احفظه من Excel بصيغة xlsx أو csv ثم أعد الرفع.",asked};renderCollect();return}
+  if(!parsed.some(p=>p.rows)){busy=false;reading={state:"error",error:"الملف فارغ أو لا يحتوي بيانات.",asked};renderCollect();return}
+  reading={state:"busy",files:parsed,asked};renderCollect();
   try{
-    const r=await sample.json(EXTRACT_PROMPT(asked),{images:files.slice(0,4),modelTier:"default"});
+    const r=await sample.json(EXTRACT_PROMPT(asked,parsed.map(p=>p.text).join("\n\n").slice(0,180000)),{modelTier:"default"});
     const tid=TYPES.some(t=>t.id===r.type_id)?r.type_id:(r.type_id==="other"?"other":(asked||"other"));
-    const e={id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),typeId:tid,name:String(r.report_name||typeOf(tid).en),nameAr:String(r.report_name_ar||typeOf(tid).ar),period:r.period?String(r.period):"",metrics:r.metrics&&typeof r.metrics==="object"?r.metrics:{},data:{granularity:r.granularity,scope:r.scope,tables:Array.isArray(r.tables)?r.tables.slice(0,8):[],notes:r.notes_ar},readability:r.readability||"good",at:Date.now()};
+    const e={id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),typeId:tid,name:String(r.report_name||typeOf(tid).en),nameAr:String(r.report_name_ar||typeOf(tid).ar),period:r.period?String(r.period):"",metrics:r.metrics&&typeof r.metrics==="object"?r.metrics:{},data:{granularity:r.granularity,scope:r.scope,tables:Array.isArray(r.tables)?r.tables.slice(0,8):[],files:parsed.map(p=>p.name),notes:r.notes_ar},readability:r.readability||"good",at:Date.now()};
     entries.push(e);skipped.delete(tid);
     await saveEntry(e);
     reading={state:"done",entry:e,asked};
@@ -400,14 +457,14 @@ async function handleFiles(files){
   }finally{busy=false;renderCollect()}
 }
 $("#file").addEventListener("change",e=>{const f=[...e.target.files];e.target.value="";handleFiles(f)});
-document.addEventListener("paste",e=>{if($("#view-collect").hidden)return;const f=[...(e.clipboardData&&e.clipboardData.files||[])];if(f.length)handleFiles(f)});
+
 
 $("#btn-reset").onclick=()=>{$("#reset-confirm").hidden=false};
 $("#reset-no").onclick=()=>{$("#reset-confirm").hidden=true};
 $("#reset-yes").onclick=async()=>{const ids=entries.map(e=>e.id);entries=[];skipped=new Set();dashboard=null;reading=null;currentId=TYPES[0].id;$("#reset-confirm").hidden=true;renderCollect();renderDash();for(const id of ids)await deleteEntry(id);saveState();toast("تم مسح التقارير")};
 
 /* ---------- analysis ---------- */
-const ANALYZE_PROMPT=()=>`You are a senior contact-center performance analyst (Avaya CMS expert). Below is data extracted from the user's Avaya report screenshots. Build a performance dashboard in Arabic.
+const ANALYZE_PROMPT=()=>`You are a senior contact-center performance analyst (Avaya CMS expert). Below is data extracted from the user's Avaya report Excel exports. Build a performance dashboard in Arabic.
 
 Industry targets to judge against (unless the reports show their own targets): Service Level 80% answered in 20s; ASA <= 20s; Abandon rate <= 5%; AHT per data norms (flag outliers vs team average); ACW <= 15% of AHT; Occupancy 75-85%; AUX (non-productive) <= 12%; FCR >= 70%.
 Definitions: SL = answered within threshold / (offered - short abandons); Abandon% = abandoned / offered; AHT = talk + hold + ACW; FCR = resolved on first contact / total. These are custom CrysKSA reports: \"Less X sec\" means the SLA threshold, \"Within SLA\" / \"% SLA\" columns give service level directly. If CrysKSA_CallingParty data exists, estimate FCR = 1 - (calls from repeat numbers beyond the first / total calls) and say it is an estimate; MPR = Monthly Performance Report scorecard (each KPI: target vs actual, achievement %).
@@ -494,13 +551,13 @@ function renderDash(){
   const hsCol=hs==null?"--line":hs>=80?"--good":hs>=60?"--warn":"--bad";
   const C=2*Math.PI*48;
   const top=`${analyzeErr?`<div class="notice err">${esc(analyzeErr)}</div>`:""}
-  ${D.example?`<div class="example"><span>هذا داش بورد مثال بأرقام توضيحية. أرفق تقاريرك واضغط بدء التحليل لتظهر أرقامك.</span><button class="btn sm signal" id="go-collect">ابدأ بإرفاق التقارير</button></div>`:`<div class="example" style="background:var(--accent-soft);color:var(--accent)"><span>مبني من ${D.reportCount||entries.length} صورة تقرير · ${D.generatedAt?new Date(D.generatedAt).toLocaleString("ar-SA-u-nu-latn",{dateStyle:"medium",timeStyle:"short"}):""}</span><button class="btn sm" id="re-analyze" ${!sample||!entries.length?"disabled":""}>إعادة التحليل</button></div>`}
+  ${D.example?`<div class="example"><span>هذا داش بورد مثال بأرقام توضيحية. أرفق تقاريرك واضغط بدء التحليل لتظهر أرقامك.</span><button class="btn sm signal" id="go-collect">ابدأ بإرفاق التقارير</button></div>`:`<div class="example" style="background:var(--accent-soft);color:var(--accent)"><span>مبني من ${D.reportCount||entries.length} ملف تقرير · ${D.generatedAt?new Date(D.generatedAt).toLocaleString("ar-SA-u-nu-latn",{dateStyle:"medium",timeStyle:"short"}):""}</span><button class="btn sm" id="re-analyze" ${!sample||!entries.length?"disabled":""}>إعادة التحليل</button></div>`}
   <div class="panel hero">
-    <div class="ring" role="img" aria-label="مؤشر الصحة ${hs==null?"غير متاح":hs+" من 100"}"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="55" cy="55" r="48" fill="none" stroke="var(${hsCol})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${hs==null?C:C*(1-hs/100)}"/></svg><div class="val"><div><b>${hs==null?"—":Math.round(hs)}</b><small>مؤشر الأداء</small></div></div></div>
+    <div class="ring" role="img" aria-label="مؤشر الصحة ${hs==null?"غير متاح":hs+" من 100"}"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="55" cy="55" r="48" fill="none" stroke="var(${hsCol})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-to="${hs==null?C:C*(1-hs/100)}"/></svg><div class="val"><div><b id="hs-num">${hs==null?"—":Math.round(hs)}</b><small>مؤشر الأداء</small></div></div></div>
     <div><div class="label">${esc(D.title_period||"")}</div><h2>${esc(D.headline||"")}</h2><p>${esc(D.summary||"")}</p></div>
     <div class="meta">${D.volume?`<span class="chip acc">واردة <b class="num">${fmtN(D.volume.offered)}</b></span><span class="chip good">رُدّ <b class="num">${fmtN(D.volume.answered)}</b></span><span class="chip bad">مغلقة <b class="num">${fmtN(D.volume.abandoned)}</b></span>`:""}</div>
   </div>`;
-  const kpiHtml=k.length?`<div class="kpis">${k.map(x=>`<div class="panel kpi ${esc(x.status)}"><div class="k-top"><span class="label">${esc(x.label)}</span>${x.status&&x.status!=="na"?statusChip(x.status):""}</div><div class="v">${kpiVal(x)}</div><div class="tg">الهدف: ${esc(x.target||"—")}${x.delta?` · <span class="num">${esc(x.delta)}</span>`:""}</div>${x.source?`<div class="src">${esc(x.source)}</div>`:""}</div>`).join("")}</div>`:"";
+  const kpiHtml=k.length?`<div class="kpis">${k.map((x,i)=>`<div class="panel kpi ${esc(x.status)}"><div class="k-top"><span class="label">${esc(x.label)}</span>${x.status&&x.status!=="na"?statusChip(x.status):""}</div><div class="v" data-i="${i}">${kpiVal(x)}</div><div class="tg">الهدف: ${esc(x.target||"—")}${x.delta?` · <span class="num">${esc(x.delta)}</span>`:""}</div>${x.source?`<div class="src">${esc(x.source)}</div>`:""}</div>`).join("")}</div>`:"";
   const hasTrend=D.trend&&Array.isArray(D.trend.labels)&&D.trend.labels.length&&Array.isArray(D.trend.series);
   const hasInt=D.intervals&&Array.isArray(D.intervals.labels)&&D.intervals.labels.length;
   const hasVol=D.volume&&isNum(D.volume.answered);
@@ -547,6 +604,22 @@ function renderDash(){
   $("#q").onkeydown=e=>{if(e.key==="Enter")ask()};
   if(!sample){$("#ask-btn").disabled=true}
   drawCharts(D,{hasTrend,hasInt,hasVol,aux});
+  animateIn(k,hs);
+}
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function animateIn(k,hs){
+  const ring=document.querySelector(".ring circle[data-to]");
+  if(ring)requestAnimationFrame(()=>requestAnimationFrame(()=>ring.setAttribute("stroke-dashoffset",ring.dataset.to)));
+  if(reduce)return;
+  const targets=[...document.querySelectorAll(".kpi .v[data-i]")].map(el=>({el,x:k[+el.dataset.i]})).filter(t=>t.x&&isNum(t.x.value));
+  const hsEl=$("#hs-num");
+  const t0=performance.now(),dur=1100;
+  (function step(now){
+    const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);
+    targets.forEach(t=>{t.el.textContent=kpiVal({...t.x,value:t.x.value*e})});
+    if(hsEl&&isNum(hs))hsEl.textContent=Math.round(hs*e);
+    if(p<1)requestAnimationFrame(step);
+  })(t0);
 }
 
 function drawCharts(D,f){
@@ -605,6 +678,26 @@ const rerender=()=>{if(!$("#view-dash").hidden&&!busy)renderDash()};
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",rerender)}catch(e){}
 new MutationObserver(rerender).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 
+/* ---------- animated network background ---------- */
+(function(){
+  const cv=$("#bg");if(!cv||!cv.getContext)return;
+  const ctx=cv.getContext("2d");let W,H,dpr,nodes=[];
+  function size(){dpr=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.round(Math.min(70,W*H/22000));nodes=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25}))}
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(const a of nodes){a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>W)a.vx*=-1;if(a.y<0||a.y>H)a.vy*=-1}
+    for(let i=0;i<nodes.length;i++){const a=nodes[i];
+      for(let j=i+1;j<nodes.length;j++){const b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=dx*dx+dy*dy;
+        if(d<17000){ctx.strokeStyle="rgba(34,211,238,"+(0.14*(1-d/17000))+")";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}}
+      ctx.fillStyle="rgba(34,211,238,.55)";ctx.beginPath();ctx.arc(a.x,a.y,1.4,0,6.283);ctx.fill()}
+    if(!reduce&&!document.hidden)requestAnimationFrame(frame);
+  }
+  size();frame();
+  addEventListener("resize",()=>{size();if(reduce)frame()});
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!reduce)requestAnimationFrame(frame)});
+})();
+
 /* ---------- boot ---------- */
 lsLoad();
 currentId=(nextType()||{}).id||null;
@@ -615,7 +708,7 @@ try{if(localStorage.getItem(LS+"-tab")==="dash")showTab("dash")}catch(e){}
   if(!window.claude||!claude.use)return;
   const [s,d,u]=await Promise.all([claude.use("sample"),claude.use("db"),claude.use("user")]);
   sample=s;db=d;
-  if(sample){try{const lim=await sample.limits();canImages=!!(lim&&lim.images)}catch(e){canImages=false}}
+  if(sample){const lv=$("#live");lv.classList.remove("off");lv.lastChild.textContent="AI ONLINE"}
   if(u&&db){try{uid=await u.id()}catch(e){uid=null}}
   await loadDb();
   currentId=(nextType()||{}).id||null;
