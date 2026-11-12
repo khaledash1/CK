@@ -62,8 +62,23 @@ main{padding-block:24px 64px}
 .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
 
 /* collect view */
-.collect{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
-@media (max-width:900px){.collect{grid-template-columns:1fr}}
+.collect{display:grid;gap:16px;max-width:820px;margin:0 auto}
+#view-collect .analyze-bar,#view-collect #reset-confirm{max-width:820px;margin-inline:auto}
+.steps{display:flex;gap:5px;flex-wrap:wrap}
+.steps i{width:22px;height:6px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line)}
+.steps i.done{background:var(--good);border-color:var(--good);box-shadow:0 0 8px var(--good)}
+.steps i.cur{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--accent);animation:blink 1.4s infinite}
+.steps i.skip{background:transparent;border-style:dashed}
+.counter{font-family:var(--f-body);font-weight:700;font-size:14px;color:var(--accent)}
+[hidden]{display:none!important}
+.rep-name{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;padding:16px 18px;border-radius:12px;background:rgba(2,10,20,.7);border:1px solid rgba(34,211,238,.35);box-shadow:inset 0 0 24px rgba(34,211,238,.08)}
+.rep-name code{font-family:var(--f-data);font-size:clamp(15px,2.4vw,20px);font-weight:700;color:var(--accent);direction:ltr;word-break:break-all;text-shadow:0 0 12px rgba(34,211,238,.4)}
+.got{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--good-soft);color:var(--good);font-size:14px;font-weight:600;flex-wrap:wrap}
+.got .link{background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-size:13px;padding:0}
+details.all{padding:6px 8px}
+details.all>summary{cursor:pointer;padding:10px 12px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none}
+details.all>summary::-webkit-details-marker{display:none}
+.choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 .req{padding:24px;display:grid;gap:18px}
 .req-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
 .req h2{font-size:24px}
@@ -237,11 +252,11 @@ body::before{background:rgba(5,10,21,.9)}
   <section id="view-collect">
     <div class="collect">
       <div class="panel req" id="req"></div>
-      <aside class="panel list">
-        <div class="list-head"><h3>قائمة التقارير المطلوبة</h3><span class="chip" id="count-chip"></span></div>
+      <details class="panel list all" id="all-list">
+        <summary><span>كل التقارير (اضغط للعرض أو للرجوع لتقرير معيّن)</span><span class="chip" id="count-chip"></span></summary>
         <div class="progress"><i id="prog" style="width:0"></i></div>
         <div id="items"></div>
-      </aside>
+      </details>
     </div>
     <div class="panel analyze-bar">
       <p id="analyze-text"></p>
@@ -332,45 +347,73 @@ const errCopy=c=>({not_granted:"لم يتم السماح للصفحة باستخ
 
 /* ---------- collect view ---------- */
 let reading=null; // {thumbs,typeId,error,result}
+let optIn=null; // after the core reports: continue with optional ones?
 function renderReq(){
-  const t=currentId?typeOf(currentId):null;
   const el=$("#req");
   if(reading&&reading.state==="busy"){
-    el.innerHTML=`<div class="label">جاري القراءة</div><div class="reading"><div class="spin"></div><div><strong>Claude يقرأ التقرير ويتعرف على اسمه وأرقامه…</strong><div class="label">عادة 15 إلى 45 ثانية</div></div></div><div class="files">${reading.files.map(f=>`<span>${esc(f.name)} · <b>${f.rows}</b> rows</span>`).join("")}</div>`;
+    el.innerHTML=`<div class="counter">جاري القراءة</div><div class="reading"><div class="spin"></div><div><strong>Claude يقرأ ملف ${esc(typeOf(reading.asked||"other").en)} ويستخرج الأرقام…</strong><div class="label">عادة 15 إلى 45 ثانية</div></div></div><div class="files">${reading.files.map(f=>`<span>${esc(f.name)} · <b>${f.rows}</b> rows</span>`).join("")}</div>`;
     return;
   }
-  let res="";
+  const d=doneTypes();
+  const core=TYPES.filter(t=>t.req);
+  let t=currentId?typeOf(currentId):null;
+  // after core: ask once whether to continue with optional reports
+  const coreLeft=core.some(c=>!d.has(c.id)&&!skipped.has(c.id));
+  const askOpt=t&&!t.req&&!coreLeft&&optIn===null&&!d.has(t.id);
+  if(t&&!t.req&&optIn===false&&!d.has(t.id))t=null;
+  let got="";
   if(reading&&reading.state==="done"){
     const e=reading.entry;const m=e.metrics||{};
-    const mm=[["المكالمات",m.calls_offered,fmtN],["رُدّ",m.calls_answered,fmtN],["SL",m.service_level_pct,fmtPct],["ASA",m.asa_sec,fmtSec],["AHT",m.aht_sec,fmtSec],["Abandon",m.abandon_rate_pct,fmtPct]].filter(x=>isNum(x[1]));
-    res=`<div class="result"><div class="label">تم التعرف على التقرير</div><div class="rname">${esc(e.nameAr||e.name)}</div><div class="en">${esc(e.name)}${e.period?" · "+esc(e.period):""}</div>
-    <div class="mini-metrics">${mm.map(x=>`<span>${x[0]}: <b class="num">${x[2](x[1])}</b></span>`).join("")}${(e.data&&e.data.tables||[]).length?`<span>${e.data.tables.length} جدول مستخرج</span>`:""}</div>
-    ${e.readability&&e.readability!=="good"?`<div class="notice">بعض أعمدة الملف غير واضحة. تأكد أن التصدير يحتوي عناوين الأعمدة.</div>`:""}
-    ${e.typeId!==reading.asked&&reading.asked?`<div class="label">صنّفته تحت: ${esc(typeOf(e.typeId).ar)}</div>`:""}</div>`;
+    const mm=[["المكالمات",m.calls_offered,fmtN],["SL",m.service_level_pct,fmtPct],["ASA",m.asa_sec,fmtSec],["AHT",m.aht_sec,fmtSec],["Abandon",m.abandon_rate_pct,fmtPct]].filter(x=>isNum(x[1]));
+    got=`<div class="got"><span>✓ استلمت: ${esc(e.nameAr||e.name)}${e.period?" · "+esc(e.period):""}</span>${mm.map(x=>`<span class="chip">${x[0]} <b class="num">${x[2](x[1])}</b></span>`).join("")}<button class="link" id="add-more" data-id="${esc(e.typeId)}">إضافة ملف آخر لنفس التقرير</button></div>
+    ${e.readability&&e.readability!=="good"?`<div class="notice">بعض أعمدة الملف غير واضحة. تأكد أن التصدير يحتوي عناوين الأعمدة.</div>`:""}`;
   }else if(reading&&reading.state==="error"){
-    res=`<div class="notice err">${esc(reading.error)}</div>`;
+    got=`<div class="notice err">${esc(reading.error)}</div>`;
+  }
+  const seq=TYPES.filter(x=>x.req||optIn===true||d.has(x.id));
+  const steps=`<div class="steps" aria-hidden="true">${seq.map(x=>`<i class="${d.has(x.id)?"done":t&&x.id===t.id?"cur":skipped.has(x.id)?"skip":""}"></i>`).join("")}</div>`;
+  if(askOpt){
+    el.innerHTML=`${got}${steps}<div class="counter">خلصنا التقارير الأساسية ✓</div><h2>تبي نكمل التقارير الاختيارية؟</h2><p class="why">باقي ${TYPES.filter(x=>!x.req&&!d.has(x.id)).length} تقارير اختيارية (تفصيل المهارات، الإشغال اليومي، الحضور، الدخول والخروج). تزيد دقة التحليل لكنها مو ضرورية.</p>
+    <div class="choice"><button class="btn primary" id="opt-yes">كمّل، اطلبها مني بالدور</button><button class="btn" id="opt-no">لا، ابدأ التحليل الآن</button></div>`;
+    $("#opt-yes").onclick=()=>{optIn=true;reading=null;renderCollect()};
+    $("#opt-no").onclick=()=>{optIn=false;analyze()};
+    bindMore();return;
   }
   if(!t){
-    el.innerHTML=`${res}<div class="label">اكتملت القائمة</div><h2>كل التقارير المطلوبة جاهزة</h2><p class="why">تقدر تضيف أي تقرير إضافي، أو اضغط <b>بدء التحليل</b> لبناء الداش بورد.</p>
-    <div class="drop" id="drop" tabindex="0" role="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><strong>أرفق تقرير إضافي</strong><small>Excel أو CSV · Claude سيتعرف على اسم التقرير من الملف</small></div>`;
+    el.innerHTML=`${got}${steps}<div class="counter">اكتمل الجمع ✓</div><h2>كل التقارير جاهزة للتحليل</h2><p class="why">${entries.length} ملف مستلم. اضغط <b>بدء التحليل</b> لبناء الداش بورد، أو ارفع أي تقرير إضافي هنا وClaude يتعرف عليه.</p>
+    <button class="btn primary" id="go-analyze" ${!sample||busy?"disabled":""}>بدء التحليل</button>
+    ${dropHtml("أرفق تقرير إضافي")}`;
+    $("#go-analyze").onclick=analyze;
   }else{
-    const done=entries.filter(e=>e.typeId===t.id);
-    el.innerHTML=`${res}<div class="req-head"><div><div class="label">${done.length?"تم إرفاقه · تقدر تضيف صفحة أخرى":"التقرير المطلوب الآن"}</div><h2>${esc(t.ar)}</h2><div class="en">${esc(t.en)}</div></div>${t.req?`<span class="chip acc">أساسي</span>`:`<span class="chip">اختياري</span>`}</div>
-    <div><div class="label">افتحه من Avaya CMS Supervisor</div><div class="path"><span>Reports</span><i>›</i><span>Historical</span><i>›</i><span>${esc(t.en)}</span></div><div class="label" style="margin-top:6px">الفترة المقترحة: ${esc(t.tip||"")}</div></div>
+    const pos=seq.findIndex(x=>x.id===t.id)+1;
+    const has=entries.filter(e=>e.typeId===t.id).length;
+    el.innerHTML=`${got}${steps}
+    <div class="req-head"><div class="counter">التقرير ${pos} من ${seq.length}${t.req?"":" · اختياري"}</div>${has?`<span class="chip good">${has} ملف مستلم</span>`:""}</div>
+    <div><div class="label">${has?"تقدر ترفع ملف إضافي لنفس التقرير أو تنتقل للتالي":"أرسل لي هذا التقرير"}</div><h2>${esc(t.ar)}</h2></div>
+    <div class="rep-name"><code id="rep-code">${esc(t.en)}</code><button class="btn sm" id="copy-name">نسخ الاسم</button></div>
+    <div class="label">افتحه من: Reports › Historical · الفترة المقترحة: ${esc(t.tip||"")}</div>
     <div class="why"><b>ليش نحتاجه:</b> ${esc(t.why)}</div>
-    <div class="drop" id="drop" tabindex="0" role="button" aria-label="أرفق ملف Excel للتقرير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="m9 12 4 5M13 12l-4 5"/></svg><strong>أرفق ملف Excel للتقرير</strong><small>اسحب الملف أو اضغط للاختيار · xlsx · xls · csv · تقدر ترفع أكثر من ملف لنفس التقرير</small></div>
-    <details class="export"><summary>كيف أصدّر التقرير من Avaya إلى Excel؟</summary><ol><li>شغّل التقرير في CMS Supervisor بالفترة المطلوبة.</li><li>من نافذة التقرير: <code>Report › Export All Data…</code> (أو <code>Export Chart Data</code>).</li><li>احفظه بصيغة نص <code>.txt</code> أو <code>.csv</code>، أو افتحه في Excel واحفظه <code>.xlsx</code>.</li><li>ارفعه هنا.</li></ol></details>
-    <div class="req-actions">${done.length?`<button class="btn primary" id="btn-next">التقرير التالي</button>`:`<button class="btn" id="btn-skip">ما عندي هذا التقرير، تخطَّ</button>`}</div>`;
+    ${dropHtml("أرفق ملف Excel لهذا التقرير")}
+    <details class="export"><summary>كيف أصدّر التقرير من Avaya إلى Excel؟</summary><ol><li>شغّل التقرير في CMS Supervisor بالفترة المطلوبة.</li><li>من نافذة التقرير: <code>Report › Export All Data…</code></li><li>احفظه <code>.txt</code> أو <code>.csv</code>، أو افتحه في Excel واحفظه <code>.xlsx</code>.</li><li>ارفعه هنا.</li></ol></details>
+    <div class="req-actions">${has?`<button class="btn primary" id="btn-next">التقرير التالي</button>`:`<button class="btn" id="btn-skip">ما عندي هذا التقرير، تخطَّ</button>`}</div>`;
+    $("#copy-name").onclick=()=>{const txt=t.en;const b=$("#copy-name");const ok=()=>{b.textContent="تم النسخ ✓";setTimeout(()=>b.textContent="نسخ الاسم",1500)};
+      try{navigator.clipboard.writeText(txt).then(ok,()=>selectCode())}catch(e){selectCode()}};
+    const sk=$("#btn-skip");if(sk)sk.onclick=()=>{skipped.add(t.id);reading=null;currentId=(nextType()||{}).id||null;saveState();renderCollect()};
+    const nx=$("#btn-next");if(nx)nx.onclick=()=>{reading=null;currentId=(nextType()||{}).id||null;renderCollect()};
   }
-  const drop=$("#drop");
+  bindDrop();bindMore();
+}
+function selectCode(){const c=$("#rep-code");if(!c)return;const rg=document.createRange();rg.selectNodeContents(c);const sel=getSelection();sel.removeAllRanges();sel.addRange(rg);toast("الاسم محدد، انسخه بـ Ctrl+C")}
+function dropHtml(title){return `<div class="drop" id="drop" tabindex="0" role="button" aria-label="${esc(title)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="m9 12 4 5M13 12l-4 5"/></svg><strong>${esc(title)}</strong><small>اسحب الملف أو اضغط للاختيار · xlsx · xls · csv · txt</small></div>`}
+function bindDrop(){
+  const drop=$("#drop");if(!drop)return;
   drop.onclick=()=>$("#file").click();
   drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("#file").click()}};
   drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};
   drop.ondragleave=()=>drop.classList.remove("over");
   drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");handleFiles([...e.dataTransfer.files])};
-  const sk=$("#btn-skip");if(sk)sk.onclick=()=>{skipped.add(t.id);reading=null;currentId=(nextType()||{}).id||null;saveState();renderCollect()};
-  const nx=$("#btn-next");if(nx)nx.onclick=()=>{reading=null;currentId=(nextType()||{}).id||null;renderCollect()};
 }
+function bindMore(){const m=$("#add-more");if(m)m.onclick=()=>{currentId=m.dataset.id;reading=null;renderCollect()}}
 function renderList(){
   const d=doneTypes();
   const rows=TYPES.map(t=>{
@@ -381,7 +424,7 @@ function renderList(){
   const others=entries.filter(e=>e.typeId==="other");
   others.forEach(e=>rows.push(`<div class="item done"><span class="st">✓</span><span><span class="t">${esc(e.nameAr||e.name)}</span><span class="s">${esc(e.name)}</span></span><button class="btn sm" data-del="${e.id}">حذف</button></div>`));
   $("#items").innerHTML=rows.join("");
-  $("#items").querySelectorAll("button.item").forEach(b=>b.onclick=()=>{currentId=b.dataset.id;skipped.delete(currentId);reading=null;renderCollect()});
+  $("#items").querySelectorAll("button.item").forEach(b=>b.onclick=()=>{currentId=b.dataset.id;skipped.delete(currentId);if(!typeOf(currentId).req)optIn=true;reading=null;$("#all-list").open=false;renderCollect();window.scrollTo({top:0,behavior:"smooth"})});
   $("#items").querySelectorAll("[data-del]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const id=b.dataset.del;entries=entries.filter(x=>x.id!==id);deleteEntry(id);renderCollect()});
   const core=TYPES.filter(t=>t.req),coreDone=core.filter(t=>d.has(t.id)).length;
   const total=TYPES.filter(t=>d.has(t.id)).length;
@@ -450,7 +493,7 @@ async function handleFiles(files){
     entries.push(e);skipped.delete(tid);
     await saveEntry(e);
     reading={state:"done",entry:e,asked};
-    currentId=tid;
+    currentId=(nextType()||{}).id||null;
     toast("تم التعرف: "+e.nameAr);
   }catch(err){
     reading={state:"error",error:errCopy(err&&err.code),asked};
@@ -461,7 +504,7 @@ $("#file").addEventListener("change",e=>{const f=[...e.target.files];e.target.va
 
 $("#btn-reset").onclick=()=>{$("#reset-confirm").hidden=false};
 $("#reset-no").onclick=()=>{$("#reset-confirm").hidden=true};
-$("#reset-yes").onclick=async()=>{const ids=entries.map(e=>e.id);entries=[];skipped=new Set();dashboard=null;reading=null;currentId=TYPES[0].id;$("#reset-confirm").hidden=true;renderCollect();renderDash();for(const id of ids)await deleteEntry(id);saveState();toast("تم مسح التقارير")};
+$("#reset-yes").onclick=async()=>{const ids=entries.map(e=>e.id);entries=[];skipped=new Set();dashboard=null;reading=null;optIn=null;currentId=TYPES[0].id;$("#reset-confirm").hidden=true;renderCollect();renderDash();for(const id of ids)await deleteEntry(id);saveState();toast("تم مسح التقارير")};
 
 /* ---------- analysis ---------- */
 const ANALYZE_PROMPT=()=>`You are a senior contact-center performance analyst (Avaya CMS expert). Below is data extracted from the user's Avaya report Excel exports. Build a performance dashboard in Arabic.
