@@ -336,6 +336,20 @@ body::before{background:rgba(5,10,21,.9)}
 .rpt .sla-m{background:var(--rp-soft);border-color:var(--rp-line)}
 .rpt .sla-m small{color:var(--rp-muted)}
 .rpt .sla-months{grid-template-columns:repeat(3,1fr)}
+
+.howto-wrap{border:1px solid rgba(34,211,238,.28);border-radius:12px;padding:14px 16px;background:rgba(2,10,20,.45)}
+.howto-h{font-weight:700;color:var(--accent);margin-bottom:8px}
+.howto{counter-reset:st;list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.howto>li{counter-increment:st;position:relative;padding-inline-start:36px;line-height:1.7}
+.howto>li::before{content:counter(st);position:absolute;inset-inline-start:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--f-data);font-weight:700;font-size:12px;display:grid;place-items:center}
+.howto code{font-family:var(--f-data);font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);padding:1px 7px;border-radius:6px;color:var(--ink)}
+.howto .val{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.howto .val code{font-size:clamp(13px,2vw,16px);font-weight:700;color:var(--accent);direction:ltr;word-break:break-all;padding:6px 10px}
+.howto .inputs{margin:6px 0;padding-inline-start:18px;display:grid;gap:6px}
+.howto .hint{display:block;font-size:12.5px;color:var(--muted)}
+.howto .inputs .hint{display:inline}
+.cp{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:7px;padding:3px 10px;font-size:12px;cursor:pointer;margin-inline-start:6px}
+.cp:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 <style>body{margin:0}img{max-width:100%}.keyp input{flex:1 1 260px;min-width:0;border:1px solid var(--line);background:var(--surface-2);padding:10px 12px;border-radius:9px;font-family:var(--f-data);direction:ltr}</style>
 </head>
@@ -417,20 +431,20 @@ const SLA_TARGET=80;
 
 /* ---------- Avaya CMS report checklist, in the order we ask for them ---------- */
 const BASE_TYPES=[
- {id:"skill_monthly_bymonth",months:3,ar:"أداء المهارات الشهري (MPR)",nm:"Monthly skill performance (MPR)",en:"CrysKSA_Skill_Monthly_ByMonth_Less X sec",why:"أساس تقرير MPR ومقارنة الأشهر: المكالمات، SLA مقابل هدف 80%، الإغلاق، ASA و AHT لكل شهر.",why_en:"Core of the MPR and month comparison: calls, SLA vs the 80% target, abandons, ASA and AHT per month.",req:true},
- {id:"skill_monthly_byskill",months:2,ar:"الشهر حسب كل مهارة",nm:"Monthly by skill",en:"CrysKSA_Skill_Monthly_BySkill_Less X sec",why:"يقارن المهارات (الطوابير) ببعض خلال الشهر ويكشف أضعفها.",why_en:"Compares skills (queues) within the month and finds the weakest.",req:true},
- {id:"skill_daily_byday",ar:"الأداء اليومي",nm:"Daily performance",en:"CrysKSA_Skill_Daily_ByDay_Less X sec",tip:"كل أيام الشهر من 1 إلى آخر يوم",tip_en:"Every day of the month",why:"مستوى الخدمة يوماً بيوم، وكم يوم حققنا هدف 80%.",why_en:"Day-by-day service level and how many days met the 80% target.",req:true},
- {id:"skill_interval",ar:"الأداء حسب الساعة",nm:"Hourly performance",en:"CrysKSA_Skill_Interval_Less X sec",tip:"يوم واحد مزدحم أو أسبوع",tip_en:"One busy day or a week",why:"يحدد ساعات الذروة وأين ينهار مستوى الخدمة لتعديل الجدولة.",why_en:"Finds peak hours and where SLA collapses, to fix scheduling.",req:true},
- {id:"agtgrp_monthly_occ",months:2,ar:"الموظفون: الإشغال الشهري",nm:"Agents: monthly occupancy",en:"CrysKSA_AgtGrp_Monthly_Occupancy",why:"أداء كل موظف خلال الشهر: الإشغال، وقت المكالمات، ACW، وقت الدخول.",why_en:"Each agent's month: occupancy, talk time, ACW and staffed time.",req:true},
- {id:"agtgrp_daily_ans",ar:"الموظفون: المكالمات المجابة",nm:"Agents: answered calls",en:"CrysKSA_AgtGrp_Daily_AnsCalls",tip:"الشهر كاملاً",tip_en:"Full month",why:"عدد المكالمات التي رد عليها كل موظف وزمن المعالجة AHT، لترتيب الموظفين.",why_en:"Calls answered and AHT per agent, to rank agents.",req:true},
- {id:"agent_aux",ar:"أكواد الراحة AUX",nm:"AUX codes",en:"CrysKSA_Agent AUX Interval",tip:"الشهر أو الأسبوع",tip_en:"Month or week",why:"وقت الراحات والاجتماعات وأسباب AUX لكل موظف، وكم يأخذ من وقت الإنتاج.",why_en:"Breaks, meetings and AUX reasons per agent, and their cost in productive time.",req:true},
- {id:"calling_party",ar:"أرقام المتصلين (لحساب FCR)",nm:"Caller numbers (for FCR)",en:"CrysKSA_CallingParty_1.1",tip:"أسبوع أو شهر",tip_en:"Week or month",why:"المتصلون المتكررون من نفس الرقم. منه نحسب تقريباً نسبة الحل من أول اتصال FCR.",why_en:"Repeat callers from the same number; used to estimate First Contact Resolution.",req:true},
- {id:"skill_daily_byskill",ar:"اليومي حسب كل مهارة",nm:"Daily by skill",en:"CrysKSA_Skill_Daily_BySkill_Less X sec",tip:"الشهر كاملاً",tip_en:"Full month",why:"تفصيل يومي لكل مهارة.",why_en:"Daily detail per skill.",req:false},
- {id:"skill_interval_byskill",ar:"الساعات حسب كل مهارة",nm:"Hourly by skill",en:"CrysKSA_Skill_Interval_BySkill_Less X sec",tip:"يوم مزدحم",tip_en:"One busy day",why:"ذروة كل مهارة على حدة.",why_en:"Peak hours per skill.",req:false},
- {id:"agtgrp_daily_occ",ar:"الموظفون: الإشغال اليومي",nm:"Agents: daily occupancy",en:"CrysKSA_AgtGrp_Daily_Occupancy (_New / _HC)",tip:"الشهر كاملاً",tip_en:"Full month",why:"الإشغال يوماً بيوم وعدد الموظفين HC.",why_en:"Daily occupancy and headcount (HC).",req:false},
- {id:"agtgrp_interval_occ",ar:"الموظفون: الإشغال حسب الساعة",nm:"Agents: hourly occupancy",en:"CrysKSA_AgtGrp_Interval_Occupancy",tip:"نفس يوم تقرير الساعات",tip_en:"Same day as the hourly report",why:"هل عدد الموظفين يغطي الذروة؟",why_en:"Does staffing cover the peak?",req:false},
- {id:"attendance",ar:"الحضور والالتزام",nm:"Attendance & adherence",en:"CrysKSA_Attendance_Daily_Agent Based",tip:"الشهر كاملاً",tip_en:"Full month",why:"التأخير والغياب والالتزام بالجدول Adherence.",why_en:"Lateness, absence and schedule adherence.",req:false},
- {id:"login_logout",ar:"الدخول والخروج",nm:"Login / logout",en:"Login/Logout (Skill)",tip:"أسبوع",tip_en:"Week",why:"أوقات تسجيل الدخول والخروج الفعلية.",why_en:"Actual login and logout times.",req:false}
+ {id:"skill_monthly_bymonth",months:3,per:"m",inp:"skill",times:0,ar:"أداء المهارات الشهري (MPR)",nm:"Monthly skill performance (MPR)",en:"CrysKSA_Skill_Monthly_ByMonth_Less X sec",why:"أساس تقرير MPR ومقارنة الأشهر: المكالمات، SLA مقابل هدف 80%، الإغلاق، ASA و AHT لكل شهر.",why_en:"Core of the MPR and month comparison: calls, SLA vs the 80% target, abandons, ASA and AHT per month.",req:true},
+ {id:"skill_monthly_byskill",months:2,per:"m",inp:"skill",times:0,ar:"الشهر حسب كل مهارة",nm:"Monthly by skill",en:"CrysKSA_Skill_Monthly_BySkill_Less X sec",why:"يقارن المهارات (الطوابير) ببعض خلال الشهر ويكشف أضعفها.",why_en:"Compares skills (queues) within the month and finds the weakest.",req:true},
+ {id:"skill_daily_byday",per:"prevmonth",inp:"skill",times:0,ar:"الأداء اليومي",nm:"Daily performance",en:"CrysKSA_Skill_Daily_ByDay_Less X sec",tip:"كل أيام الشهر من 1 إلى آخر يوم",tip_en:"Every day of the month",why:"مستوى الخدمة يوماً بيوم، وكم يوم حققنا هدف 80%.",why_en:"Day-by-day service level and how many days met the 80% target.",req:true},
+ {id:"skill_interval",per:"yesterday",inp:"skill",times:1,ar:"الأداء حسب الساعة",nm:"Hourly performance",en:"CrysKSA_Skill_Interval_Less X sec",tip:"يوم واحد مزدحم أو أسبوع",tip_en:"One busy day or a week",why:"يحدد ساعات الذروة وأين ينهار مستوى الخدمة لتعديل الجدولة.",why_en:"Finds peak hours and where SLA collapses, to fix scheduling.",req:true},
+ {id:"agtgrp_monthly_occ",months:2,per:"m",inp:"agentgrp",times:0,ar:"الموظفون: الإشغال الشهري",nm:"Agents: monthly occupancy",en:"CrysKSA_AgtGrp_Monthly_Occupancy",why:"أداء كل موظف خلال الشهر: الإشغال، وقت المكالمات، ACW، وقت الدخول.",why_en:"Each agent's month: occupancy, talk time, ACW and staffed time.",req:true},
+ {id:"agtgrp_daily_ans",per:"prevmonth",inp:"agentgrp",times:0,ar:"الموظفون: المكالمات المجابة",nm:"Agents: answered calls",en:"CrysKSA_AgtGrp_Daily_AnsCalls",tip:"الشهر كاملاً",tip_en:"Full month",why:"عدد المكالمات التي رد عليها كل موظف وزمن المعالجة AHT، لترتيب الموظفين.",why_en:"Calls answered and AHT per agent, to rank agents.",req:true},
+ {id:"agent_aux",per:"yesterday",inp:"agentgrp",times:1,ar:"أكواد الراحة AUX",nm:"AUX codes",en:"CrysKSA_Agent AUX Interval",tip:"الشهر أو الأسبوع",tip_en:"Month or week",why:"وقت الراحات والاجتماعات وأسباب AUX لكل موظف، وكم يأخذ من وقت الإنتاج.",why_en:"Breaks, meetings and AUX reasons per agent, and their cost in productive time.",req:true},
+ {id:"calling_party",per:"week",inp:"skill",times:0,ar:"أرقام المتصلين (لحساب FCR)",nm:"Caller numbers (for FCR)",en:"CrysKSA_CallingParty_1.1",tip:"أسبوع أو شهر",tip_en:"Week or month",why:"المتصلون المتكررون من نفس الرقم. منه نحسب تقريباً نسبة الحل من أول اتصال FCR.",why_en:"Repeat callers from the same number; used to estimate First Contact Resolution.",req:true},
+ {id:"skill_daily_byskill",per:"prevmonth",inp:"skill",times:0,ar:"اليومي حسب كل مهارة",nm:"Daily by skill",en:"CrysKSA_Skill_Daily_BySkill_Less X sec",tip:"الشهر كاملاً",tip_en:"Full month",why:"تفصيل يومي لكل مهارة.",why_en:"Daily detail per skill.",req:false},
+ {id:"skill_interval_byskill",per:"yesterday",inp:"skill",times:1,ar:"الساعات حسب كل مهارة",nm:"Hourly by skill",en:"CrysKSA_Skill_Interval_BySkill_Less X sec",tip:"يوم مزدحم",tip_en:"One busy day",why:"ذروة كل مهارة على حدة.",why_en:"Peak hours per skill.",req:false},
+ {id:"agtgrp_daily_occ",per:"prevmonth",inp:"agentgrp",times:0,ar:"الموظفون: الإشغال اليومي",nm:"Agents: daily occupancy",en:"CrysKSA_AgtGrp_Daily_Occupancy (_New / _HC)",tip:"الشهر كاملاً",tip_en:"Full month",why:"الإشغال يوماً بيوم وعدد الموظفين HC.",why_en:"Daily occupancy and headcount (HC).",req:false},
+ {id:"agtgrp_interval_occ",per:"yesterday",inp:"agentgrp",times:1,ar:"الموظفون: الإشغال حسب الساعة",nm:"Agents: hourly occupancy",en:"CrysKSA_AgtGrp_Interval_Occupancy",tip:"نفس يوم تقرير الساعات",tip_en:"Same day as the hourly report",why:"هل عدد الموظفين يغطي الذروة؟",why_en:"Does staffing cover the peak?",req:false},
+ {id:"attendance",per:"prevmonth",inp:"agent",times:0,ar:"الحضور والالتزام",nm:"Attendance & adherence",en:"CrysKSA_Attendance_Daily_Agent Based",tip:"الشهر كاملاً",tip_en:"Full month",why:"التأخير والغياب والالتزام بالجدول Adherence.",why_en:"Lateness, absence and schedule adherence.",req:false},
+ {id:"login_logout",per:"week",inp:"skill",times:0,ar:"الدخول والخروج",nm:"Login / logout",en:"Login/Logout (Skill)",tip:"أسبوع",tip_en:"Week",why:"أوقات تسجيل الدخول والخروج الفعلية.",why_en:"Actual login and logout times.",req:false}
 ];
 const AR_M=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const EN_M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -446,6 +460,37 @@ BASE_TYPES.forEach(b=>{
   if(b.months){for(let i=0;i<b.months;i++){const m=monthAt(i);TYPES.push({...b,id:b.id+"@m"+i,base:b.id,slot:i,month:m,tip:m.range+(i===0?" (من أول الشهر حتى اليوم)":""),tip_en:m.range+(i===0?" (month to date)":"")})}}
   else TYPES.push({...b,base:b.id});
 });
+const pad2=n=>String(n).padStart(2,"0");
+const dmy=d=>pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear();
+const cmsD=d=>pad2(d.getMonth()+1)+"/"+pad2(d.getDate())+"/"+String(d.getFullYear()).slice(2);
+const ymd=d=>d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate());
+function periodOf(t){
+  const now=new Date(),day=(y,m,d)=>new Date(y,m,d);let from,to,kind;
+  if(t.month){from=day(now.getFullYear(),now.getMonth()-t.slot,1);to=t.slot===0?day(now.getFullYear(),now.getMonth(),now.getDate()):day(from.getFullYear(),from.getMonth()+1,0);kind="month"}
+  else if(t.per==="prevmonth"){from=day(now.getFullYear(),now.getMonth()-1,1);to=day(now.getFullYear(),now.getMonth(),0);kind="range"}
+  else if(t.per==="yesterday"){from=to=day(now.getFullYear(),now.getMonth(),now.getDate()-1);kind="day"}
+  else if(t.per==="week"){to=day(now.getFullYear(),now.getMonth(),now.getDate()-1);from=day(to.getFullYear(),to.getMonth(),to.getDate()-6);kind="range"}
+  else return null;
+  return {kind,human:kind==="day"?dmy(from):dmy(from)+" – "+dmy(to),cms:kind==="range"?cmsD(from)+"-"+cmsD(to):cmsD(from),
+    tag:kind==="month"?from.getFullYear()+"-"+pad2(from.getMonth()+1):kind==="day"?ymd(from):ymd(from)+"_"+ymd(to)};
+}
+const fileNameOf=t=>{const p=periodOf(t);return String(t.en).split(" (")[0].replace(/[^A-Za-z0-9]+/g,"_").replace(/^_+|_+$/g,"")+(p?"_"+p.tag:"")+".txt"};
+const cpy=(txt,label)=>`<button class="cp" data-copy="${esc(txt)}" title="${T("نسخ","Copy")}">${esc(label||T("نسخ","Copy"))}</button>`;
+function howtoHtml(t){
+  const p=periodOf(t);
+  const inp={skill:T("<b>Split/Skill(s)</b>: اختر كل المهارات اللي تبي تحللها، أو اكتب أرقامها مفصولة بـ <code>;</code>","<b>Split/Skill(s)</b>: select every skill to analyze, or type their numbers separated by <code>;</code>"),
+    agentgrp:T("<b>Agent Group</b>: اختر مجموعة الموظفين (نفس المجموعة في كل التقارير)","<b>Agent Group</b>: choose the agent group (the same group in every report)"),
+    agent:T("<b>Agent(s) / Agent Group</b>: اختر الموظفين أو المجموعة","<b>Agent(s) / Agent Group</b>: choose the agents or the group")}[t.inp]||"";
+  const dateLbl=p&&p.kind==="month"?"Month":"Date(s)";
+  return `<div class="howto-wrap"><div class="howto-h">${T("طريقة الاسترداد من Avaya وتصديره Excel","How to pull it from Avaya and export to Excel")}</div><ol class="howto">
+    <li>${T("افتح <b>CMS Supervisor</b> ثم <code>Reports</code> واختر تبويب <code>Historical</code>.","Open <b>CMS Supervisor</b>, then <code>Reports</code>, and pick the <code>Historical</code> tab.")}</li>
+    <li>${T("من قائمة <b>Report</b> اختر هذا التقرير بالضبط واضغط <code>OK</code>:","In the <b>Report</b> list choose exactly this report and press <code>OK</code>:")}<div class="val"><code>${esc(t.en)}</code>${cpy(t.en,T("نسخ الاسم","Copy name"))}</div></li>
+    <li>${T("في نافذة المدخلات اكتب:","In the input window enter:")}<ul class="inputs">${inp?`<li>${inp}</li>`:""}${p?`<li><b>${dateLbl}</b>: <code dir="ltr">${esc(p.cms)}</code>${cpy(p.cms)} <span class="hint">(${esc(p.human)}${p.kind==="month"&&t.slot===0?T(" · من أول الشهر لليوم"," · month to date"):""})</span></li>`:""}${t.times?`<li><b>Times</b>: <code dir="ltr">00:00-23:59</code>${cpy("00:00-23:59")}</li>`:""}</ul>${T("ثم اضغط <code>OK</code> وانتظر يطلع التقرير.","Then press <code>OK</code> and wait for the report to open.")}</li>
+    <li>${T("من شريط القوائم في نافذة التقرير اختر: <code dir=ltr>Report → Export All Data…</code> اختر فاصل <b>Tab</b>، وفعّل تصدير عناوين الأعمدة إذا ظهر الخيار.","From the report window menu choose: <code dir=ltr>Report → Export All Data…</code> Choose the <b>Tab</b> delimiter and turn on column headings if offered.")}</li>
+    <li>${T("احفظ الملف بهذا الاسم:","Save the file with this name:")}<div class="val"><code>${esc(fileNameOf(t))}</code>${cpy(fileNameOf(t),T("نسخ اسم الملف","Copy file name"))}</div><span class="hint">${T("تقدر ترفع ملف .txt مباشرة، أو تفتحه في Excel وتحفظه .xlsx. بديل سريع: <code dir=ltr>Edit → Copy All</code> ثم الصق في Excel واحفظ.","You can upload the .txt directly, or open it in Excel and save as .xlsx. Quick alternative: Edit → Copy All, paste into Excel and save.")}</span></li>
+    <li>${T("ارفع الملف في المربع تحت.","Upload the file in the box below.")}</li>
+  </ol></div>`;
+}
 const baseOf=id=>String(id||"").split("@")[0];
 const OTHER={id:"other",ar:"تقرير آخر",nm:"Other report",en:"Other report"};
 const typeOf=id=>TYPES.find(t=>t.id===id)||OTHER;
@@ -536,19 +581,19 @@ function renderReq(){
     el.innerHTML=`${got}${steps}
     <div class="req-head"><div class="counter">${T(`التقرير ${pos} من ${seq.length}`,`Report ${pos} of ${seq.length}`)}${t.req?"":T(" · اختياري"," · optional")}</div>${has?`<span class="chip good">${has} ${T("ملف مستلم","file(s) received")}</span>`:""}</div>
     <div><div class="label">${has?T("تقدر ترفع ملف إضافي لنفس التقرير أو تنتقل للتالي","Upload another file for this report or move on"):T("أرسل لي هذا التقرير","Send me this report")}</div><h2>${esc(nameOf(t))}</h2></div>
-    <div class="rep-name"><code id="rep-code">${esc(t.en)}</code><button class="btn sm" id="copy-name">${T("نسخ الاسم","Copy name")}</button></div>
-    <div class="label">${T("افتحه من: Reports › Historical · الفترة المقترحة:","Open it from: Reports › Historical · Suggested period:")} ${esc(L(t,"tip"))}</div>
     <div class="why"><b>${T("ليش نحتاجه:","Why we need it:")}</b> ${esc(L(t,"why"))}</div>
-    ${dropHtml(T("أرفق ملف Excel لهذا التقرير","Attach the Excel file for this report"))}
-    <details class="export"><summary>${T("كيف أصدّر التقرير من Avaya إلى Excel؟","How do I export the report from Avaya to Excel?")}</summary><ol><li>${T("شغّل التقرير في CMS Supervisor بالفترة المطلوبة.","Run the report in CMS Supervisor for the requested period.")}</li><li>${T("من نافذة التقرير:","In the report window:")} <code>Report › Export All Data…</code></li><li>${T("احفظه","Save it as")} <code>.txt</code> / <code>.csv</code> ${T("أو افتحه في Excel واحفظه","or open it in Excel and save as")} <code>.xlsx</code>.</li><li>${T("ارفعه هنا.","Upload it here.")}</li></ol></details>
+    ${howtoHtml(t)}
+    ${dropHtml(T("أرفق ملف هذا التقرير","Attach this report's file"))}
     <div class="req-actions">${has?`<button class="btn primary" id="btn-next">${T("التقرير التالي","Next report")}</button>`:`<button class="btn" id="btn-skip">${T("ما عندي هذا التقرير، تخطَّ","I don't have this report, skip")}</button>`}</div>`;
-    $("#copy-name").onclick=()=>{const b=$("#copy-name");const ok=()=>{b.textContent=T("تم النسخ ✓","Copied ✓");setTimeout(()=>b.textContent=T("نسخ الاسم","Copy name"),1500)};
-      try{navigator.clipboard.writeText(t.en).then(ok,()=>selectCode())}catch(e){selectCode()}};
     const sk=$("#btn-skip");if(sk)sk.onclick=()=>{skipped.add(t.id);reading=null;currentId=(nextType()||{}).id||null;saveState();renderCollect()};
     const nx=$("#btn-next");if(nx)nx.onclick=()=>{reading=null;currentId=(nextType()||{}).id||null;renderCollect()};
   }
   bindDrop();bindMore();
 }
+document.addEventListener("click",ev=>{const b=ev.target.closest&&ev.target.closest(".cp");if(!b)return;const txt=b.dataset.copy,old=b.textContent;
+  const ok=()=>{b.textContent="✓";setTimeout(()=>b.textContent=old,1200)};
+  const sel=()=>{const c=b.previousElementSibling;if(c){const rg=document.createRange();rg.selectNodeContents(c);const s2=getSelection();s2.removeAllRanges();s2.addRange(rg);toast(T("النص محدد، انسخه بـ Ctrl+C","Text selected, copy with Ctrl+C"))}};
+  try{navigator.clipboard.writeText(txt).then(ok,sel)}catch(e){sel()}});
 function selectCode(){const c=$("#rep-code");if(!c)return;const rg=document.createRange();rg.selectNodeContents(c);const sel=getSelection();sel.removeAllRanges();sel.addRange(rg);toast(T("الاسم محدد، انسخه بـ Ctrl+C","Name selected, copy it with Ctrl+C"))}
 function dropHtml(title){return `<div class="drop" id="drop" tabindex="0" role="button" aria-label="${esc(title)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="m9 12 4 5M13 12l-4 5"/></svg><strong>${esc(title)}</strong><small>${T("اسحب الملف أو اضغط للاختيار","Drag the file here or click to choose")} · xlsx · xls · csv · txt</small></div>`}
 function bindDrop(){
@@ -565,7 +610,7 @@ function renderList(){
   const rows=TYPES.map(t=>{
     const n=entries.filter(e=>e.typeId===t.id).length;
     const cls=[d.has(t.id)?"done":"",skipped.has(t.id)&&!d.has(t.id)?"skipped":"",t.id===currentId?"current":""].join(" ");
-    return `<button class="item ${cls}" data-id="${t.id}"><span class="st">${d.has(t.id)?"✓":""}</span><span><span class="t">${esc(nameOf(t))}</span><span class="s">${esc(t.en)}</span></span>${d.has(t.id)?`<span class="chip good">${n} ${T(n>1?"ملفات":"ملف",n>1?"files":"file")}</span>`:skipped.has(t.id)?`<span class="chip">${T("متخطى","Skipped")}</span>`:t.req?`<span class="chip acc">${T("أساسي","Core")}</span>`:`<span class="chip">${T("اختياري","Optional")}</span>`}</button>`;
+    return `<button class="item ${cls}" data-id="${t.id}"><span class="st">${d.has(t.id)?"✓":""}</span><span><span class="t">${esc(nameOf(t))}</span><span class="s">${esc(t.en)}${periodOf(t)?" · "+esc(periodOf(t).human):""}</span></span>${d.has(t.id)?`<span class="chip good">${n} ${T(n>1?"ملفات":"ملف",n>1?"files":"file")}</span>`:skipped.has(t.id)?`<span class="chip">${T("متخطى","Skipped")}</span>`:t.req?`<span class="chip acc">${T("أساسي","Core")}</span>`:`<span class="chip">${T("اختياري","Optional")}</span>`}</button>`;
   });
   entries.filter(e=>e.typeId==="other").forEach(e=>rows.push(`<div class="item done"><span class="st">✓</span><span><span class="t">${esc(entryName(e))}</span><span class="s">${esc(e.name)}</span></span><button class="btn sm" data-del="${e.id}">${T("حذف","Delete")}</button></div>`));
   $("#items").innerHTML=rows.join("");
