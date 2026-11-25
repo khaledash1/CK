@@ -1,0 +1,5 @@
+node_modules/
+layl.db
+layl.db-shm
+layl.db-wal
+*.log

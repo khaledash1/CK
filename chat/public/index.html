@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a14">
+<title>Layl · ليل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body data-theme="layl">
+<canvas id="stars"></canvas>
+
+<!-- ───── شاشة الدخول ───── -->
+<section id="gate" class="gate">
+  <div class="gate-card">
+    <div class="brand"><span class="brand-moon">🌙</span><h1>ليل<span>Layl</span></h1></div>
+    <p class="brand-sub">منصة دردشة لحظية — أجواء الليل، سواليف بلا حدود</p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="login">دخول</button>
+      <button class="tab" data-tab="register">حساب جديد</button>
+    </div>
+
+    <form id="form-login" class="auth-form">
+      <label>اسم المستخدم<input name="username" autocomplete="username" placeholder="layl_user" required></label>
+      <label>كلمة المرور<input name="password" type="password" autocomplete="current-password" placeholder="••••••" required></label>
+      <button class="btn-primary" type="submit">ادخل الليل</button>
+    </form>
+
+    <form id="form-register" class="auth-form hidden">
+      <label>اسم المستخدم (إنجليزي)<input name="username" autocomplete="username" placeholder="layl_user" required></label>
+      <label>الاسم الظاهر<input name="display" placeholder="ليلى" maxlength="24"></label>
+      <label>كلمة المرور<input name="password" type="password" autocomplete="new-password" placeholder="6 أحرف فأكثر" required></label>
+      <button class="btn-primary" type="submit">أنشئ حسابك</button>
+    </form>
+
+    <p id="gate-error" class="gate-error"></p>
+    <ul class="feat">
+      <li>⚡ لحظي بالكامل</li><li>✨ مستويات وخبرة</li><li>😀 تفاعلات</li><li>🔔 منشن</li><li>🛡️ آمن ومحمي</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───── التطبيق ───── -->
+<main id="app" class="app hidden">
+  <!-- الشريط الجانبي -->
+  <aside class="side" id="side">
+    <div class="side-head">
+      <span class="logo">🌙 ليل</span>
+      <button id="btn-theme" class="icon-btn" title="تبديل الثيم">🎨</button>
+    </div>
+
+    <div class="rooms-head">
+      <span>الغرف</span>
+      <button id="btn-newroom" class="icon-btn" title="غرفة جديدة">＋</button>
+    </div>
+    <div id="room-list" class="room-list"></div>
+
+    <div class="me-card" id="me-card">
+      <div class="me-av" id="me-av">🌙</div>
+      <div class="me-info">
+        <div class="me-name" id="me-name">—</div>
+        <div class="me-xp"><div class="me-xp-bar"><i id="me-xp-fill"></i></div><span id="me-lvl">Lv.1</span></div>
+      </div>
+      <button id="btn-profile" class="icon-btn" title="ملفي">⚙️</button>
+    </div>
+  </aside>
+
+  <!-- منطقة المحادثة -->
+  <section class="chat">
+    <header class="chat-head">
+      <button id="btn-menu" class="icon-btn only-mobile">☰</button>
+      <div class="chat-title"><span id="room-icon">💬</span><div><b id="room-name">—</b><small id="room-topic"></small></div></div>
+      <div class="chat-head-actions">
+        <button id="btn-search" class="icon-btn" title="بحث">🔍</button>
+        <button id="btn-members" class="icon-btn" title="المتواجدون"><span id="online-count">0</span> 👥</button>
+      </div>
+    </header>
+
+    <div id="search-bar" class="search-bar hidden">
+      <input id="search-input" placeholder="ابحث في رسائل الغرفة…">
+      <button id="search-close" class="icon-btn">✕</button>
+    </div>
+
+    <div id="messages" class="messages"></div>
+    <div id="typing" class="typing"></div>
+
+    <div id="reply-chip" class="reply-chip hidden">
+      <span>ردًّا على <b id="reply-name"></b>: <i id="reply-text"></i></span>
+      <button id="reply-cancel" class="icon-btn">✕</button>
+    </div>
+
+    <form id="composer" class="composer">
+      <button type="button" id="btn-emoji" class="icon-btn" title="إيموجي">😀</button>
+      <textarea id="input" rows="1" maxlength="2000" placeholder="اكتب رسالة… (@ للمنشن، /me للحركة)"></textarea>
+      <button class="send" type="submit" title="إرسال">➤</button>
+    </form>
+  </section>
+
+  <!-- قائمة المتواجدين -->
+  <aside class="members hidden" id="members">
+    <div class="members-head">المتواجدون الآن <button id="members-close" class="icon-btn only-mobile">✕</button></div>
+    <div id="members-list" class="members-list"></div>
+  </aside>
+</main>
+
+<!-- نافذة الملف الشخصي -->
+<div id="modal-profile" class="modal hidden">
+  <div class="modal-card">
+    <h3>ملفي الشخصي</h3>
+    <div class="avatar-pick" id="avatar-pick"></div>
+    <label>الاسم الظاهر<input id="pf-display" maxlength="24"></label>
+    <label>الحالة / الفايب<input id="pf-vibe" maxlength="40" placeholder="مثلاً: ساهر 🌙"></label>
+    <label>نبذة<textarea id="pf-bio" maxlength="160" rows="2"></textarea></label>
+    <label>اللون
+      <div class="color-pick" id="color-pick"></div>
+    </label>
+    <div class="modal-actions">
+      <button id="pf-save" class="btn-primary">حفظ</button>
+      <button id="pf-logout" class="btn-ghost">تسجيل خروج</button>
+      <button class="btn-ghost modal-close">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة غرفة جديدة -->
+<div id="modal-room" class="modal hidden">
+  <div class="modal-card">
+    <h3>غرفة جديدة</h3>
+    <div class="avatar-pick" id="room-icon-pick"></div>
+    <label>اسم الغرفة<input id="nr-name" maxlength="40" placeholder="سواليف الليل"></label>
+    <label>الوصف<input id="nr-topic" maxlength="120" placeholder="عن ماذا هذه الغرفة؟"></label>
+    <div class="modal-actions">
+      <button id="nr-create" class="btn-primary">إنشاء</button>
+      <button class="btn-ghost modal-close">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="emoji-pop" class="emoji-pop hidden"></div>
+<div id="toast" class="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
