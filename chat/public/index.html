@@ -13,135 +13,190 @@
 <body data-theme="layl">
 <canvas id="stars"></canvas>
 
-<!-- ───── شاشة الدخول ───── -->
+<!-- ───── بوابة الدخول ───── -->
 <section id="gate" class="gate">
   <div class="gate-card">
     <div class="brand"><span class="brand-moon">🌙</span><h1>ليل<span>Layl</span></h1></div>
-    <p class="brand-sub">منصة دردشة لحظية — أجواء الليل، سواليف بلا حدود</p>
-
+    <p class="brand-sub">دردشة صوتية ونصية — مايكات، غرف، وأجواء الليل</p>
     <div class="tabs">
       <button class="tab active" data-tab="login">دخول</button>
       <button class="tab" data-tab="register">حساب جديد</button>
     </div>
-
     <form id="form-login" class="auth-form">
       <label>اسم المستخدم<input name="username" autocomplete="username" placeholder="layl_user" required></label>
       <label>كلمة المرور<input name="password" type="password" autocomplete="current-password" placeholder="••••••" required></label>
       <button class="btn-primary" type="submit">ادخل الليل</button>
     </form>
-
     <form id="form-register" class="auth-form hidden">
       <label>اسم المستخدم (إنجليزي)<input name="username" autocomplete="username" placeholder="layl_user" required></label>
       <label>الاسم الظاهر<input name="display" placeholder="ليلى" maxlength="24"></label>
+      <label>الدولة<select name="country" id="reg-country"></select></label>
       <label>كلمة المرور<input name="password" type="password" autocomplete="new-password" placeholder="6 أحرف فأكثر" required></label>
       <button class="btn-primary" type="submit">أنشئ حسابك</button>
     </form>
-
     <p id="gate-error" class="gate-error"></p>
-    <ul class="feat">
-      <li>⚡ لحظي بالكامل</li><li>✨ مستويات وخبرة</li><li>😀 تفاعلات</li><li>🔔 منشن</li><li>🛡️ آمن ومحمي</li>
-    </ul>
+    <ul class="feat"><li>🎙️ مايكات صوتية</li><li>🏠 غرف متعددة</li><li>✉️ خاص</li><li>📰 الحائط</li><li>❤️ إعجابات</li><li>👑 رتب</li></ul>
   </div>
 </section>
 
 <!-- ───── التطبيق ───── -->
 <main id="app" class="app hidden">
-  <!-- الشريط الجانبي -->
+  <!-- سايدبار الغرف -->
   <aside class="side" id="side">
-    <div class="side-head">
-      <span class="logo">🌙 ليل</span>
-      <button id="btn-theme" class="icon-btn" title="تبديل الثيم">🎨</button>
-    </div>
-
-    <div class="rooms-head">
-      <span>الغرف</span>
-      <button id="btn-newroom" class="icon-btn" title="غرفة جديدة">＋</button>
-    </div>
+    <div class="side-head"><span class="logo">🌙 ليل</span><button id="btn-theme" class="icon-btn" title="الثيم">🎨</button></div>
+    <div class="rooms-head"><span>الغرف</span><button id="btn-browse" class="icon-btn" title="كل الغرف">🗂️</button></div>
     <div id="room-list" class="room-list"></div>
-
     <div class="me-card" id="me-card">
       <div class="me-av" id="me-av">🌙</div>
-      <div class="me-info">
-        <div class="me-name" id="me-name">—</div>
-        <div class="me-xp"><div class="me-xp-bar"><i id="me-xp-fill"></i></div><span id="me-lvl">Lv.1</span></div>
-      </div>
-      <button id="btn-profile" class="icon-btn" title="ملفي">⚙️</button>
+      <div class="me-info"><div class="me-name" id="me-name">—</div>
+        <div class="me-xp"><div class="me-xp-bar"><i id="me-xp-fill"></i></div><span id="me-lvl">Lv.1</span></div></div>
+      <button id="btn-profile" class="icon-btn" title="إعدادات">⚙️</button>
     </div>
   </aside>
 
-  <!-- منطقة المحادثة -->
+  <!-- المحادثة -->
   <section class="chat">
     <header class="chat-head">
       <button id="btn-menu" class="icon-btn only-mobile">☰</button>
       <div class="chat-title"><span id="room-icon">💬</span><div><b id="room-name">—</b><small id="room-topic"></small></div></div>
       <div class="chat-head-actions">
+        <button id="btn-speaker" class="icon-btn" title="كتم السماعات">🔊</button>
         <button id="btn-search" class="icon-btn" title="بحث">🔍</button>
         <button id="btn-members" class="icon-btn" title="المتواجدون"><span id="online-count">0</span> 👥</button>
       </div>
     </header>
 
+    <!-- منصة المايكات -->
+    <div id="stage" class="stage hidden">
+      <div class="stage-grid" id="seats"></div>
+      <div class="mic-bar">
+        <button id="btn-mic" class="mic-btn">🎙️ اصعد المايك</button>
+        <button id="btn-mute" class="icon-btn hidden" title="كتم مايكي">🎤</button>
+        <span id="mic-hint" class="mic-hint"></span>
+      </div>
+    </div>
+
     <div id="search-bar" class="search-bar hidden">
-      <input id="search-input" placeholder="ابحث في رسائل الغرفة…">
-      <button id="search-close" class="icon-btn">✕</button>
+      <input id="search-input" placeholder="ابحث في رسائل الغرفة…"><button id="search-close" class="icon-btn">✕</button>
     </div>
 
     <div id="messages" class="messages"></div>
     <div id="typing" class="typing"></div>
 
     <div id="reply-chip" class="reply-chip hidden">
-      <span>ردًّا على <b id="reply-name"></b>: <i id="reply-text"></i></span>
-      <button id="reply-cancel" class="icon-btn">✕</button>
+      <span>ردًّا على <b id="reply-name"></b>: <i id="reply-text"></i></span><button id="reply-cancel" class="icon-btn">✕</button>
     </div>
 
     <form id="composer" class="composer">
       <button type="button" id="btn-emoji" class="icon-btn" title="إيموجي">😀</button>
-      <textarea id="input" rows="1" maxlength="2000" placeholder="اكتب رسالة… (@ للمنشن، /me للحركة)"></textarea>
+      <textarea id="input" rows="1" maxlength="2000" placeholder="اكتب رسالة… (@ منشن، /me حركة)"></textarea>
       <button class="send" type="submit" title="إرسال">➤</button>
     </form>
+
+    <!-- شريط التنقل السفلي -->
+    <nav class="bottom-nav">
+      <button data-nav="rooms" id="nav-rooms"><span>🏠</span>الغرف</button>
+      <button data-nav="dm" id="nav-dm"><span>✉️</span>الخاص<i class="badge hidden" id="dm-badge">0</i></button>
+      <button data-nav="wall" id="nav-wall"><span>📰</span>الحائط</button>
+      <button data-nav="members" id="nav-members"><span>👥</span>المتواجدون</button>
+      <button data-nav="profile" id="nav-profile"><span>⚙️</span>الضبط</button>
+    </nav>
   </section>
 
-  <!-- قائمة المتواجدين -->
+  <!-- المتواجدون -->
   <aside class="members hidden" id="members">
-    <div class="members-head">المتواجدون الآن <button id="members-close" class="icon-btn only-mobile">✕</button></div>
+    <div class="members-head">المتواجدون <span id="members-count" class="pill">0</span><button id="members-close" class="icon-btn only-mobile">✕</button></div>
     <div id="members-list" class="members-list"></div>
   </aside>
 </main>
 
-<!-- نافذة الملف الشخصي -->
+<!-- بطاقة بروفايل منبثقة -->
+<div id="modal-card" class="modal hidden">
+  <div class="modal-card profile-card">
+    <div class="pc-top"><div class="pc-av" id="pc-av">🌙</div>
+      <div class="pc-main"><div class="pc-name" id="pc-name">—</div><div class="pc-sub" id="pc-sub"></div>
+      <div class="pc-stats"><span id="pc-level">Lv.1</span><span id="pc-likes">❤️ 0</span><span id="pc-flag"></span></div></div></div>
+    <div class="pc-bio" id="pc-bio"></div>
+    <div class="pc-social" id="pc-social"></div>
+    <div class="pc-actions" id="pc-actions"></div>
+    <button class="btn-ghost modal-close" style="width:100%;margin-top:10px">إغلاق</button>
+  </div>
+</div>
+
+<!-- نافذة الإعدادات/البروفايل -->
 <div id="modal-profile" class="modal hidden">
   <div class="modal-card">
-    <h3>ملفي الشخصي</h3>
+    <h3>الإعدادات والملف الشخصي</h3>
     <div class="avatar-pick" id="avatar-pick"></div>
     <label>الاسم الظاهر<input id="pf-display" maxlength="24"></label>
-    <label>الحالة / الفايب<input id="pf-vibe" maxlength="40" placeholder="مثلاً: ساهر 🌙"></label>
+    <label>الحالة / الفايب<input id="pf-vibe" maxlength="40" placeholder="ساهر 🌙"></label>
+    <label>الدولة<select id="pf-country"></select></label>
     <label>نبذة<textarea id="pf-bio" maxlength="160" rows="2"></textarea></label>
-    <label>اللون
-      <div class="color-pick" id="color-pick"></div>
-    </label>
+    <label>لون الاسم<div class="color-pick" id="color-pick"></div></label>
+    <div class="social-grid">
+      <label>تويتر/X<input id="s-twitter" placeholder="@user" maxlength="60"></label>
+      <label>انستقرام<input id="s-instagram" placeholder="@user" maxlength="60"></label>
+      <label>سناب<input id="s-snapchat" placeholder="user" maxlength="60"></label>
+      <label>تيك توك<input id="s-tiktok" placeholder="@user" maxlength="60"></label>
+    </div>
     <div class="modal-actions">
       <button id="pf-save" class="btn-primary">حفظ</button>
-      <button id="pf-logout" class="btn-ghost">تسجيل خروج</button>
+      <button id="pf-logout" class="btn-ghost">خروج</button>
       <button class="btn-ghost modal-close">إغلاق</button>
     </div>
   </div>
 </div>
 
-<!-- نافذة غرفة جديدة -->
-<div id="modal-room" class="modal hidden">
+<!-- متصفّح الغرف -->
+<div id="modal-rooms" class="modal hidden">
+  <div class="modal-card wide">
+    <h3>غرف الدردشة <button id="btn-newroom" class="btn-primary tiny">＋ غرفة</button></h3>
+    <div id="rooms-grid" class="rooms-grid"></div>
+    <button class="btn-ghost modal-close" style="width:100%;margin-top:12px">إغلاق</button>
+  </div>
+</div>
+
+<!-- غرفة جديدة -->
+<div id="modal-newroom" class="modal hidden">
   <div class="modal-card">
     <h3>غرفة جديدة</h3>
     <div class="avatar-pick" id="room-icon-pick"></div>
     <label>اسم الغرفة<input id="nr-name" maxlength="40" placeholder="سواليف الليل"></label>
-    <label>الوصف<input id="nr-topic" maxlength="120" placeholder="عن ماذا هذه الغرفة؟"></label>
-    <div class="modal-actions">
-      <button id="nr-create" class="btn-primary">إنشاء</button>
-      <button class="btn-ghost modal-close">إلغاء</button>
+    <label>الوصف<input id="nr-topic" maxlength="120" placeholder="عن ماذا؟"></label>
+    <label>النوع
+      <select id="nr-kind"><option value="voice">صوتية (مايكات) 🎙️</option><option value="text">كتابية 💬</option></select></label>
+    <div class="social-grid">
+      <label>السعة<input id="nr-cap" type="number" value="40" min="2" max="200"></label>
+      <label>عدد المقاعد<input id="nr-seats" type="number" value="8" min="2" max="20"></label>
     </div>
+    <label>رسالة الترحيب<input id="nr-welcome" maxlength="160" placeholder="حيّاكم 🌙"></label>
+    <div class="modal-actions"><button id="nr-create" class="btn-primary">إنشاء</button><button class="btn-ghost modal-close">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- الحائط -->
+<div id="modal-wall" class="modal hidden">
+  <div class="modal-card wide">
+    <h3>📰 الحائط</h3>
+    <div class="wall-composer"><textarea id="wall-input" rows="2" maxlength="500" placeholder="شارك شيئًا مع الجميع…"></textarea><button id="wall-post" class="btn-primary">نشر</button></div>
+    <div id="wall-list" class="wall-list"></div>
+    <button class="btn-ghost modal-close" style="width:100%;margin-top:12px">إغلاق</button>
+  </div>
+</div>
+
+<!-- الخاص -->
+<div id="modal-dm" class="modal hidden">
+  <div class="modal-card">
+    <h3 id="dm-title">✉️ خاص</h3>
+    <div id="dm-list" class="dm-list"></div>
+    <form id="dm-form" class="dm-form"><input id="dm-input" maxlength="2000" placeholder="رسالة خاصة…" autocomplete="off"><button class="btn-primary" type="submit">➤</button></form>
+    <button class="btn-ghost modal-close" style="width:100%;margin-top:10px">إغلاق</button>
   </div>
 </div>
 
 <div id="emoji-pop" class="emoji-pop hidden"></div>
 <div id="toast" class="toast"></div>
+<div id="audio-sink" style="display:none"></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/app.js"></script>
