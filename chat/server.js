@@ -32,7 +32,7 @@ function userPublic(u) {
   return {
     id: u.id, username: u.username, display: u.display, avatar: u.avatar, color: u.color,
     bio: u.bio, vibe: u.vibe, country: u.country, social: safeJSON(u.social, {}),
-    role: u.role, xp: u.xp, level: u.level, likes: u.likes,
+    role: u.role, xp: u.xp, level: u.level, likes: u.likes, storyNotify: u.story_notify !== 0,
     nextLevelXp: Math.ceil(xpForLevel(u.level + 1)), thisLevelXp: Math.ceil(xpForLevel(u.level)),
   };
 }
@@ -85,6 +85,17 @@ const Q = {
   wallUnlike: db.prepare('DELETE FROM wall_likes WHERE post_id=? AND user_id=?'),
   wallLikeCount: db.prepare('SELECT COUNT(*) c FROM wall_likes WHERE post_id=?'),
   wallLikedByMe: db.prepare('SELECT 1 FROM wall_likes WHERE post_id=? AND user_id=?'),
+
+  storyCreate: db.prepare('INSERT INTO stories(user_id,body,bg,created_at,expires_at) VALUES(?,?,?,?,?)'),
+  storyById: db.prepare('SELECT * FROM stories WHERE id=?'),
+  storyDelete: db.prepare('DELETE FROM stories WHERE id=?'),
+  storiesActiveByUser: db.prepare(`SELECT user_id, MAX(created_at) last, COUNT(*) c FROM stories WHERE expires_at>? GROUP BY user_id ORDER BY last DESC`),
+  storiesOfUser: db.prepare('SELECT * FROM stories WHERE user_id=? AND expires_at>? ORDER BY id ASC'),
+  storyView: db.prepare('INSERT OR IGNORE INTO story_views(story_id,viewer_id,created_at) VALUES(?,?,?)'),
+  storyViewedByMe: db.prepare('SELECT story_id FROM story_views WHERE viewer_id=? AND story_id IN (SELECT id FROM stories WHERE user_id=? AND expires_at>?)'),
+  storyViewers: db.prepare(`SELECT v.viewer_id, v.created_at FROM story_views v WHERE v.story_id=? ORDER BY v.created_at DESC`),
+  storyViewCount: db.prepare('SELECT COUNT(*) c FROM story_views WHERE story_id=?'),
+  setStoryNotify: db.prepare('UPDATE users SET story_notify=? WHERE id=?'),
 };
 
 function reactionSummary(msgId, meId) {
@@ -180,6 +191,7 @@ app.put('/api/me', auth, (req, res) => {
     const v = clamp(social?.[k], 60).trim(); if (v) soc[k] = v;
   }
   Q.updateProfile.run(display, avatar, color, bio, vibe, country, JSON.stringify(soc), req.user.id);
+  if (typeof req.body?.storyNotify === 'boolean') Q.setStoryNotify.run(req.body.storyNotify ? 1 : 0, req.user.id);
   res.json({ user: userPublic(Q.userById.get(req.user.id)) });
 });
 
@@ -263,6 +275,61 @@ app.delete('/api/wall/:id', auth, (req, res) => {
   if (!p) return res.status(404).json({ error: 'غير موجود' });
   if (p.user_id !== req.user.id && req.user.role !== 'owner' && req.user.role !== 'admin') return res.status(403).json({ error: 'لا تملك صلاحية' });
   Q.wallDelete.run(p.id); io.emit('wall:del', { id: p.id }); res.json({ ok: true });
+});
+
+// ── الستوري / الحالات ──
+const STORY_BG = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6'];
+const DAY = 24 * 60 * 60 * 1000;
+app.get('/api/stories', auth, (req, res) => {
+  const t = now();
+  const groups = Q.storiesActiveByUser.all(t).map(g => {
+    const u = Q.userById.get(g.user_id);
+    const viewed = Q.storyViewedByMe.all(req.user.id, g.user_id, t).length;
+    return { user: miniUser(u), count: g.c, last: g.last, seen: viewed >= g.c };
+  }).filter(g => g.user);
+  res.json({ groups });
+});
+app.post('/api/stories', auth, (req, res) => {
+  const body = clamp(req.body?.body, 280).trim();
+  const bg = STORY_BG.includes(req.body?.bg) ? req.body.bg : 'g1';
+  if (!body) return res.status(400).json({ error: 'الحالة فارغة' });
+  const t = now();
+  const info = Q.storyCreate.run(req.user.id, body, bg, t, t + DAY);
+  io.emit('story:new', { userId: req.user.id });
+  res.json({ id: info.lastInsertRowid });
+});
+// حالات مستخدم + تعليمها كمشاهَدة + إشعار المالك
+app.get('/api/stories/user/:id', auth, (req, res) => {
+  const uid = +req.params.id, t = now();
+  const owner = uid === req.user.id;
+  const stories = Q.storiesOfUser.all(uid, t).map(s => {
+    if (!owner) {
+      const info = Q.storyView.run(s.id, req.user.id, now());
+      if (info.changes) { // مشاهدة جديدة → أشعر المالك
+        const ownerU = Q.userById.get(uid);
+        if (ownerU && ownerU.story_notify !== 0)
+          for (const sock of io.sockets.sockets.values())
+            if (sock.user?.id === uid) sock.emit('notify', { type: 'storyview', text: `👁️ شاهد ${req.user.display} حالتك` });
+      }
+    }
+    return { id: s.id, body: s.body, bg: s.bg, createdAt: s.created_at, views: owner ? Q.storyViewCount.get(s.id).c : 0 };
+  });
+  res.json({ stories, owner, author: miniUser(Q.userById.get(uid)) });
+});
+app.get('/api/stories/:id/viewers', auth, (req, res) => {
+  const s = Q.storyById.get(+req.params.id);
+  if (!s) return res.status(404).json({ error: 'غير موجود' });
+  if (s.user_id !== req.user.id) return res.status(403).json({ error: 'لحالتك فقط' });
+  const viewers = Q.storyViewers.all(s.id).map(v => ({ ...miniUser(Q.userById.get(v.viewer_id)), at: v.created_at })).filter(Boolean);
+  res.json({ viewers });
+});
+app.delete('/api/stories/:id', auth, (req, res) => {
+  const s = Q.storyById.get(+req.params.id);
+  if (!s) return res.status(404).json({ error: 'غير موجود' });
+  if (s.user_id !== req.user.id && req.user.role !== 'owner' && req.user.role !== 'admin') return res.status(403).json({ error: 'لا تملك صلاحية' });
+  Q.storyDelete.run(s.id);
+  io.emit('story:del', { userId: s.user_id });
+  res.json({ ok: true });
 });
 
 app.use(express.static(path.join(__dirname, 'public')));

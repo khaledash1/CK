@@ -104,8 +104,9 @@
   </section>
 
   <!-- المتواجدون -->
-  <aside class="members hidden" id="members">
+  <aside class="members" id="members">
     <div class="members-head">المتواجدون <span id="members-count" class="pill">0</span><button id="members-close" class="icon-btn only-mobile">✕</button></div>
+    <div class="story-bar" id="story-bar"></div>
     <div id="members-list" class="members-list"></div>
   </aside>
 </main>
@@ -139,6 +140,7 @@
       <label>سناب<input id="s-snapchat" placeholder="user" maxlength="60"></label>
       <label>تيك توك<input id="s-tiktok" placeholder="@user" maxlength="60"></label>
     </div>
+    <label class="switch-row"><span>🔔 تنبيهي عند مشاهدة حالتي</span><input type="checkbox" id="pf-storynotify"></label>
     <div class="modal-actions">
       <button id="pf-save" class="btn-primary">حفظ</button>
       <button id="pf-logout" class="btn-ghost">خروج</button>
@@ -190,6 +192,42 @@
     <h3 id="dm-title">✉️ خاص</h3>
     <div id="dm-list" class="dm-list"></div>
     <form id="dm-form" class="dm-form"><input id="dm-input" maxlength="2000" placeholder="رسالة خاصة…" autocomplete="off"><button class="btn-primary" type="submit">➤</button></form>
+    <button class="btn-ghost modal-close" style="width:100%;margin-top:10px">إغلاق</button>
+  </div>
+</div>
+
+<!-- عارض الستوري -->
+<div id="modal-story" class="modal hidden">
+  <div class="story-viewer">
+    <div class="sv-bars" id="sv-bars"></div>
+    <div class="sv-head">
+      <div class="sv-av" id="sv-av">🌙</div>
+      <div><div class="sv-name" id="sv-name">—</div><div class="sv-time" id="sv-time"></div></div>
+      <button class="icon-btn modal-close" style="margin-right:auto">✕</button>
+    </div>
+    <div class="sv-content" id="sv-content"></div>
+    <button class="sv-nav sv-prev" id="sv-prev">‹</button>
+    <button class="sv-nav sv-next" id="sv-next">›</button>
+    <div class="sv-foot" id="sv-foot"></div>
+  </div>
+</div>
+
+<!-- إضافة ستوري -->
+<div id="modal-addstory" class="modal hidden">
+  <div class="modal-card">
+    <h3>➕ حالتك الجديدة</h3>
+    <div class="story-preview" id="story-preview"><span id="story-preview-text">معاينة…</span></div>
+    <label>النص<textarea id="as-body" maxlength="280" rows="2" placeholder="وش في بالك؟"></textarea></label>
+    <label>الخلفية<div class="bg-pick" id="bg-pick"></div></label>
+    <div class="modal-actions"><button id="as-post" class="btn-primary">نشر الحالة</button><button class="btn-ghost modal-close">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- مشاهدو الحالة -->
+<div id="modal-viewers" class="modal hidden">
+  <div class="modal-card">
+    <h3>👁️ شاهدوا حالتك</h3>
+    <div id="viewers-list" class="members-list" style="max-height:50vh;overflow-y:auto"></div>
     <button class="btn-ghost modal-close" style="width:100%;margin-top:10px">إغلاق</button>
   </div>
 </div>

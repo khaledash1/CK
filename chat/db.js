@@ -108,6 +108,35 @@ CREATE TABLE IF NOT EXISTS wall_likes (
 );
 `);
 
+// ── الستوري / الحالات (تختفي بعد 24 ساعة) ──
+db.exec(`
+CREATE TABLE IF NOT EXISTS stories (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id    INTEGER,
+  body       TEXT DEFAULT '',
+  bg         TEXT DEFAULT 'g1',               -- مفتاح التدرّج اللوني
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_story_exp ON stories(expires_at);
+CREATE TABLE IF NOT EXISTS story_views (
+  story_id   INTEGER NOT NULL,
+  viewer_id  INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY(story_id, viewer_id),
+  FOREIGN KEY(story_id)  REFERENCES stories(id) ON DELETE CASCADE,
+  FOREIGN KEY(viewer_id) REFERENCES users(id) ON DELETE CASCADE
+);
+`);
+
+// ترحيل بسيط: أضف الأعمدة الناقصة لقواعد البيانات القديمة
+function ensureColumn(table, col, decl) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+  if (!cols.includes(col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${decl}`);
+}
+ensureColumn('users', 'story_notify', 'INTEGER DEFAULT 1'); // إشعار من شاهد حالتي
+
 // غرف افتراضية عند أول تشغيل
 const roomCount = db.prepare('SELECT COUNT(*) c FROM rooms').get().c;
 if (roomCount === 0) {
