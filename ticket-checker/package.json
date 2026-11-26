@@ -1,0 +1,16 @@
+{
+  "name": "freshdesk-ticket-checker",
+  "version": "1.0.0",
+  "description": "يفحص تصنيف تذاكر Freshdesk بالذكاء الاصطناعي وينبه الموظف إذا كان ناقصاً أو خاطئاً",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node src/cli.js",
+    "test": "node --test test/"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0"
+  }
+}
