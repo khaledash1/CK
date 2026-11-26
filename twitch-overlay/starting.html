@@ -1,0 +1,39 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>Starting Soon</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.ring{position:relative;width:340px;height:340px;margin-top:40px}
+.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:14}
+.ring .track{stroke:rgba(255,255,255,.08)}
+.ring .prog{stroke:url(#g);stroke-linecap:round;filter:drop-shadow(0 0 12px var(--accent));transition:stroke-dashoffset 1s linear}
+.time{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:88px;font-weight:800;direction:ltr}
+.live-dot{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--hot);box-shadow:0 0 20px var(--hot);margin-inline-end:16px;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{transform:scale(.6);opacity:.5}}
+.center{justify-content:flex-start;padding-top:120px}
+</style></head>
+<body class="scene">
+<div class="bg"><div class="grid"></div><div class="particles"></div></div>
+<div class="center">
+  <div class="brand neon glitch" data-cfg="displayName"></div>
+  <div class="title"><span class="live-dot"></span><span id="msg">البث يبدأ قريباً</span></div>
+  <div class="subtitle" data-cfg="tagline"></div>
+  <div class="ring">
+    <svg viewBox="0 0 340 340"><defs><linearGradient id="g"><stop offset="0" stop-color="var(--primary)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs>
+      <circle class="track" cx="170" cy="170" r="150"/><circle class="prog" id="prog" cx="170" cy="170" r="150"/></svg>
+    <div class="time" id="time">05:00</div>
+  </div>
+</div>
+<div class="socials"></div>
+<script src="config.js"></script><script src="core.js"></script>
+<script>
+const total = (Number(OVL.params.get('min'))||OVL.C.countdownMinutes||5)*60;
+const end = Date.now()+total*1000, circ = 2*Math.PI*150, prog=document.getElementById('prog');
+prog.style.strokeDasharray=circ;
+function tick(){
+  const left=Math.max(0,Math.round((end-Date.now())/1000));
+  document.getElementById('time').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
+  prog.style.strokeDashoffset=circ*(1-left/total);
+  if(left===0) document.getElementById('msg').textContent='جاري البدء الآن... 🔥';
+}
+tick(); setInterval(tick,1000);
+</script></body></html>

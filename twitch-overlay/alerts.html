@@ -1,0 +1,97 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>Alerts</title>
+<link rel="stylesheet" href="style.css">
+<style>
+#stage{position:absolute;left:0;right:0;top:120px;display:flex;justify-content:center}
+.alert{position:relative;min-width:900px;max-width:1300px;padding:40px 70px 44px;text-align:center;
+  animation:inA .7s cubic-bezier(.2,1.6,.4,1) both}
+.alert.out{animation:outA .6s ease-in both}
+.alert .emoji{font-size:110px;line-height:1;margin-top:-110px;filter:drop-shadow(0 0 30px var(--c));animation:spin 1.2s ease-out}
+.alert .who{font-size:72px;font-weight:900;color:var(--c);text-shadow:0 0 20px var(--c);margin-top:8px;direction:ltr;unicode-bidi:plaintext}
+.alert .what{font-size:44px;font-weight:700;margin-top:4px}
+.alert .amount{font-family:var(--display);font-size:96px;font-weight:900;color:var(--c);text-shadow:0 0 30px var(--c);direction:ltr}
+.alert .msg{font-size:34px;color:#e6e0ff;margin-top:14px;max-width:1100px;margin-inline:auto;unicode-bidi:plaintext}
+.alert{border-color:var(--c)!important;box-shadow:0 0 60px color-mix(in srgb,var(--c) 55%,transparent),inset 0 0 40px color-mix(in srgb,var(--c) 15%,transparent)!important}
+.alert::after{content:"";position:absolute;inset:-2px;border-radius:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  background-size:200% 100%;animation:shine 2s linear infinite;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;padding:3px}
+@keyframes inA{from{transform:translateY(-120px) scale(.6);opacity:0}}
+@keyframes outA{to{transform:translateY(-80px) scale(.8);opacity:0}}
+@keyframes spin{from{transform:scale(0) rotate(-180deg)}}
+@keyframes shine{to{background-position:-200% 0}}
+.confetti{position:absolute;top:0;width:14px;height:22px;z-index:5;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(1100px) rotate(720deg);opacity:.2}}
+</style></head>
+<body>
+<div id="stage"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<script src="config.js"></script><script src="core.js"></script>
+<script>
+const {C,SE,store,esc,params}=OVL, cur=C.goal.currency||'$', col=C.colors;
+const STYLE={
+  follow:{e:'💜',c:col.primary,t:'تابع القناة!'},
+  sub:{e:'⭐',c:col.accent,t:'اشترك في القناة!'},
+  tip:{e:'💰',c:col.gold,t:'تبرّع بـ'},
+  cheer:{e:'💎',c:col.hot,t:'أرسل بِتس'},
+  raid:{e:'🚀',c:col.hot,t:'سوّى رايد مع'}
+};
+const queue=[]; let busy=false;
+
+/* سجل الإحصائيات (هذه الصفحة هي المسؤولة عن الحفظ) */
+function record(ev){
+  if(ev.type==='follow') store.set('lastFollow',ev.name);
+  if(ev.type==='sub') store.set('lastSub',ev.name);
+  if(ev.type==='tip'){
+    store.set('lastTip',{name:ev.name,amount:ev.amount});
+    const g=store.get('goalCurrent',C.goal.current||0); store.set('goalCurrent',+(g+ev.amount).toFixed(2));
+    const top=store.get('topDonor',null); if(!top||ev.amount>top.amount) store.set('topDonor',{name:ev.name,amount:ev.amount});
+  }
+  store.set('ping',Date.now());
+}
+
+/* صوت التنبيه (مولّد بدون ملفات) */
+function chime(type){
+  try{const a=new (window.AudioContext||window.webkitAudioContext)();
+    const notes=type==='tip'?[523,659,784,1047,1319]:type==='raid'?[392,523,659,784]:[659,880,1175];
+    notes.forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=f;
+      o.connect(g);g.connect(a.destination);const t=a.currentTime+i*.11;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.6);o.start(t);o.stop(t+.65);});
+  }catch(e){}
+}
+function confetti(color){
+  const palette=[color,col.primary,col.accent,col.hot,col.gold];
+  for(let i=0;i<90;i++){const d=document.createElement('div');d.className='confetti';
+    d.style.left=Math.random()*1920+'px';d.style.background=palette[i%5];
+    d.style.animationDuration=(2+Math.random()*2.5)+'s';d.style.animationDelay=Math.random()*.6+'s';
+    d.style.borderRadius=Math.random()<.5?'50%':'3px';document.body.appendChild(d);setTimeout(()=>d.remove(),5500);}
+}
+function show(ev){
+  busy=true; const s=STYLE[ev.type]; const stage=document.getElementById('stage');
+  let what=s.t, amount='';
+  if(ev.type==='tip') amount=`<div class="amount">${cur}${ev.amount}</div>`;
+  if(ev.type==='cheer') amount=`<div class="amount">${ev.amount} 💎</div>`;
+  if(ev.type==='raid') what=`سوّى رايد مع ${ev.amount} مشاهد! 🚀`;
+  if(ev.type==='sub'&&ev.months>1) what=`اشترك للشهر ${ev.months}! 🔥`;
+  stage.innerHTML=`<div class="alert glass" style="--c:${s.c}"><div class="emoji">${s.e}</div>
+    <div class="who">${esc(ev.name)}</div><div class="what">${what}</div>${amount}
+    ${ev.message?`<div class="msg">"${esc(ev.message)}"</div>`:''}</div>`;
+  chime(ev.type); if(['tip','raid','cheer'].includes(ev.type)||ev.amount>=10) confetti(s.c);
+  const dur=ev.message?9000:6500;
+  setTimeout(()=>{stage.firstChild.classList.add('out');setTimeout(()=>{stage.innerHTML='';busy=false;next()},700)},dur);
+}
+function next(){ if(!busy&&queue.length) show(queue.shift()); }
+function push(ev){ record(ev); queue.push(ev); next(); }
+
+SE.on(push); SE.connect();
+
+/* اختبار: من لوحة التحكم أو ?test=1 */
+const names=['Abu_Fahad','نورة','SaudGamer','x_Lama_x','MoTheKing','ريم'];
+function fake(type){
+  type=type||['follow','sub','tip','cheer','raid'][Math.floor(Math.random()*5)];
+  const n=names[Math.floor(Math.random()*names.length)];
+  return {type,name:n,amount:type==='tip'?[5,10,25,50][Math.floor(Math.random()*4)]:type==='cheer'?500:type==='raid'?42:3,
+    months:3,message:type==='tip'?'كمل يا وحش! البث رهيب 🔥':''};
+}
+if(params.get('test')) setInterval(()=>push(fake()),11000);
+window.addEventListener('storage',e=>{
+  if(e.key==='ovl_cmd'&&e.newValue){const c=JSON.parse(e.newValue); if(c.test) push(fake(c.test));}
+});
+</script></body></html>

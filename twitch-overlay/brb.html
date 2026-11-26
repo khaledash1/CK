@@ -1,0 +1,25 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>BRB</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.icon{font-size:140px;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 0 30px var(--accent))}
+@keyframes bob{50%{transform:translateY(-24px) rotate(-6deg)}}
+.dots span{animation:blink 1.4s infinite}.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{50%{opacity:.15}}
+.socials{bottom:110px}
+</style></head>
+<body class="scene">
+<div class="bg"><div class="grid"></div><div class="particles"></div></div>
+<div class="center">
+  <div class="icon">☕</div>
+  <div class="brand neon-accent" style="font-size:120px">BRB</div>
+  <div class="title">راجع بعد شوي<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+  <div class="subtitle">لا تروح! خلك في الشات 💜</div>
+</div>
+<div class="socials"></div>
+<div class="ticker"><div class="ticker-track" id="tk"></div></div>
+<script src="config.js"></script><script src="core.js"></script>
+<script>
+const s=OVL.C.socials||{}, items=['💜 تابع القناة عشان يوصلك تنبيه البث','🎁 ادعم البث بدونيشن — الرابط في الشات !donate',
+ s.discord?'🎮 انضم للديسكورد: '+s.discord:'', s.x?'🐦 X: @'+s.x:'', '⚡ '+(OVL.C.goal?.title||'')].filter(Boolean);
+document.getElementById('tk').innerHTML=items.concat(items).map(t=>'<span>'+OVL.esc(t)+'</span>').join('');
+</script></body></html>

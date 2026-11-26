@@ -1,0 +1,52 @@
+<!doctype html><html lang="ar"><head><meta charset="utf-8"><title>Chat</title>
+<link rel="stylesheet" href="style.css">
+<style>
+html,body{width:520px;height:760px}
+#chat{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:14px;overflow:hidden}
+.m{padding:10px 16px;border-radius:14px;background:var(--panel);border-inline-start:4px solid var(--uc);font-size:22px;line-height:1.5;
+  animation:pop .35s cubic-bezier(.2,1.4,.4,1) both;box-shadow:0 4px 18px rgba(0,0,0,.35);unicode-bidi:plaintext;word-wrap:break-word}
+.m .u{font-weight:900;color:var(--uc);margin-inline-end:8px}
+.m img{height:28px;vertical-align:middle}
+.m.fade{animation:out .5s forwards}
+.badge{font-size:14px;padding:1px 7px;border-radius:6px;background:var(--uc);color:#000;margin-inline-end:6px;font-weight:900}
+@keyframes pop{from{transform:translateX(-40px);opacity:0}}@keyframes out{to{opacity:0;transform:translateX(-40px)}}
+</style></head>
+<body><div id="chat"></div>
+<script src="config.js"></script><script src="core.js"></script>
+<script>
+/* شات تويتش مباشر — بدون تسجيل دخول (قراءة فقط) */
+const {C,esc,params}=OVL, ch=(params.get('channel')||C.channel).toLowerCase(), box=document.getElementById('chat');
+const fallback=[C.colors.primary,C.colors.accent,C.colors.hot,C.colors.gold,'#7CFF6B'];
+const hide=(params.get('hide')||'nightbot,streamelements,streamlabs').split(',');
+function emotes(text,tag){
+  if(!tag) return esc(text);
+  const parts=[]; tag.split('/').forEach(e=>{const [id,pos]=e.split(':');pos.split(',').forEach(p=>{const [a,b]=p.split('-').map(Number);parts.push({id,a,b})})});
+  parts.sort((x,y)=>x.a-y.a); const chars=[...text]; let out='',i=0;
+  for(const p of parts){out+=esc(chars.slice(i,p.a).join(''))+`<img src="https://static-cdn.jtvnw.net/emoticons/v2/${p.id}/default/dark/2.0">`;i=p.b+1}
+  return out+esc(chars.slice(i).join(''));
+}
+function add(tags,user,text){
+  if(hide.includes(user)) return;
+  const name=tags['display-name']||user, color=tags.color||fallback[[...user].reduce((s,c)=>s+c.charCodeAt(0),0)%fallback.length];
+  const b=tags.badges||''; let badge='';
+  if(b.includes('broadcaster'))badge='HOST';else if(b.includes('moderator'))badge='MOD';else if(b.includes('vip'))badge='VIP';else if(b.includes('subscriber'))badge='SUB';
+  const d=document.createElement('div'); d.className='m'; d.style.setProperty('--uc',color); d.dir='auto';
+  d.innerHTML=`${badge?`<span class="badge">${badge}</span>`:''}<span class="u">${esc(name)}</span>${emotes(text,tags.emotes)}`;
+  box.appendChild(d); while(box.children.length>14) box.firstChild.remove();
+  setTimeout(()=>{d.classList.add('fade');setTimeout(()=>d.remove(),600)},60000);
+}
+function connect(){
+  const ws=new WebSocket('wss://irc-ws.chat.twitch.tv:443');
+  ws.onopen=()=>{ws.send('CAP REQ :twitch.tv/tags');ws.send('PASS SCHMOOPIIE');ws.send('NICK justinfan'+Math.floor(Math.random()*90000+10000));ws.send('JOIN #'+ch)};
+  ws.onmessage=e=>e.data.split('\r\n').forEach(line=>{
+    if(line.startsWith('PING')) return ws.send('PONG :tmi.twitch.tv');
+    const m=line.match(/^@(\S+) :(\w+)!\S+ PRIVMSG #\S+ :(.*)$/); if(!m) return;
+    const tags=Object.fromEntries(m[1].split(';').map(kv=>{const i=kv.indexOf('=');return [kv.slice(0,i),kv.slice(i+1)]}));
+    add(tags,m[2],m[3]);
+  });
+  ws.onclose=()=>setTimeout(connect,3000);
+}
+if(params.get('test')){const demo=[['Abu_Fahad','السلام عليكم يا شباب 👋'],['نورة','البث اليوم ناار 🔥🔥'],['SaudGamer','GG WP'],['x_Lama_x','كم رانكك الحين؟'],['MoTheKing','!donate']];
+  let i=0; setInterval(()=>{const [u,t]=demo[i++%demo.length];add({'display-name':u,badges:i%4?'':'subscriber/1'},u.toLowerCase(),t)},1800);}
+else connect();
+</script></body></html>

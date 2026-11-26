@@ -1,0 +1,43 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>Stream Control</title>
+<link rel="stylesheet" href="style.css">
+<style>
+html,body{width:auto;height:auto;min-height:100%;overflow:auto;background:var(--bg)}
+body{padding:16px;font-size:16px}
+h1{font-size:20px;margin-bottom:12px}h2{font-size:15px;color:var(--muted);margin:16px 0 8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font-family:var(--font);font-weight:700;font-size:15px;padding:10px;border-radius:10px;border:1px solid var(--primary);
+  background:color-mix(in srgb,var(--primary) 20%,transparent);color:var(--text);cursor:pointer}
+button:hover{background:color-mix(in srgb,var(--primary) 45%,transparent)}
+button.danger{border-color:var(--hot);background:color-mix(in srgb,var(--hot) 15%,transparent)}
+input{width:100%;padding:9px;border-radius:10px;border:1px solid #333;background:#120e22;color:var(--text);font-size:15px;font-family:var(--font)}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:8px}.row label{min-width:90px;color:var(--muted)}
+.stat{font-size:14px;color:var(--muted);line-height:1.8}.stat b{color:var(--text)}
+</style></head>
+<body>
+<h1>🎛️ لوحة تحكم البث</h1>
+<h2>اختبار التنبيهات</h2>
+<div class="grid2">
+  <button onclick="cmd('follow')">💜 متابعة</button><button onclick="cmd('sub')">⭐ اشتراك</button>
+  <button onclick="cmd('tip')">💰 دونيشن</button><button onclick="cmd('cheer')">💎 بِتس</button>
+  <button onclick="cmd('raid')">🚀 رايد</button>
+</div>
+<h2>هدف الدونيشن</h2>
+<div class="row"><label>المبلغ الحالي</label><input id="gc" type="number" step="any"></div>
+<div class="row"><label>الهدف</label><input id="gt" type="number" step="any"></div>
+<div class="grid2"><button onclick="saveGoal()">💾 حفظ</button><button class="danger" onclick="resetAll()">♻️ تصفير الإحصائيات</button></div>
+<h2>الإحصائيات الحالية</h2>
+<div class="stat" id="st"></div>
+<script src="config.js"></script><script src="core.js"></script>
+<script>
+const {C,store}=OVL, cur=C.goal.currency||'$';
+const cmd=t=>store.set('cmd',{test:t,at:Date.now()});
+function load(){document.getElementById('gc').value=store.get('goalCurrent',C.goal.current||0);document.getElementById('gt').value=store.get('goalTarget',C.goal.target);stats()}
+function stats(){const t=store.get('lastTip',null),top=store.get('topDonor',null);
+  document.getElementById('st').innerHTML=`آخر متابع: <b>${OVL.esc(store.get('lastFollow','—'))}</b><br>آخر مشترك: <b>${OVL.esc(store.get('lastSub','—'))}</b><br>
+  آخر داعم: <b>${t?OVL.esc(t.name)+' '+cur+t.amount:'—'}</b><br>أكبر داعم: <b>${top?OVL.esc(top.name)+' '+cur+top.amount:'—'}</b><br>
+  الهدف: <b>${cur}${store.get('goalCurrent',C.goal.current||0)} / ${cur}${store.get('goalTarget',C.goal.target)}</b>`}
+function saveGoal(){store.set('goalCurrent',Number(gc.value)||0);store.set('goalTarget',Number(gt.value)||C.goal.target);store.set('ping',Date.now());stats()}
+function resetAll(){if(!confirm('تصفير كل الإحصائيات؟'))return;['lastFollow','lastSub','lastTip','topDonor'].forEach(k=>localStorage.removeItem('ovl_'+k));
+  store.set('goalCurrent',C.goal.current||0);store.set('goalTarget',C.goal.target);store.set('ping',Date.now());load()}
+window.addEventListener('storage',stats); load();
+</script></body></html>

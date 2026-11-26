@@ -1,0 +1,23 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>Twitch Panels</title>
+<link rel="stylesheet" href="style.css">
+<style>
+html,body{width:auto;height:auto;overflow:auto;background:#0b0916}
+body{padding:30px;display:flex;flex-direction:column;gap:20px;align-items:center}
+.p{position:relative;width:320px;height:100px;border-radius:14px;overflow:hidden;display:flex;align-items:center;gap:14px;padding:0 22px;
+  background:linear-gradient(120deg,#160f2e,#0c0a18);border:2px solid var(--c);box-shadow:inset 0 0 26px color-mix(in srgb,var(--c) 30%,transparent)}
+.p::before{content:"";position:absolute;inset:0;background:linear-gradient(transparent 0 0),repeating-linear-gradient(90deg,color-mix(in srgb,var(--c) 12%,transparent) 0 1px,transparent 1px 24px);opacity:.7}
+.p::after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;left:-40px;top:-30px;background:radial-gradient(var(--c),transparent 65%);opacity:.35}
+.p .e{font-size:44px;z-index:1;filter:drop-shadow(0 0 10px var(--c))}
+.p .t{z-index:1}.p h2{font-size:34px;font-weight:900;line-height:1;text-shadow:0 0 14px var(--c)}
+.p small{font-family:var(--display);font-size:13px;letter-spacing:4px;color:var(--c);font-weight:800}
+</style></head><body>
+<div class="p" id="about"  style="--c:var(--primary)"><div class="e">👤</div><div class="t"><h2>من أنا</h2><small>ABOUT ME</small></div></div>
+<div class="p" id="donate" style="--c:var(--gold)"><div class="e">💰</div><div class="t"><h2>ادعم البث</h2><small>DONATE</small></div></div>
+<div class="p" id="rules"  style="--c:var(--hot)"><div class="e">📜</div><div class="t"><h2>القوانين</h2><small>RULES</small></div></div>
+<div class="p" id="schedule" style="--c:var(--accent)"><div class="e">📅</div><div class="t"><h2>جدول البث</h2><small>SCHEDULE</small></div></div>
+<div class="p" id="setup"  style="--c:var(--primary)"><div class="e">🖥️</div><div class="t"><h2>أجهزتي</h2><small>MY SETUP</small></div></div>
+<div class="p" id="discord" style="--c:#5865F2"><div class="e">🎮</div><div class="t"><h2>الديسكورد</h2><small>DISCORD</small></div></div>
+<div class="p" id="socials" style="--c:var(--accent)"><div class="e">📱</div><div class="t"><h2>حساباتي</h2><small>SOCIALS</small></div></div>
+<div class="p" id="sub" style="--c:var(--hot)"><div class="e">⭐</div><div class="t"><h2>اشترك</h2><small>SUBSCRIBE</small></div></div>
+<script src="config.js"></script><script src="core.js"></script>
+</body></html>

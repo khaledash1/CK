@@ -1,0 +1,55 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>In-Game Overlay</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* إطار الكاميرا — ضع مصدر الكاميرا تحته بنفس المكان */
+.cam{position:absolute;left:30px;bottom:100px;width:480px;height:270px;border-radius:18px;
+  border:3px solid var(--primary);box-shadow:0 0 30px var(--primary),inset 0 0 20px color-mix(in srgb,var(--primary) 40%,transparent)}
+.cam::before,.cam::after{content:"";position:absolute;width:46px;height:46px;border:5px solid var(--accent);filter:drop-shadow(0 0 8px var(--accent))}
+.cam::before{top:-12px;left:-12px;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.cam::after{bottom:-12px;right:-12px;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.cam .tag{position:absolute;top:-24px;right:24px;padding:4px 22px;font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:3px;
+  background:linear-gradient(90deg,var(--primary),var(--hot));border-radius:10px;box-shadow:0 0 16px var(--hot)}
+/* شريط سفلي */
+.bar{position:absolute;left:0;right:0;bottom:0;height:72px;display:flex;align-items:center;gap:22px;padding:0 30px;
+  background:linear-gradient(0deg,rgba(7,6,13,.95),rgba(7,6,13,.75));border-top:2px solid var(--primary);box-shadow:0 -6px 30px color-mix(in srgb,var(--primary) 40%,transparent)}
+.chip{display:flex;align-items:center;gap:10px;padding:6px 18px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:22px}
+.chip b{color:var(--c,var(--accent));text-shadow:0 0 10px var(--c,var(--accent));unicode-bidi:plaintext}
+.chip small{color:var(--muted);font-size:18px}
+.flash{animation:flash 1s 3}@keyframes flash{50%{background:color-mix(in srgb,var(--c) 40%,transparent)}}
+.spacer{flex:1}
+.live{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:2px}
+.live i{width:14px;height:14px;border-radius:50%;background:#ff3040;box-shadow:0 0 12px #ff3040;animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.3}}
+.clock{font-family:var(--display);font-size:24px;direction:ltr;color:var(--accent)}
+.mini{width:300px}.mini .track{height:12px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:4px}
+.mini .f{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--gold));box-shadow:0 0 12px var(--gold);transition:width 1.5s}
+#gp{direction:ltr}
+.mini .l{font-size:16px;color:var(--muted);display:flex;justify-content:space-between}
+.handle{font-weight:900;font-size:24px;direction:ltr}
+</style></head>
+<body>
+<div class="cam"><div class="tag" data-cfg="displayName"></div></div>
+<div class="bar">
+  <div class="live"><i></i>LIVE</div>
+  <div class="chip" id="cf" style="--c:var(--primary)">💜 <small>آخر متابع</small> <b id="lf">—</b></div>
+  <div class="chip" id="cs" style="--c:var(--accent)">⭐ <small>آخر مشترك</small> <b id="ls">—</b></div>
+  <div class="chip" id="ct" style="--c:var(--gold)">💰 <small>آخر داعم</small> <b id="lt">—</b></div>
+  <div class="mini"><div class="l"><span data-cfg="goal.title"></span><span id="gp"></span></div><div class="track"><div class="f" id="gf"></div></div></div>
+  <div class="spacer"></div>
+  <div class="handle neon" id="hd"></div>
+  <div class="clock" id="clk"></div>
+</div>
+<script src="config.js"></script><script src="core.js"></script>
+<script>
+const {C,store}=OVL, cur=C.goal.currency||'$'; const prev={};
+document.getElementById('hd').textContent='twitch.tv/'+C.channel;
+function set(id,chip,val){const el=document.getElementById(id); if(prev[id]!==undefined&&prev[id]!==val){const c=document.getElementById(chip);c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash')} prev[id]=val; el.textContent=val;}
+function render(){
+  set('lf','cf',store.get('lastFollow','—')); set('ls','cs',store.get('lastSub','—'));
+  const t=store.get('lastTip',null); set('lt','ct',t?`${t.name} ${cur}${t.amount}`:'—');
+  const v=store.get('goalCurrent',C.goal.current||0), tg=store.get('goalTarget',C.goal.target);
+  document.getElementById('gf').style.width=Math.min(100,v/tg*100)+'%'; document.getElementById('gp').textContent=`${cur}${v}/${cur}${tg}`;
+}
+function clock(){document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
+window.addEventListener('storage',render); setInterval(render,3000); render(); clock(); setInterval(clock,10000);
+</script></body></html>

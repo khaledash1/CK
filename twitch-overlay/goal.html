@@ -1,0 +1,35 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>Donation Goal</title>
+<link rel="stylesheet" href="style.css">
+<style>
+html,body{width:900px;height:160px}
+.goal{position:absolute;inset:10px;padding:18px 28px}
+.row{display:flex;justify-content:space-between;align-items:baseline}
+.gt{font-size:30px;font-weight:900}
+.gv{font-family:var(--display);font-size:30px;font-weight:800;color:var(--gold);text-shadow:0 0 12px var(--gold);direction:ltr}
+.bar{position:relative;height:38px;margin-top:14px;border-radius:20px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.fill{position:absolute;inset-block:0;inset-inline-start:0;width:0;border-radius:20px;
+  background:linear-gradient(90deg,var(--primary),var(--hot),var(--gold));background-size:200% 100%;
+  box-shadow:0 0 24px var(--hot);transition:width 1.6s cubic-bezier(.2,.9,.3,1);animation:flow 3s linear infinite}
+.fill::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(-45deg,rgba(255,255,255,.18) 0 14px,transparent 14px 28px);animation:stripes 1s linear infinite}
+.pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;text-shadow:0 2px 6px #000}
+@keyframes flow{to{background-position:-200% 0}}@keyframes stripes{to{background-position:40px 0}}
+.bump{animation:bump .6s}@keyframes bump{40%{transform:scale(1.04)}}
+</style></head>
+<body>
+<div class="goal glass" id="box">
+  <div class="row"><div class="gt" data-cfg="goal.title"></div><div class="gv" id="gv"></div></div>
+  <div class="bar"><div class="fill" id="fill"></div><div class="pct" id="pct"></div></div>
+</div>
+<script src="config.js"></script><script src="core.js"></script>
+<script>
+const {C,store}=OVL, cur=C.goal.currency||'$'; let last=null;
+function render(){
+  const v=store.get('goalCurrent',C.goal.current||0), t=store.get('goalTarget',C.goal.target), p=Math.min(100,v/t*100);
+  document.getElementById('gv').textContent=`${cur}${v} / ${cur}${t}`;
+  document.getElementById('fill').style.width=Math.max(p,3)+'%';
+  document.getElementById('pct').textContent=p>=100?'🎉 تم تحقيق الهدف!':Math.floor(p)+'%';
+  if(last!==null&&v!==last){const b=document.getElementById('box');b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump')}
+  last=v;
+}
+window.addEventListener('storage',render); setInterval(render,3000); setTimeout(render,200);
+</script></body></html>
